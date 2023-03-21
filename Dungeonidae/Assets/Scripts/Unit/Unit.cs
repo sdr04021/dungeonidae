@@ -29,6 +29,7 @@ abstract public class Unit : MonoBehaviour
     public SpriteRenderer MySpriteRenderer { get; private set; }
     public Animator MyAnimator { get; private set; }
     public Canvas canvas;
+    [SerializeField] Image hpBarBg;
     public Image hpBar;
     readonly WaitForSeconds shortDelay = new(0.1f);
 
@@ -139,10 +140,10 @@ abstract public class Unit : MonoBehaviour
     IEnumerator BasicAttack(Unit target)
     {
         float animationLength = MyAnimator.GetCurrentAnimatorStateInfo(0).length;
-        int amount = Data.atk.Total() - target.Data.def.Total();
+        int damage = Data.atk.Total();
         yield return new WaitForSeconds(animationLength * 0.5f);
-        if (amount < 0) amount = 0;
-        target.GetDamage(new AttackData(this, amount));
+        if (damage < 0) damage = 0;
+        target.GetDamage(new AttackData(this, AttackType.Atk, damage));
         TurnIndicator += 100f / Data.aspd.Total();
         while (!isAnimationFinished || !target.isAnimationFinished)
         {
@@ -155,19 +156,35 @@ abstract public class Unit : MonoBehaviour
 
     public virtual void GetDamage(AttackData attackData)
     {
-        Data.Hp -= attackData.Damage;
+        int damage;
+        switch (attackData.Type)
+        {
+            case AttackType.Atk:
+                damage = attackData.Damage - Data.def.Total();
+                break;
+            case AttackType.MAtk:
+                damage = attackData.Damage - Data.mDef.Total();
+                break;
+            default: damage = attackData.Damage; break;
+        }
+        Data.Hp -= damage;
         UpdateHpBar();
         if(canvas!= null)
         {
             DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
-            dt.SetValue(attackData.Damage);
+            dt.SetValue(damage);
         }
         MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(ToDefaultColor);
         if (Data.Hp <= 0)
         {
-            MySpriteRenderer.DOFade(0, 1.1f).OnComplete(Die);
+            StartDie();
         }
         else isAnimationFinished = true;
+    }
+    protected virtual void StartDie()
+    {
+        MySpriteRenderer.DOFade(0, 1.1f).OnComplete(Die);
+        if (hpBarBg != null) { hpBarBg.DOFade(0, 1f); }
     }
     void Die()
     {

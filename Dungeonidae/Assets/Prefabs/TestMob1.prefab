@@ -75,7 +75,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: f4281405c0a7423478b8247a7a09327e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -122,6 +122,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseStats: {fileID: 11400000, guid: 0849ee90c6b9af6439dddcca8f5881de, type: 2}
   canvas: {fileID: 8863694669425357271}
+  hpBarBg: {fileID: 5345523644967427601}
   hpBar: {fileID: 7690976371466471541}
 --- !u!1 &6521402247050397273
 GameObject:
@@ -260,7 +261,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_TargetDisplay: 0
 --- !u!114 &1537304360012894846
 MonoBehaviour:

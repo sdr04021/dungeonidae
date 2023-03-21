@@ -10,8 +10,11 @@ public class GameManager : MonoBehaviour
     public GameObject fogPrefab;
     public Tile tilePrefab;
     public List<Sprite> tileSprites;
+    public List<Sprite> pencilTiles1 = new List<Sprite>();
     public Sprite[] fogSprites;
     public DamageText damageTextPrefab;
+    public ItemObject itemObjectPrefab;
+    public ItemData testItem;
 
     private static GameManager instance = null;
     private void Awake()

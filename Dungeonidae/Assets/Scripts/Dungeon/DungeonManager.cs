@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,7 +18,8 @@ public class DungeonManager : MonoBehaviour
     int maxOrder = 0;
 
     Player player;
-    [SerializeField] Image playerHpBar;
+    public Player Player { get { return player; } }
+    [SerializeField] DungeonUIManager dungeonUIManager;
 
     void Start()
     {
@@ -38,6 +40,13 @@ public class DungeonManager : MonoBehaviour
             }
         }
         mapGenerator.GenerateRooms(map);
+        for (int i = 1; i < map.GetLength(0) - 1; i++)
+        {
+            for (int j = 1; j < map.GetLength(1) - 1; j++)
+            {
+                map[i, j].SetTileSprite();
+            }
+        }
 
         FogMap = new Fog[map.GetLength(0), map.GetLength(1)];
         for (int i = 0; i < map.GetLength(0); i++)
@@ -64,7 +73,7 @@ public class DungeonManager : MonoBehaviour
         for(int i=0; i < mapGenerator.Rooms.Count; i++)
         {
             Coordinate c = mapGenerator.Rooms[i].center;
-            if (map[c.x, c.y].unit == null)
+            if (map[c.x, c.y].IsReachableTile())
             {
                 Monster temp = Instantiate(GameManager.Instance.testMob1Prefab);
                 temp.SetUnitListIndex(units.Count);
@@ -72,6 +81,8 @@ public class DungeonManager : MonoBehaviour
                 temp.Init(this, c);
             }
         }
+
+        dungeonUIManager.Init();
 
         maxOrder = units.Count;
         units[order].StartTurn();
@@ -114,12 +125,12 @@ public class DungeonManager : MonoBehaviour
 
     void ManageTurn()
     {
-        units.Sort(SortByTurn);
+        //units.Sort(SortByTurn);
+        units = units.OrderBy(x => x.TurnIndicator).ToList();
+ 
         float min = units[0].TurnIndicator;
         curTurn += min;
         Debug.Log("Turn: " + curTurn.ToString());
-
-
 
         int trimAmount = Mathf.FloorToInt(min);
         min -= trimAmount;
@@ -178,7 +189,7 @@ public class DungeonManager : MonoBehaviour
 
     public void UpdatePlayerHpBar()
     {
-        playerHpBar.fillAmount = player.Data.Hp / (float)player.Data.maxHp.Total();
+        dungeonUIManager.UpdateHpBar();
     }
 
     public Tile GetTileByCoordinate(Coordinate c)
@@ -210,5 +221,10 @@ public class DungeonManager : MonoBehaviour
         if ((c.x >= 0 && c.x < map.GetLength(0)) && (c.y >= 0 && c.y < map.GetLength(1)))
             return true;
         else return false;
+    }
+
+    public void TestOut()
+    {
+        Debug.Log("On");
     }
 }

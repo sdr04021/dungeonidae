@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using static UnityEngine.GraphicsBuffer;
 
 public class Monster : Unit
@@ -57,5 +58,13 @@ public class Monster : Unit
     {
         base.GetDamage(attackData);
         chaseTarget = attackData.Attacker;
+    }
+
+    protected override void StartDie()
+    {
+        base.StartDie();
+
+        ItemObject item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
+        item.Init(new Coordinate((Vector2)transform.position), new Item(GameManager.Instance.testItem));
     }
 }

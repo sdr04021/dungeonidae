@@ -74,10 +74,13 @@ public class MapGenerator
             }
         }
 
-        for (int i = 0; i < rooms.Count; i++)
+        for (int i = 1; i < rooms.Count; i++)
         {
-            if(Random.Range(4,5)==0)
+            int dice = Random.Range(0, 10);
+            if (dice == 0)
                 SetBigPillarRoom(rooms[i]);
+            else if (dice == 1)
+                SetPillarRoom(rooms[i]);
         }
 
         int[,] graph = new int[rooms.Count, rooms.Count];

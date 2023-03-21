@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Controller : MonoBehaviour
 {
@@ -54,14 +55,21 @@ public class Controller : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
             RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero, 0f, LayerMask.GetMask("Tile"));
             if (hit.collider != null)
             {
+                if (EventSystem.current.IsPointerOverGameObject()) return;
                 Coordinate coord = hit.collider.gameObject.GetComponent<Tile>().Coord;
                 player.TileClicked(coord);
             }
         }
         else if (Input.GetKeyDown(KeyCode.F))
-            player.SkipTurn();
+        {
+            if(player.Controllable)
+            {
+                player.SkipTurn();
+            }
+        }
     }
 }
