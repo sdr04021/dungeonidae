@@ -28,7 +28,7 @@ public class Monster : Unit
             if (UnitsInSight.Contains(chaseTarget))
             {
                 chaseTargetRecentCoord = chaseTarget.Coord;
-                if (Coord.IsTargetInRange(chaseTarget.Coord, Data.atkRange.Total()))
+                if (Coord.IsTargetInRange(chaseTarget.Coord, UnitData.AtkRange.Total()))
                 {
                     StartBasicAttack(chaseTarget);
                 }
@@ -64,7 +64,17 @@ public class Monster : Unit
     {
         base.StartDie();
 
+        //ItemObject item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
+        //item.Init(dm, new Coordinate((Vector2)transform.position), new Item(GameManager.Instance.testItem));
+        //dm.GetTileByCoordinate(item.Coord).items.Push(item);
+
         ItemObject item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
-        item.Init(new Coordinate((Vector2)transform.position), new Item(GameManager.Instance.testItem));
+        item.Init(dm, new Coordinate((Vector2)transform.position), new EquipmentData(GameManager.Instance.testEquip));
+        item.Bounce();
+        dm.GetTileByCoordinate(item.Coord).items.Push(item);
+        item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
+        item.Init(dm, new Coordinate((Vector2)transform.position), new MiscData(GameManager.Instance.testItem, 1));
+        item.Bounce();
+        dm.GetTileByCoordinate(item.Coord).items.Push(item);
     }
 }

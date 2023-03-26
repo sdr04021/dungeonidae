@@ -1,0 +1,27 @@
+﻿Key,Id,English(en),Korean(ko)
+HUNGER,,Hunger,허기
+ATTACK,,Attack,공격력
+MAGIC_ATTACK,,Magic Attack,마법 공격력
+ATTACK_RANGE,,Attack Range,공격 범위
+ARMOR_PENETRATION,,Armor Penetration,방어 관통
+MAGIC_PENETRATION,,Magic Penetration,마법 관통
+ACCURACY,,Accuracy,정확도
+ATTACK_SPEED,,Attack Speed,공격 속도
+CRITICAL_RATE,,Critical Rate,치명타 확률
+CRITICAL_DAMAGE,,Critical Damage,치명타 피해
+PROFICIENCY,,Proficiency,숙련도
+LIFE_STEAL,,Life Steal,생명력 흡수
+MANA_STEAL,,Mana Steal,마나 흡수
+DAMAGE_INCREASE,,Damage Increase,대미지 증가
+DEFENSE,,Defense,방어력
+MAGIC_DEFENSE,,Magic Defense,마법 방어력
+EVASION,,Evasion,회피
+BLOCK,,Block,블록
+RESIST,,Resist,저항
+DAMAGE_REDUCTION,,Damage Reduction,대미지 감소
+SIGHT,,Sight,시야
+INSTINCT,,Instinct,직감
+SEARCH_RANGE,,Search Range,탐색 범위
+HEALTH_REGENERATION,,Health Regeneration,체력 재생
+MANA_REGENERATION,,Mana Regeneration,마나 재생
+MOVE_SPEED,,Move Speed,이동 속도

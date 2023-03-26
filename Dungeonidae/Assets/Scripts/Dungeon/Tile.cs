@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    public Unit unit;
     public TileType type = TileType.Floor;
     public AreaType Area { get; private set; } = AreaType.None;
+
+    public Unit unit;
+    public Stack<ItemObject> items = new();
 
     [SerializeField] SpriteRenderer spriteRenderer;
     [SerializeField] GameObject upSprite;

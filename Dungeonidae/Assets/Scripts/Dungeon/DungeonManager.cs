@@ -19,7 +19,7 @@ public class DungeonManager : MonoBehaviour
 
     Player player;
     public Player Player { get { return player; } }
-    [SerializeField] DungeonUIManager dungeonUIManager;
+    [SerializeField] DungeonUIManager dunUI;
 
     void Start()
     {
@@ -82,7 +82,7 @@ public class DungeonManager : MonoBehaviour
             }
         }
 
-        dungeonUIManager.Init();
+        dunUI.Init();
 
         maxOrder = units.Count;
         units[order].StartTurn();
@@ -189,7 +189,7 @@ public class DungeonManager : MonoBehaviour
 
     public void UpdatePlayerHpBar()
     {
-        dungeonUIManager.UpdateHpBar();
+        dunUI.UpdateHpBar();
     }
 
     public Tile GetTileByCoordinate(Coordinate c)

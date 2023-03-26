@@ -10,7 +10,7 @@ abstract public class Unit : MonoBehaviour
     protected Tile[,] map;
     Coordinate _coord = new (0, 0);
     public Coordinate Coord => _coord;
-    public bool Controllable { get; private set; } = false;
+    public bool Controllable { get; protected set; } = false;
     public int UnitListIndex { get; private set; } = 0;
     public float TurnIndicator { get; private set; } = 0;
     public bool IsDead { get; private set; } = false;
@@ -25,7 +25,7 @@ abstract public class Unit : MonoBehaviour
     protected Coordinate chaseTargetRecentCoord;
 
     [SerializeField] BaseStats baseStats;
-    public UnitData Data { get; private set; }
+    public UnitData UnitData { get; private set; }
     public SpriteRenderer MySpriteRenderer { get; private set; }
     public Animator MyAnimator { get; private set; }
     public Canvas canvas;
@@ -33,12 +33,15 @@ abstract public class Unit : MonoBehaviour
     public Image hpBar;
     readonly WaitForSeconds shortDelay = new(0.1f);
 
+    protected ItemEffectDirector itemEffectDirector;
+
     private void Awake()
     {
         MySpriteRenderer = GetComponent<SpriteRenderer>();
         MyAnimator = GetComponent<Animator>();
         //map = GameManager.Instance.dungeonManager.map;
-        Data = new(baseStats);
+        UnitData = new(baseStats);
+        itemEffectDirector = new ItemEffectDirector(this);
     }
 
     protected virtual void Start()
@@ -103,30 +106,42 @@ abstract public class Unit : MonoBehaviour
 
                 map[_coord.x, _coord.y].unit = null;
                 _coord = dest;
-                TurnIndicator += 100f / Data.speed.Total();
 
                 if (MySpriteRenderer.enabled)
                 {
                     MyAnimator.SetBool("Walk", true);
                     transform.DOMove(dest.ToVector2(), 0.2f)
                     .SetEase(Ease.Linear)
-                    .OnComplete(EndBehavior);
+                    .OnComplete(EndMove);
                 }
                 else
                 {
                     transform.position = map[dest.x, dest.y].transform.position;
-                    EndBehavior();
+                    EndMove();
                 }
                 return true;
             }
         }
         return false;
     }
+    protected virtual void EndMove()
+    {
+        UpdateSightArea();
+        if (isFollowingPath)
+            MyAnimator.SetBool("Walk", false);
+        if (dm.FogMap[_coord.x, _coord.y].IsOn)
+        {
+            MySpriteRenderer.enabled = false;
+            if (canvas != null) canvas.enabled = false;
+        }
+        map[_coord.x, _coord.y].unit = this;
+        EndTurn(100f / UnitData.Speed.Total());
+    }
 
     public void StartBasicAttack(Unit target)
     {
-        if (!Controllable || Data.aspd.Total() <= 0) return;
-        if (_coord.IsTargetInRange(target.Coord, Data.atkRange.Total())){
+        if (!Controllable || UnitData.Aspd.Total() <= 0) return;
+        if (_coord.IsTargetInRange(target.Coord, UnitData.AtkRange.Total())){
             Controllable = false;
             MyAnimator.SetBool("Attack", true);
             StartCoroutine(BasicAttack(target));
@@ -140,34 +155,29 @@ abstract public class Unit : MonoBehaviour
     IEnumerator BasicAttack(Unit target)
     {
         float animationLength = MyAnimator.GetCurrentAnimatorStateInfo(0).length;
-        int damage = Data.atk.Total();
+        int damage = UnitData.Atk.Total();
         yield return new WaitForSeconds(animationLength * 0.5f);
         if (damage < 0) damage = 0;
         target.GetDamage(new AttackData(this, AttackType.Atk, damage));
-        TurnIndicator += 100f / Data.aspd.Total();
         while (!isAnimationFinished || !target.isAnimationFinished)
         {
             yield return shortDelay;
         }
         isAnimationFinished = false;
         target.isAnimationFinished = false;
-        EndTurn();
+        EndTurn(100f / UnitData.Aspd.Total());
     }
 
     public virtual void GetDamage(AttackData attackData)
     {
-        int damage;
-        switch (attackData.Type)
+        var damage = attackData.Type switch
         {
-            case AttackType.Atk:
-                damage = attackData.Damage - Data.def.Total();
-                break;
-            case AttackType.MAtk:
-                damage = attackData.Damage - Data.mDef.Total();
-                break;
-            default: damage = attackData.Damage; break;
-        }
-        Data.Hp -= damage;
+            AttackType.Atk => attackData.Damage - UnitData.Def.Total(),
+            AttackType.MAtk => attackData.Damage - UnitData.MDef.Total(),
+            _ => attackData.Damage,
+        };
+        if (damage < 0) damage = 0;
+        UnitData.Hp -= damage;
         UpdateHpBar();
         if(canvas!= null)
         {
@@ -175,7 +185,7 @@ abstract public class Unit : MonoBehaviour
             dt.SetValue(damage);
         }
         MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(ToDefaultColor);
-        if (Data.Hp <= 0)
+        if (UnitData.Hp <= 0)
         {
             StartDie();
         }
@@ -197,27 +207,24 @@ abstract public class Unit : MonoBehaviour
         MySpriteRenderer.DOColor(Color.white, 0.2f);
     }
 
+    public void GetExp(int amount)
+    {
+        
+    }
+
+    public void RecoverHp(int amount)
+    {
+        amount = Mathf.Min(amount, UnitData.MaxHp.Total() - UnitData.Hp);
+        UnitData.Hp += amount;
+
+        UpdateHpBar();
+    }
     void UpdateHpBar()
     {
         if (hpBar != null)
-            hpBar.fillAmount = Data.Hp / (float)Data.maxHp.Total();
+            hpBar.fillAmount = UnitData.Hp / (float)UnitData.MaxHp.Total();
         else
             dm.UpdatePlayerHpBar();
-    }
-
-
-   protected virtual void EndBehavior()
-    {
-        UpdateSightArea();
-        if (isFollowingPath)
-            MyAnimator.SetBool("Walk", false);
-        if (dm.FogMap[_coord.x, _coord.y].IsOn)
-        {
-            MySpriteRenderer.enabled = false;
-            if (canvas != null) canvas.enabled = false;
-        }
-        map[_coord.x, _coord.y].unit = this;
-        EndTurn();
     }
 
     protected void RandomStep()
@@ -234,7 +241,7 @@ abstract public class Unit : MonoBehaviour
         }
         int max = deck.Count;
         if (max == 0)
-            EndTurn();
+            EndTurn(1);
         else
             Move(deck[Random.Range(0, max)]);
     }
@@ -280,10 +287,10 @@ abstract public class Unit : MonoBehaviour
 
     protected virtual void UpdateSightAreaOld()
     {
-        int northBound = Mathf.Min(_coord.y + Data.sight.Total(), map.GetLength(1) - 1);
-        int southBound = Mathf.Max(_coord.y - Data.sight.Total(), 0);
-        int eastBound = Mathf.Min(_coord.x + Data.sight.Total(), map.GetLength(1) - 1);
-        int westBound = Mathf.Max(_coord.x - Data.sight.Total(), 0);
+        int northBound = Mathf.Min(_coord.y + UnitData.Sight.Total(), map.GetLength(1) - 1);
+        int southBound = Mathf.Max(_coord.y - UnitData.Sight.Total(), 0);
+        int eastBound = Mathf.Min(_coord.x + UnitData.Sight.Total(), map.GetLength(1) - 1);
+        int westBound = Mathf.Max(_coord.x - UnitData.Sight.Total(), 0);
         
         tilesInSight.Clear();
 
@@ -331,10 +338,10 @@ abstract public class Unit : MonoBehaviour
 
     protected virtual void UpdateSightArea()
     {
-        int northBound = Mathf.Min(_coord.y + Data.sight.Total(), map.GetLength(1) - 1);
-        int southBound = Mathf.Max(_coord.y - Data.sight.Total(), 0);
-        int eastBound = Mathf.Min(_coord.x + Data.sight.Total(), map.GetLength(1) - 1);
-        int westBound = Mathf.Max(_coord.x - Data.sight.Total(), 0);
+        int northBound = Mathf.Min(_coord.y + UnitData.Sight.Total(), map.GetLength(1) - 1);
+        int southBound = Mathf.Max(_coord.y - UnitData.Sight.Total(), 0);
+        int eastBound = Mathf.Min(_coord.x + UnitData.Sight.Total(), map.GetLength(1) - 1);
+        int westBound = Mathf.Max(_coord.x - UnitData.Sight.Total(), 0);
 
         tilesInSight.Clear();
 
@@ -380,8 +387,9 @@ abstract public class Unit : MonoBehaviour
         UnitsInSight = detectedUnits;
     }
 
-    void EndTurn()
+    protected void EndTurn(float turnSpent)
     {
+        TurnIndicator += turnSpent;
         Controllable = false;
         dm.EndTurn();
     }

@@ -2,22 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ItemData", menuName = "Scriptable Object/ItemData")]
-public class ItemData : ScriptableObject
+public class ItemData
 {
-    [SerializeField]
-    Sprite sprite;
-    public Sprite Sprite { get => sprite; }
+    string key;
+    public string Key { get => key; }
 
-    [SerializeField]
-    int index;
-    public int Index { get => index; }
+    Sprite mySprite;
+    public Sprite MySprite { get => mySprite; }
 
-    [SerializeField]
     int price;
     public int Price { get => price; }
 
-    [SerializeField] 
-    string discription;
-    public string Discription { get => discription; }
+    public ItemData(ItemBase item)
+    {
+        key = item.Key;
+        mySprite = item.Sprite;
+        price = item.Price;
+    }
 }

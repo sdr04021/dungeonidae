@@ -153,6 +153,11 @@ public struct Coordinate
     {
         return new Vector2(x, y);
     }
+    public Vector3 ToVector3(int z)
+    {
+        return new Vector3(x, y, z);
+    }
+
     public Coordinate ToMovedCoordinate(Directions direction, int amount)
     {
         return this + new Coordinate(direction) * amount;

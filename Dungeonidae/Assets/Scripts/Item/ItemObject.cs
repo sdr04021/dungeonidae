@@ -7,22 +7,35 @@ public class ItemObject : MonoBehaviour
 {
     [SerializeField]
     SpriteRenderer spriteRenderer;
-    public Item myItem { get; private set; }
+    public ItemData data { get; private set; }
 
-    Coordinate coord;
+    DungeonManager dm;
+    public Coordinate Coord { get; private set; }
 
-    public void Init(Coordinate c, Item item)
+    Sequence dropSequence;
+
+    public void Init(DungeonManager dungeonManager, Coordinate c, ItemData item)
     {
-        coord = c;
-        myItem = item;
-        spriteRenderer.sprite = myItem.MySprite;
-        Vector2 spriteSize = new Vector2(myItem.MySprite.texture.width, myItem.MySprite.texture.height);
+        dm = dungeonManager;
+        Coord = c;
+        data = item;
+        spriteRenderer.sprite = data.MySprite;
+        //Vector2 spriteSize = new Vector2(myItem.MySprite.texture.width, myItem.MySprite.texture.height);
+        Vector2 spriteSize = new Vector2(data.MySprite.textureRect.size.x, data.MySprite.textureRect.size.y);
         transform.localScale = new Vector2(60 / spriteSize.x, 60 / spriteSize.y);
-        Drop();
     }
 
+    public void Bounce()
+    {
+        dropSequence = transform.DOJump(new Vector3(Coord.x, Coord.y - 0.2f, transform.position.z), 0.4f, 1, 0.5f);
+    }
     public void Drop()
     {
-        transform.DOJump(new Vector3(coord.x, coord.y - 0.2f, transform.position.z), 0.4f, 1, 0.5f);
+        transform.DOMove(new Vector3(Coord.x, Coord.y - 0.2f, transform.position.z), 0.2f);
+    }
+
+    private void OnDestroy()
+    {
+        dropSequence?.Kill();
     }
 }

@@ -7,6 +7,9 @@ public class Controller : MonoBehaviour
 {
     Player player;
 
+    Vector3 lastMousePostion = new();
+    bool mouseDragged = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -52,8 +55,19 @@ public class Controller : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.F))
             player.SkipTurn();
         */
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0) && (Vector3.Magnitude(lastMousePostion - Input.mousePosition) > 6))
         {
+            mouseDragged = true;
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (mouseDragged)
+            {
+                mouseDragged = false;
+                return;
+            }
+
             Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
             RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero, 0f, LayerMask.GetMask("Tile"));
@@ -66,10 +80,18 @@ public class Controller : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.F))
         {
-            if(player.Controllable)
+            if (player.Controllable)
             {
                 player.SkipTurn();
             }
         }
+        else if (Input.GetKeyUp(KeyCode.Z))
+        {
+            if (player.Controllable)
+            {
+                player.LootItem();
+            }
+        }
+        lastMousePostion.Set(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z);
     }
 }

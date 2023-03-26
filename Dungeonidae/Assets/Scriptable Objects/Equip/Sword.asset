@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 637955ebacb52f84ebcd66bb5f66b280, type: 3}
   m_Name: Sword
   m_EditorClassIdentifier: 
+  key: SWORD
   sprite: {fileID: -15229093, guid: a17981bc094953245b30703d01f032ef, type: 3}
-  index: 0
-  price: 0
-  discription: 
+  price: 10
+  equipmentType: 1
   stats:
   - statType: 0
     val: 5
+  - statType: 3
+    val: 1

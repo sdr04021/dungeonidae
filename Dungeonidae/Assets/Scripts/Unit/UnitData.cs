@@ -1,23 +1,31 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
+[System.Serializable]
 public class UnitData
 {
-    string unitName;
-    public string UnitName { get { return unitName; } }
-    Team team;
-    public Team Team { get { return team; } }
+    [SerializeField] string unitName;
+    public string UnitName { get => unitName; }
 
-    int level;
-    public int Level { get { return level; } }
-    int exp;
-    public int Exp { get { return exp; } }
-    int maxExp;
-    public int MaxExp { get { return maxExp; } }
+    [SerializeField] Team team;
+    public Team Team { get => team; }
 
-    public UnitStat maxHp;
-    int hp;
+    [SerializeField] int level;
+    public int Level { get => level; }
+
+    [SerializeField] int exp;
+    public int Exp { get => exp; }
+
+    [SerializeField] int maxExp;
+    public int MaxExp { get => maxExp; }
+
+    [SerializeField] UnitStat maxHp;
+    public UnitStat MaxHp { get => maxHp; }
+
+    [SerializeField] int hp;
     public int Hp { 
         get => hp;
         set
@@ -25,9 +33,14 @@ public class UnitData
             hp = value >= 0 ? value <= maxHp.Total()? value : maxHp.Total() : 0;
         }
     }
-    public UnitStat hpRegen;
-    public UnitStat maxMp;
-    int mp;
+
+    [SerializeField] UnitStat hpRegen;
+    public UnitStat HpRegen { get => hpRegen; }
+
+    [SerializeField] public UnitStat maxMp;
+    public UnitStat MaxMp { get => maxMp; }
+
+    [SerializeField] int mp;
     public int Mp
     {
         get => mp;
@@ -36,38 +49,83 @@ public class UnitData
             mp = value >= 0 ? value <= maxMp.Total() ? value : maxMp.Total() : 0;
         }
     }
-    public UnitStat mpRegen;
 
-    public UnitStat atk;
-    public UnitStat mAtk;
-    public UnitStat atkRange;
+    [SerializeField] UnitStat mpRegen;
+    public UnitStat MpRegen { get => mpRegen; }
 
-    public UnitStat pen;
-    public UnitStat mPen;
-    public UnitStat acc;
-    public UnitStat aspd;
-    public UnitStat cri;
-    public UnitStat criDmg;
-    public UnitStat proficiency;
-    public UnitStat lifeSteal;
-    public UnitStat manaSteal;
+    [SerializeField] UnitStat atk;
+    public UnitStat Atk { get => atk; }
 
-    public UnitStat def;
-    public UnitStat mDef;
-    public UnitStat eva;
-    public UnitStat block;
-    public UnitStat resist;
+    [SerializeField] UnitStat mAtk;
+    public UnitStat MAtk { get => mAtk; }
 
-    public UnitStat dmgIncrease;
-    public UnitStat dmgReduction;
+    [SerializeField] UnitStat atkRange;
+    public UnitStat AtkRange { get => atkRange; }
 
-    public UnitStat speed;
-    public UnitStat sight;
-    public UnitStat instinct;
-    public UnitStat searchRange;
+    [SerializeField] UnitStat pen;
+    public UnitStat Pen { get => pen;}
 
-    public UnitStat maxHunger;
-    int hunger;
+    [SerializeField] UnitStat mPen;
+    public UnitStat MPen { get => mPen; }
+
+    [SerializeField] UnitStat acc;
+    public UnitStat Acc { get => acc; }
+
+    [SerializeField] UnitStat aspd;
+    public UnitStat Aspd { get => aspd; }
+
+    [SerializeField] UnitStat cri;
+    public UnitStat Cri { get => cri; }
+
+    [SerializeField] UnitStat criDmg;
+    public UnitStat CriDmg { get => criDmg; }
+
+    [SerializeField] UnitStat proficiency;
+    public UnitStat Proficiency { get => proficiency; }
+
+    [SerializeField] UnitStat lifeSteal;
+    public UnitStat LifeSteal { get => lifeSteal; }
+
+    [SerializeField] UnitStat manaSteal;
+    public UnitStat ManaSteal { get => manaSteal; }
+
+    [SerializeField] UnitStat def;
+    public UnitStat Def { get => def; }
+
+    [SerializeField] UnitStat mDef;
+    public UnitStat MDef { get => mDef; }
+
+    [SerializeField] UnitStat eva;
+    public UnitStat Eva { get => eva; }
+
+    [SerializeField] UnitStat block;
+    public UnitStat Block { get => block; } 
+
+    [SerializeField] UnitStat resist;
+    public UnitStat Resist { get => resist; }
+
+    [SerializeField] UnitStat dmgIncrease;
+    public UnitStat DmgIncrease { get => dmgIncrease;}
+
+    [SerializeField] UnitStat dmgReduction;
+    public UnitStat DmgReduction { get => dmgReduction;}
+
+    [SerializeField] UnitStat speed;
+    public UnitStat Speed { get => speed; }
+
+    [SerializeField] UnitStat sight;
+    public UnitStat Sight {  get => sight; }
+
+    [SerializeField] UnitStat instinct;
+    public UnitStat Instinct { get => instinct; }
+
+    [SerializeField] UnitStat searchRange;
+    public UnitStat SearchRange { get => searchRange; }
+
+    [SerializeField] UnitStat maxHunger;
+    public UnitStat MaxHunger { get => maxHunger; }
+
+    [SerializeField] int hunger;
     public int Hunger
     {
         get => hunger;
@@ -85,10 +143,10 @@ public class UnitData
         maxExp = baseStats.MaxExp;
         exp = 0;
         maxHp = new(baseStats.MaxHp);
-        hp = maxHp.Original;
+        hp = maxHp.original;
         hpRegen = new(baseStats.HpRegen);
         maxMp = new(baseStats.MaxMp);
-        mp = maxMp.Original;
+        mp = maxMp.original;
         mpRegen = new(baseStats.MpRegen);
         atk = new(baseStats.Atk);
         mAtk = new(baseStats.MAtk);
@@ -114,5 +172,56 @@ public class UnitData
         instinct = new(baseStats.Instinct);
         searchRange = new(baseStats.SearchRange);
         maxHunger = new(baseStats.MaxHunger);
+    }
+
+    public void ApplyEquipStats(EquipmentData equip)
+    {
+        foreach(var pair in equip.Stats)
+        {
+            StatTypeToUnitStat(pair.Key).additional += pair.Value;
+        }
+    }
+    public void RemoveEquipStats(EquipmentData equip)
+    {
+        foreach (var pair in equip.Stats)
+        {
+            StatTypeToUnitStat(pair.Key).additional-=pair.Value;
+        }
+    }
+
+    private ref UnitStat StatTypeToUnitStat(StatType statType)
+    {
+        switch (statType)
+        {
+            case StatType.Atk: return ref atk;
+            case StatType.MAtk: return ref mAtk;
+            case StatType.AtkRange: return ref atkRange;
+            case StatType.Pen: return ref pen;
+            case StatType.MPen: return ref mPen;
+            case StatType.Acc: return ref acc;
+            case StatType.Aspd: return ref aspd;
+            case StatType.Cri: return ref cri;
+            case StatType.CriDmg: return ref criDmg;
+            case StatType.Proficiency: return ref proficiency;
+            case StatType.LifeSteal: return ref lifeSteal;
+            case StatType.ManaSteal: return ref manaSteal;
+            case StatType.DmgIncrease: return ref dmgIncrease;
+            case StatType.HP: return ref maxHp;
+            case StatType.Mp: return ref maxMp;
+            case StatType.Hunger: return ref maxHunger;
+            case StatType.Def: return ref def;
+            case StatType.MDef: return ref mDef;
+            case StatType.Eva: return ref eva;
+            case StatType.Block: return ref block;
+            case StatType.Resist: return ref resist;
+            case StatType.DmgReduction: return ref dmgReduction;
+            case StatType.Sight: return ref sight;
+            case StatType.Instinct: return ref instinct;
+            case StatType.SearchRange: return ref searchRange;
+            case StatType.HpRegen: return ref hpRegen;
+            case StatType.MpRegen: return ref mpRegen;
+            case StatType.Speed: return ref speed;
+            default: throw new NotImplementedException();
+        }
     }
 }

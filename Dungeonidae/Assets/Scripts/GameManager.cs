@@ -14,7 +14,8 @@ public class GameManager : MonoBehaviour
     public Sprite[] fogSprites;
     public DamageText damageTextPrefab;
     public ItemObject itemObjectPrefab;
-    public ItemData testItem;
+    public MiscBase testItem;
+    public EquipmentBase testEquip;
 
     private static GameManager instance = null;
     private void Awake()
