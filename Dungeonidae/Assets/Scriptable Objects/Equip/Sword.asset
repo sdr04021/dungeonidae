@@ -12,12 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 637955ebacb52f84ebcd66bb5f66b280, type: 3}
   m_Name: Sword
   m_EditorClassIdentifier: 
-  key: SWORD
-  sprite: {fileID: -15229093, guid: a17981bc094953245b30703d01f032ef, type: 3}
-  price: 10
-  equipmentType: 1
-  stats:
+  <Key>k__BackingField: SWORD
+  <Sprite>k__BackingField: {fileID: -15229093, guid: a17981bc094953245b30703d01f032ef, type: 3}
+  <Price>k__BackingField: 10
+  <EquipmentType>k__BackingField: 1
+  <Stats>k__BackingField:
   - statType: 0
-    val: 5
-  - statType: 3
-    val: 1
+    val: 4

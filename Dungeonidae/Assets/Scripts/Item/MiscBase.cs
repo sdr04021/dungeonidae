@@ -5,11 +5,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "MiscBase", menuName = "Scriptable Object/MiscBase")]
 public class MiscBase : ItemBase
 {
-    [SerializeField]
-    int[] effectValues;
-    public int[] EffectValues { get => effectValues; }
+    [field: SerializeField]
+    public int[] EffectValues { get; private set; }
 
-    [SerializeField]
-    int maxStack = 1;
-    public int MaxStack { get => maxStack; }
+    [field: SerializeField]
+    public int MaxStack { get; private set; }
 }

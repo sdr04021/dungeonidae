@@ -33,6 +33,7 @@ public class ItemSlot : MonoBehaviour
     public virtual void RemoveItem()
     {
         icon.gameObject.SetActive(false);
+        amountText.gameObject.SetActive(false);
         ListIndex = -1;
     }
 

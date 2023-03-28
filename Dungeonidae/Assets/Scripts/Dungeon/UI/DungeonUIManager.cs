@@ -27,10 +27,13 @@ public class DungeonUIManager : MonoBehaviour
 
     [SerializeField] InventoryUI inventoryUI;
 
+    [SerializeField] AbilityUI abilityUI;
+
     readonly LocalizedStringTable tableStatusText = new("Status Text");
     readonly LocalizedStringTable tableEquipmentName = new("Equipment Name");
     readonly LocalizedStringTable tableItemName = new("Item Name");
     readonly LocalizedStringTable tableItemDescription = new("Item Description");
+    readonly LocalizedStringTable tableAbility = new("Ability");
 
     public void Init()
     {
@@ -39,8 +42,8 @@ public class DungeonUIManager : MonoBehaviour
         UpdateMpBar();
         UpdateExpBar();
 
-
         inventoryUI.Init();
+        abilityUI.Init();
     }
 
     public void UpdateLevelText()
@@ -82,13 +85,19 @@ public class DungeonUIManager : MonoBehaviour
             case Menu.Inventory:
                 inventoryUI.Refresh();
                 break;
+            case Menu.Ability:
+                abilityUI.Refresh();
+                break;
         }
     }
 
     public void OpenMenuCanvas()
     {
-        menuCanvas.SetActive(true);
-        UpdateMenuUI(currentMenu);
+        if(dm.Player.Controllable)
+        {
+            menuCanvas.SetActive(true);
+            UpdateMenuUI(currentMenu);
+        }
     }
     public void CloseMenuCanvas()
     {
@@ -103,6 +112,8 @@ public class DungeonUIManager : MonoBehaviour
                 return statusUI.gameObject;
             case Menu.Inventory:
                 return inventoryUI.gameObject;
+            case Menu.Ability:
+                return abilityUI.gameObject;
             default: return null;
         }
     }
@@ -119,66 +130,38 @@ public class DungeonUIManager : MonoBehaviour
 
     public string StatTypeToString(StatType stat)
     {
-        switch (stat)
+        return stat switch
         {
-            case StatType.Atk:
-                return tableStatusText.GetTable().GetEntry("ATTACK").GetLocalizedString();
-            case StatType.MAtk:
-                return tableStatusText.GetTable().GetEntry("MAGIC_ATTACK").GetLocalizedString();
-            case StatType.AtkRange:
-                return tableStatusText.GetTable().GetEntry("ATTACK_RANGE").GetLocalizedString();
-            case StatType.Pen:
-                return tableStatusText.GetTable().GetEntry("ARMOR_PENETRATION").GetLocalizedString();
-            case StatType.MPen:
-                return tableStatusText.GetTable().GetEntry("MAGIC_PENETRATION").GetLocalizedString();
-            case StatType.Acc:
-                return tableStatusText.GetTable().GetEntry("ACCURACY").GetLocalizedString();
-            case StatType.Aspd:
-                return tableStatusText.GetTable().GetEntry("ATTACK_SPEED").GetLocalizedString();
-            case StatType.Cri:
-                return tableStatusText.GetTable().GetEntry("CRITICAL_RATE").GetLocalizedString();
-            case StatType.CriDmg:
-                return tableStatusText.GetTable().GetEntry("CRITICAL_DAMAGE").GetLocalizedString();
-            case StatType.Proficiency:
-                return tableStatusText.GetTable().GetEntry("PROFICIENCY").GetLocalizedString();
-            case StatType.LifeSteal:
-                return tableStatusText.GetTable().GetEntry("LIFE_STEAL").GetLocalizedString();
-            case StatType.ManaSteal:
-                return tableStatusText.GetTable().GetEntry("MANA_STEAL").GetLocalizedString();
-            case StatType.DmgIncrease:
-                return tableStatusText.GetTable().GetEntry("DAMAGE_INCREASE").GetLocalizedString();
-            case StatType.HP:
-                return "HP";
-            case StatType.Mp:
-                return "MP";
-            case StatType.Hunger:
-                return tableStatusText.GetTable().GetEntry("HUNGER").GetLocalizedString();
-            case StatType.Def:
-                return tableStatusText.GetTable().GetEntry("DEFENSE").GetLocalizedString();
-            case StatType.MDef:
-                return tableStatusText.GetTable().GetEntry("MAGIC_DEFENSE").GetLocalizedString();
-            case StatType.Eva:
-                return tableStatusText.GetTable().GetEntry("EVASION").GetLocalizedString();
-            case StatType.Block:
-                return tableStatusText.GetTable().GetEntry("BLOCK").GetLocalizedString();
-            case StatType.Resist:
-                return tableStatusText.GetTable().GetEntry("RESIST").GetLocalizedString();
-            case StatType.DmgReduction:
-                return tableStatusText.GetTable().GetEntry("DAMAGE_REDUCTION").GetLocalizedString();
-            case StatType.Sight:
-                return tableStatusText.GetTable().GetEntry("SIGHT").GetLocalizedString();
-            case StatType.Instinct:
-                return tableStatusText.GetTable().GetEntry("INSTINCT").GetLocalizedString();
-            case StatType.SearchRange:
-                return tableStatusText.GetTable().GetEntry("SEARCH_RANGE").GetLocalizedString();
-            case StatType.HpRegen:
-                return tableStatusText.GetTable().GetEntry("HEALTH_REGENERATION").GetLocalizedString();
-            case StatType.MpRegen:
-                return tableStatusText.GetTable().GetEntry("MANA_REGENERATION").GetLocalizedString();
-            case StatType.Speed:
-                return tableStatusText.GetTable().GetEntry("MOVE_SPEED").GetLocalizedString();
-            default: return null;
-        }
+            StatType.Atk => tableStatusText.GetTable().GetEntry("ATTACK").GetLocalizedString(),
+            StatType.MAtk => tableStatusText.GetTable().GetEntry("MAGIC_ATTACK").GetLocalizedString(),
+            StatType.AtkRange => tableStatusText.GetTable().GetEntry("ATTACK_RANGE").GetLocalizedString(),
+            StatType.Pen => tableStatusText.GetTable().GetEntry("ARMOR_PENETRATION").GetLocalizedString(),
+            StatType.MPen => tableStatusText.GetTable().GetEntry("MAGIC_PENETRATION").GetLocalizedString(),
+            StatType.Acc => tableStatusText.GetTable().GetEntry("ACCURACY").GetLocalizedString(),
+            StatType.Aspd => tableStatusText.GetTable().GetEntry("ATTACK_SPEED").GetLocalizedString(),
+            StatType.Cri => tableStatusText.GetTable().GetEntry("CRITICAL_RATE").GetLocalizedString(),
+            StatType.CriDmg => tableStatusText.GetTable().GetEntry("CRITICAL_DAMAGE").GetLocalizedString(),
+            StatType.Proficiency => tableStatusText.GetTable().GetEntry("PROFICIENCY").GetLocalizedString(),
+            StatType.LifeSteal => tableStatusText.GetTable().GetEntry("LIFE_STEAL").GetLocalizedString(),
+            StatType.ManaSteal => tableStatusText.GetTable().GetEntry("MANA_STEAL").GetLocalizedString(),
+            StatType.DmgIncrease => tableStatusText.GetTable().GetEntry("DAMAGE_INCREASE").GetLocalizedString(),
+            StatType.HP => "HP",
+            StatType.Mp => "MP",
+            StatType.Hunger => tableStatusText.GetTable().GetEntry("HUNGER").GetLocalizedString(),
+            StatType.Def => tableStatusText.GetTable().GetEntry("DEFENSE").GetLocalizedString(),
+            StatType.MDef => tableStatusText.GetTable().GetEntry("MAGIC_DEFENSE").GetLocalizedString(),
+            StatType.Eva => tableStatusText.GetTable().GetEntry("EVASION").GetLocalizedString(),
+            StatType.Block => tableStatusText.GetTable().GetEntry("BLOCK").GetLocalizedString(),
+            StatType.Resist => tableStatusText.GetTable().GetEntry("RESIST").GetLocalizedString(),
+            StatType.DmgReduction => tableStatusText.GetTable().GetEntry("DAMAGE_REDUCTION").GetLocalizedString(),
+            StatType.Sight => tableStatusText.GetTable().GetEntry("SIGHT").GetLocalizedString(),
+            StatType.Instinct => tableStatusText.GetTable().GetEntry("INSTINCT").GetLocalizedString(),
+            StatType.SearchRange => tableStatusText.GetTable().GetEntry("SEARCH_RANGE").GetLocalizedString(),
+            StatType.HpRegen => tableStatusText.GetTable().GetEntry("HEALTH_REGENERATION").GetLocalizedString(),
+            StatType.MpRegen => tableStatusText.GetTable().GetEntry("MANA_REGENERATION").GetLocalizedString(),
+            StatType.Speed => tableStatusText.GetTable().GetEntry("MOVE_SPEED").GetLocalizedString(),
+            _ => null,
+        };
     }
 
     public string GetEquipmentName(string key)
@@ -197,5 +180,18 @@ public class DungeonUIManager : MonoBehaviour
             return tableItemDescription.GetTable().GetEntry(key).GetLocalizedString(values);
         else
             return tableItemDescription.GetTable().GetEntry(key).GetLocalizedString();
+    }
+
+    public string GetAbilityName(string key)
+    {
+        return tableAbility.GetTable().GetEntry(key + "_NAME").GetLocalizedString();
+    }
+    public string GetAbilityDescription(string key)
+    {
+        return tableAbility.GetTable().GetEntry(key + "_DESCRIPTION").GetLocalizedString();
+    }
+    public string GetAbilityEffect(string key, int[] values)
+    {
+        return tableAbility.GetTable().GetEntry(key + "_EFFECT").GetLocalizedString(values);
     }
 }

@@ -12,10 +12,9 @@ public class EquipmentStat
 [CreateAssetMenu(fileName = "EquipmentBase", menuName = "Scriptable Object/EquipmentBase")]
 public class EquipmentBase : ItemBase
 {
-    [SerializeField] EquipmentType equipmentType;   
-    public EquipmentType EquipmentType { get => equipmentType; }
+    [field: SerializeField]
+    public EquipmentType EquipmentType { get; private set; }
 
-    [SerializeField]
-    EquipmentStat[] stats;
-    public EquipmentStat[] Stats { get => stats; }
+    [field: SerializeField]
+    public EquipmentStat[] Stats { get; private set; }
 }

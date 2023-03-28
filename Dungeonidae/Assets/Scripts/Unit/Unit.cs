@@ -35,7 +35,7 @@ abstract public class Unit : MonoBehaviour
 
     protected ItemEffectDirector itemEffectDirector;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         MySpriteRenderer = GetComponent<SpriteRenderer>();
         MyAnimator = GetComponent<Animator>();
@@ -157,8 +157,7 @@ abstract public class Unit : MonoBehaviour
         float animationLength = MyAnimator.GetCurrentAnimatorStateInfo(0).length;
         int damage = UnitData.Atk.Total();
         yield return new WaitForSeconds(animationLength * 0.5f);
-        if (damage < 0) damage = 0;
-        target.GetDamage(new AttackData(this, AttackType.Atk, damage));
+        target.GetDamage(new AttackData(this, damage, 0));
         while (!isAnimationFinished || !target.isAnimationFinished)
         {
             yield return shortDelay;
@@ -170,13 +169,13 @@ abstract public class Unit : MonoBehaviour
 
     public virtual void GetDamage(AttackData attackData)
     {
-        var damage = attackData.Type switch
-        {
-            AttackType.Atk => attackData.Damage - UnitData.Def.Total(),
-            AttackType.MAtk => attackData.Damage - UnitData.MDef.Total(),
-            _ => attackData.Damage,
-        };
-        if (damage < 0) damage = 0;
+        int attackDamage = attackData.AttackDamage - UnitData.Def.Total();
+        int magicAttackDamage = attackData.MagicAttackDamage - UnitData.MDef.Total();
+
+        if (attackDamage < 0) attackDamage = 0;
+        if(magicAttackDamage < 0) magicAttackDamage = 0;
+        int damage = attackDamage + magicAttackDamage;
+
         UnitData.Hp -= damage;
         UpdateHpBar();
         if(canvas!= null)
@@ -219,7 +218,9 @@ abstract public class Unit : MonoBehaviour
 
         UpdateHpBar();
     }
-    void UpdateHpBar()
+
+
+    public void UpdateHpBar()
     {
         if (hpBar != null)
             hpBar.fillAmount = UnitData.Hp / (float)UnitData.MaxHp.Total();

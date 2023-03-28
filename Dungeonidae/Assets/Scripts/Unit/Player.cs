@@ -9,6 +9,14 @@ public class Player : Unit
     Tuple<ItemType, int> itemToThrow;
     ItemObject throwingItem;
 
+    AbilityDirector abilityDirector;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        abilityDirector = new AbilityDirector(this);
+    }
+
     protected override void Start()
     {
         base.Start();
@@ -17,6 +25,12 @@ public class Player : Unit
     public override void Init(DungeonManager dungeonManager, Coordinate c)
     {
         base.Init(dungeonManager, c);;
+
+        PlayerData.abilityPoint += 9;
+        for(int i=0; i<GameManager.Instance.testAbility.Length; i++)
+        {
+            PlayerData.AddAbility(new AbilityData(GameManager.Instance.testAbility[i]));
+        }
     }
 
     public override void StartTurn()
@@ -141,7 +155,7 @@ public class Player : Unit
             PlayerData.RemoveOneMisc(itemToThrow.Item2);
         }
         dm.GetTileByCoordinate(to).items.Push(throwingItem);
-        throwingItem.transform.DOMove(to.ToVector3(0), Coordinate.Distance(to, Coord) * 0.08f).SetEase(Ease.InSine).OnComplete(EndThrowing);
+        throwingItem.transform.DOMove(to.ToVector3(0), Coordinate.Distance(to, Coord) * 0.08f).OnComplete(EndThrowing);
     }
     void EndThrowing()
     {
@@ -218,6 +232,19 @@ public class Player : Unit
             PlayerData.equipped[index] = null;
             UnitData.RemoveEquipStats(equip);
             EndTurn(3);
+            return true;
+        }
+        else return false;
+    }
+
+    public bool IncreaseAbilityLevel(int index)
+    {
+        if ((PlayerData.Abilities[index].Level < 3) && (PlayerData.abilityPoint >= 1))
+        {
+            PlayerData.abilityPoint--;
+            abilityDirector.RemoveAbility(PlayerData.Abilities[index]);
+            PlayerData.Abilities[index].IncreaseLevel();
+            abilityDirector.ApplyAbility(PlayerData.Abilities[index]);
             return true;
         }
         else return false;

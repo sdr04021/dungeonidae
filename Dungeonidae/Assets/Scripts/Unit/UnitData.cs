@@ -2,11 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 
 [System.Serializable]
 public class UnitData
 {
+    public delegate void EventHandler();
+    public event EventHandler OnHpValueChanged;
+
     [SerializeField] string unitName;
     public string UnitName { get => unitName; }
 
@@ -31,6 +35,7 @@ public class UnitData
         set
         {
             hp = value >= 0 ? value <= maxHp.Total()? value : maxHp.Total() : 0;
+            OnHpValueChanged?.Invoke();
         }
     }
 
@@ -174,18 +179,77 @@ public class UnitData
         maxHunger = new(baseStats.MaxHunger);
     }
 
+    public void SetStatValue(string key, StatType statType, StatValueType statValueType, int amount)
+    {
+        switch (statValueType)
+        {
+            case StatValueType.Original:
+                throw new NotImplementedException();
+            case StatValueType.Additional:
+                if (StatTypeToUnitStat(statType).additional.ContainsKey(key))
+                {
+                    StatTypeToUnitStat(statType).additional[key] = amount;
+                }
+                else
+                    StatTypeToUnitStat(statType).additional.Add(key, amount);
+                break;
+            case StatValueType.Temporary:
+                if (StatTypeToUnitStat(statType).temporary.ContainsKey(key))
+                {
+                    StatTypeToUnitStat(statType).temporary[key] = amount;
+                }
+                else
+                    StatTypeToUnitStat(statType).temporary.Add(key, amount);
+                break;
+            case StatValueType.Percent:
+                if (StatTypeToUnitStat(statType).percent.ContainsKey(key))
+                {
+                    StatTypeToUnitStat(statType).percent[key] = amount;
+                }
+                else
+                    StatTypeToUnitStat(statType).percent.Add(key, amount);
+                break;
+        }
+    }
+    public void RemoveStatValue(string key, StatType statType, StatValueType statValueType)
+    {
+        switch (statValueType)
+        {
+            case StatValueType.Original:
+                throw new NotImplementedException();
+            case StatValueType.Additional:
+                if (StatTypeToUnitStat(statType).additional.ContainsKey(key))
+                {
+                    StatTypeToUnitStat(statType).additional.Remove(key);
+                }
+                break;
+            case StatValueType.Temporary:
+                if (StatTypeToUnitStat(statType).temporary.ContainsKey(key))
+                {
+                    StatTypeToUnitStat(statType).temporary.Remove(key);
+                }
+                break;
+            case StatValueType.Percent:
+                if (StatTypeToUnitStat(statType).percent.ContainsKey(key))
+                {
+                    StatTypeToUnitStat(statType).percent.Remove(key);
+                }
+                break;
+        }
+    }
+
     public void ApplyEquipStats(EquipmentData equip)
     {
         foreach(var pair in equip.Stats)
         {
-            StatTypeToUnitStat(pair.Key).additional += pair.Value;
+            SetStatValue(equip.Key, pair.Key, StatValueType.Additional, pair.Value);
         }
     }
     public void RemoveEquipStats(EquipmentData equip)
     {
         foreach (var pair in equip.Stats)
         {
-            StatTypeToUnitStat(pair.Key).additional-=pair.Value;
+            RemoveStatValue(equip.Key, pair.Key, StatValueType.Additional);
         }
     }
 

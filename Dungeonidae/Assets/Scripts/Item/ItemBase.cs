@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class ItemBase : ScriptableObject
 {
-    [SerializeField]
-    string key;
-    public string Key { get => key; }
+    [field: SerializeField]
+    public string Key { get; private set; }
 
-    [SerializeField]
-    Sprite sprite;
-    public Sprite Sprite { get => sprite; }
+    [field: SerializeField]
+    public Sprite Sprite { get; private set; }
 
-    [SerializeField]
-    int price;
-    public int Price { get => price; }
+    [field: SerializeField]
+    public int Price { get; private set; }
 }

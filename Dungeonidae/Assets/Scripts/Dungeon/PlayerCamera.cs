@@ -27,15 +27,8 @@ public class PlayerCamera : MonoBehaviour
             if(found && target.Controllable)
             {
                 if (EventSystem.current.IsPointerOverGameObject()) return;
-                float scroll = Input.GetAxis("Mouse ScrollWheel");
+
                 cameraPostion = transform.position;
-
-                cam.orthographicSize -= scroll * Time.deltaTime * 1500;
-                if (cam.orthographicSize < 1)
-                    cam.orthographicSize = 1;
-                else if (cam.orthographicSize > 40)
-                    cam.orthographicSize = 40;
-
                 if (Input.GetMouseButton(0))
                 {
                     Vector3 diff = lastMousePostion - cam.ScreenToWorldPoint(Input.mousePosition);
@@ -55,6 +48,16 @@ public class PlayerCamera : MonoBehaviour
                 transform.position = Vector3.Lerp(transform.position, targetPosition, 0.1f);
             }
 
+            if (!EventSystem.current.IsPointerOverGameObject())
+            {
+                float scroll = Input.GetAxis("Mouse ScrollWheel");
+                cam.orthographicSize -= scroll * Time.deltaTime * 1500;
+                if (cam.orthographicSize < 1)
+                    cam.orthographicSize = 1;
+                else if (cam.orthographicSize > 40)
+                    cam.orthographicSize = 40;
+            }
+
             if (!found)
             {
                 transform.position = targetPosition;
@@ -63,7 +66,10 @@ public class PlayerCamera : MonoBehaviour
         }
         else
         {
-            target = GameObject.Find("Warrior(Clone)").GetComponent<Player>();
+            if(GameObject.Find("Warrior(Clone)").TryGetComponent(out Player player))
+            {
+                target = player;
+            }
         }
 
         lastMousePostion = cam.ScreenToWorldPoint(Input.mousePosition);

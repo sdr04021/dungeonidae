@@ -5,14 +5,13 @@ using UnityEngine;
 public class AttackData
 {
     public Unit Attacker { get; private set; }
+    public int AttackDamage { get; private set; }
+    public int MagicAttackDamage { get; private set; }  
 
-    public AttackType Type { get; private set; }
-    public int Damage { get; private set; }
-
-    public AttackData(Unit attacker, AttackType type, int damage)
+    public AttackData(Unit attacker, int attackDamage, int magicAttackDamage)
     {
         Attacker = attacker;
-        Type = type;
-        Damage = damage;
+        AttackDamage = attackDamage;
+        MagicAttackDamage = magicAttackDamage;
     }
 }

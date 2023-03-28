@@ -11,6 +11,12 @@ public class PlayerData
 
     public EquipmentData[] equipped = new EquipmentData[9];
 
+    [SerializeField] List<AbilityData> abilities = new();
+    public List<AbilityData> Abilities { get => abilities; }
+    public Dictionary<string,int> AbilityNameToIndex { get; private set; } = new Dictionary<string,int>();
+
+    public int abilityPoint = 0;
+
     public bool AddEquipment(EquipmentData equip)
     {
         if (equipInventory.Count >= maxEquip)
@@ -56,5 +62,11 @@ public class PlayerData
         miscInventory[index].AddAmount(-1);
         if (miscInventory[index].Amount<=0)
             miscInventory.RemoveAt(index);
+    }
+
+    public void AddAbility(AbilityData ability)
+    {
+        abilities.Add(ability);
+        AbilityNameToIndex.Add(ability.Key, abilities.Count - 1);
     }
 }
