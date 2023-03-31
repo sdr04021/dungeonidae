@@ -17,6 +17,12 @@ public class Tile : MonoBehaviour
     Coordinate coord;
     public Coordinate Coord { get { return coord; } }
 
+    [SerializeField] SpriteRenderer rangeIndicator;
+    readonly Color transparentRed = new(1, 0, 0, 0.33f);
+    readonly Color transparentBlue = new(0, 0, 1, 0.33f);
+    public GameObject targetMark;
+    public bool AvailableRange { get; private set; } = false;
+
     public void Init(TileType t, int x, int y)
     {
         SetTileType(t);
@@ -129,5 +135,23 @@ public class Tile : MonoBehaviour
     public void SetAreaType(AreaType t)
     {
         Area = t;
+    }
+
+    public void SetAvailable()
+    {
+        rangeIndicator.gameObject.SetActive(true);
+        rangeIndicator.color = transparentBlue;
+        AvailableRange = true;
+    }
+    public void SetUnavailable()
+    {
+        rangeIndicator.gameObject.SetActive(true);
+        rangeIndicator.color = transparentRed;
+    }
+    public void TurnOffRangeIndicator()
+    {
+        rangeIndicator.gameObject.SetActive(false);
+        targetMark.SetActive(false);
+        AvailableRange = false;
     }
 }

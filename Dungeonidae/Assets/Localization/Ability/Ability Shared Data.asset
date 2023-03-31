@@ -20,7 +20,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 329101524992
-    m_Key: HP_INCREASE_DESCRIPTION
+    m_Key: HP_INCREASE_DESC
     m_Metadata:
       m_Items: []
   - m_Id: 333065142272
@@ -32,7 +32,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 222691264741376
-    m_Key: BERSERK_DESCRIPTION
+    m_Key: BERSERK_DESC
     m_Metadata:
       m_Items: []
   - m_Id: 222694469189632

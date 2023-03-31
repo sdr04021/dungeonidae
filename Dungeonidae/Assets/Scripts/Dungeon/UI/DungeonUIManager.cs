@@ -18,6 +18,9 @@ public class DungeonUIManager : MonoBehaviour
     [SerializeField] Image expBar;
     [SerializeField] TMP_Text expText;
 
+    [SerializeField] ShortcutButton[] skillShortcutButtons;
+    bool shortCutPressed = false;
+
     [SerializeField] GameObject menuCanvas;
     public enum Menu { Status, Inventory, Ability, Skill, Soulstone }
     Menu currentMenu = Menu.Status;
@@ -29,18 +32,28 @@ public class DungeonUIManager : MonoBehaviour
 
     [SerializeField] AbilityUI abilityUI;
 
+    [SerializeField] SkillUI skillUI;
+
     readonly LocalizedStringTable tableStatusText = new("Status Text");
     readonly LocalizedStringTable tableEquipmentName = new("Equipment Name");
     readonly LocalizedStringTable tableItemName = new("Item Name");
     readonly LocalizedStringTable tableItemDescription = new("Item Description");
     readonly LocalizedStringTable tableAbility = new("Ability");
+    readonly LocalizedStringTable tableSkill = new("Skill Text");
 
     public void Init()
     {
         UpdateLevelText();
         UpdateHpBar();
+        dm.Player.UnitData.OnHpValueChanged += UpdateHpBar;
         UpdateMpBar();
+        dm.Player.UnitData.OnMpValueChanged += UpdateMpBar;
         UpdateExpBar();
+        dm.Player.UnitData.OnSkillChanged += SetSkillIcons;
+        SetSkillIcons();
+        UpdateSkillIconCooldowns();
+        dm.Player.UnitData.OnSkillCurrentCooldownChanged += UpdateSkillIconCooldowns;
+        dm.Player.UnitData.OnSkillChanged += UpdateSkillIconCooldowns;
 
         inventoryUI.Init();
         abilityUI.Init();
@@ -75,6 +88,86 @@ public class DungeonUIManager : MonoBehaviour
         expText.text = exp.ToString() + "/" + maxExp.ToString() +"(" + Mathf.Round(exp/(float)maxExp*100) + "%)";
     }
 
+    void SetSkillIcons()
+    {
+        for(int i=0; i<skillShortcutButtons.Length; i++)
+        {
+            if (dm.Player.UnitData.Skills[i]==null)
+                skillShortcutButtons[i].icon.gameObject.SetActive(false);
+            else
+            {
+                skillShortcutButtons[i].icon.sprite = dm.Player.UnitData.Skills[i].Sprite;
+                skillShortcutButtons[i].icon.gameObject.SetActive(true);
+            }
+        }
+    }
+    void UpdateSkillIconCooldowns()
+    {
+        for (int i = 0; i < skillShortcutButtons.Length; i++)
+        {
+            SkillData skill = dm.Player.UnitData.Skills[i];
+            if ((skill == null) || (skill.coolDown <= 0))
+            {
+                skillShortcutButtons[i].curtain.gameObject.SetActive(false);
+                skillShortcutButtons[i].coolDownText.gameObject.SetActive(false);
+            }
+            else
+            {
+                skillShortcutButtons[i].curtain.gameObject.SetActive(true);
+                skillShortcutButtons[i].coolDownText.gameObject.SetActive(true);
+                skillShortcutButtons[i].coolDownText.text = skill.coolDown.ToString();
+            }
+        }
+    }
+
+    public void Btn_SkillShortcutPointerDown(int index)
+    {
+        if (shortCutPressed) return;
+        shortCutPressed = true;
+
+        if (dm.Player.Controllable)
+        {
+            dm.Player.PrepareSkill(index);
+        }
+    }
+    public void Btn_SkillShortcutPointerUp()
+    {
+        if (dm.Player.IsSkillMode && (dm.Player.skill.availableTilesInRange.Count == 0))
+        {
+            dm.Player.CancelSkill();
+        }
+        shortCutPressed = false;
+    }
+    public void Btn_ActionShortCutPointerDown(int index)
+    {
+        if (shortCutPressed) return;
+        shortCutPressed = true;
+        if (!dm.Player.Controllable) return;
+        switch(index)
+        {
+            case 0:
+                break;
+            case 1:
+                dm.Player.SkipTurn();
+                break;
+            case 2:
+                dm.Player.LootItem();
+                break;
+            case 3:
+                break;
+            default:
+                throw new System.NotImplementedException();
+        }
+    }
+    public void Btn_ActionShortCutPointerUp(int index)
+    {
+        if (index == 0)
+        {
+
+        }
+        shortCutPressed = false;
+    }
+
     public void UpdateMenuUI(Menu menu)
     {
         switch (menu)
@@ -87,6 +180,9 @@ public class DungeonUIManager : MonoBehaviour
                 break;
             case Menu.Ability:
                 abilityUI.Refresh();
+                break;
+            case Menu.Skill:
+                skillUI.Refresh();
                 break;
         }
     }
@@ -114,6 +210,8 @@ public class DungeonUIManager : MonoBehaviour
                 return inventoryUI.gameObject;
             case Menu.Ability:
                 return abilityUI.gameObject;
+            case Menu.Skill:
+                return skillUI.gameObject;
             default: return null;
         }
     }
@@ -188,10 +286,22 @@ public class DungeonUIManager : MonoBehaviour
     }
     public string GetAbilityDescription(string key)
     {
-        return tableAbility.GetTable().GetEntry(key + "_DESCRIPTION").GetLocalizedString();
+        return tableAbility.GetTable().GetEntry(key + "_DESC").GetLocalizedString();
     }
     public string GetAbilityEffect(string key, int[] values)
     {
         return tableAbility.GetTable().GetEntry(key + "_EFFECT").GetLocalizedString(values);
+    }
+    public string GetSkillName(string key)
+    {
+        return tableSkill.GetTable().GetEntry(key + "_NAME").GetLocalizedString();
+    }
+    public string GetSkillDescription(string key)
+    {
+        return tableSkill.GetTable().GetEntry(key + "_DESC").GetLocalizedString();
+    }
+    public string GetSkillEffect(string key, int[] values)
+    {
+        return tableSkill.GetTable().GetEntry(key + "_EFFECT").GetLocalizedString(values);
     }
 }

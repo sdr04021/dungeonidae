@@ -12,6 +12,7 @@ public class PlayerCamera : MonoBehaviour
 
     Vector3 lastMousePostion = new();
     bool found = false;
+    bool dragging = false;
 
     // Start is called before the first frame update
     void Start()
@@ -31,9 +32,11 @@ public class PlayerCamera : MonoBehaviour
                 cameraPostion = transform.position;
                 if (Input.GetMouseButton(0))
                 {
-                    Vector3 diff = lastMousePostion - cam.ScreenToWorldPoint(Input.mousePosition);
-                    if (diff.magnitude > 0.075f)
-                        cameraPostion += diff;
+                    Vector3 diff = lastMousePostion - Input.mousePosition;
+                    if (diff.magnitude > 12f)
+                        dragging = true;
+                    if (dragging)
+                        cameraPostion += (cam.ScreenToWorldPoint(lastMousePostion) - cam.ScreenToWorldPoint(Input.mousePosition));
                     cameraPostion.x = (cameraPostion.x < 0) ? 0 : cameraPostion.x;
                     cameraPostion.x = (cameraPostion.x > 100) ? 100 : cameraPostion.x;
                     cameraPostion.y = (cameraPostion.y < 0) ? 0 : cameraPostion.y;
@@ -58,6 +61,9 @@ public class PlayerCamera : MonoBehaviour
                     cam.orthographicSize = 40;
             }
 
+            if (Input.GetMouseButtonUp(0))
+                dragging = false;
+
             if (!found)
             {
                 transform.position = targetPosition;
@@ -72,6 +78,6 @@ public class PlayerCamera : MonoBehaviour
             }
         }
 
-        lastMousePostion = cam.ScreenToWorldPoint(Input.mousePosition);
+        lastMousePostion = Input.mousePosition;
     }
 }

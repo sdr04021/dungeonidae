@@ -1,5 +1,8 @@
 using DG.Tweening;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Player : Unit
@@ -8,6 +11,9 @@ public class Player : Unit
     public bool IsThrowingMode { get; private set; } = false;
     Tuple<ItemType, int> itemToThrow;
     ItemObject throwingItem;
+    public List<Coordinate> throwableRange = new();
+
+    public bool IsSkillMode { get; private set; } = false;
 
     AbilityDirector abilityDirector;
 
@@ -24,13 +30,14 @@ public class Player : Unit
 
     public override void Init(DungeonManager dungeonManager, Coordinate c)
     {
-        base.Init(dungeonManager, c);;
+        base.Init(dungeonManager, c);
 
         PlayerData.abilityPoint += 9;
-        for(int i=0; i<GameManager.Instance.testAbility.Length; i++)
+        for (int i = 0; i < GameManager.Instance.testAbility.Length; i++)
         {
             PlayerData.AddAbility(new AbilityData(GameManager.Instance.testAbility[i]));
         }
+        UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill), 0);
     }
 
     public override void StartTurn()
@@ -77,15 +84,16 @@ public class Player : Unit
     {
         Tile tile = dm.GetTileByCoordinate(Coord);
         if (tile.items.Count > 0)
-        {   
-            if(tile.items.Peek().data is EquipmentData equip) {
+        {
+            if (tile.items.Peek().data is EquipmentData equip)
+            {
                 if (PlayerData.AddEquipment(equip))
                 {
                     Destroy(tile.items.Peek().gameObject);
                     tile.items.Pop();
                 }
             }
-            else if(tile.items.Peek().data is MiscData misc)
+            else if (tile.items.Peek().data is MiscData misc)
             {
                 int before = misc.Amount;
                 if (PlayerData.AddMisc(misc))
@@ -110,7 +118,8 @@ public class Player : Unit
 
     public void UseItem(int index)
     {
-        if (itemEffectDirector.ItemEffect(PlayerData.miscInventory[index])){
+        if (itemEffectDirector.ItemEffect(PlayerData.miscInventory[index]))
+        {
             PlayerData.RemoveOneMisc(index);
             EndTurn(1);
         }
@@ -138,7 +147,17 @@ public class Player : Unit
     {
         Controllable = false;
         IsThrowingMode = true;
-        itemToThrow = new Tuple<ItemType,int>(type, index);
+        itemToThrow = new Tuple<ItemType, int>(type, index);
+
+        for(int i=0; i<tilesInSight.Count; i++)
+        {
+            Tile tile = dm.GetTileByCoordinate(tilesInSight[i]);
+            if ((tile.Coord != Coord) && (tile.type == TileType.Floor))
+            {
+                throwableRange.Add(tile.Coord);
+                tile.SetAvailable();
+            }
+        }
     }
     void ThrowItem(Coordinate to)
     {
@@ -175,19 +194,29 @@ public class Player : Unit
             }
             else if (IsThrowingMode)
             {
-                if (tilesInSight.Contains(coord))
+                if (throwableRange.Contains(coord))
+                {
+                    FlipSprite(coord);
                     ThrowItem(coord);
+                    ResetTilesInRange();
+                }
+            }
+            else if (IsSkillMode)
+            {
+                if (skill.availableTilesInRange.Contains(coord))
+                {
+                    IsSkillMode = false;
+                    FlipSprite(coord);
+                    skill.StartSkill(coord);
+                }
+                else CancelSkill();
             }
             return;
         }
 
-        if (coord == Coord)
-            return;
-        else if ((coord.x - Coord.x) > 0)
-            FlipSprite(Directions.E);
-        else if ((coord.x - Coord.x) < 0)
-            FlipSprite(Directions.W);
+        if (coord == Coord) return;
 
+        FlipSprite(coord);
 
         if (map[coord.x, coord.y].type == TileType.Floor)
         {
@@ -195,7 +224,7 @@ public class Player : Unit
             {
                 if (dm.FogMap[coord.x, coord.y].IsObserved)
                 {
-                    if(FindPath(coord))
+                    if (FindPath(coord))
                         FollowPath();
                 }
             }
@@ -204,6 +233,26 @@ public class Player : Unit
                 StartBasicAttack(map[coord.x, coord.y].unit);
             }
         }
+    }
+
+    public void TileTargeted(Coordinate coord)
+    {
+        if (IsThrowingMode)
+        {
+            for (int i = 0; i < throwableRange.Count; i++)
+            {
+                if (throwableRange[i] == coord)
+                {
+                    dm.GetTileByCoordinate(coord).targetMark.SetActive(true);
+                }
+                else dm.GetTileByCoordinate(throwableRange[i]).targetMark.SetActive(false);
+            }
+        }
+        else if (IsSkillMode)
+        {
+           skill.ShowTargetArea(coord);
+        }
+
     }
 
     public void EquipEquipment(int inventoryIndex, int equippedIndex)
@@ -248,5 +297,49 @@ public class Player : Unit
             return true;
         }
         else return false;
+    }
+
+    void ResetTilesInRange()
+    {
+        for (int i = 0; i < throwableRange.Count; i++)
+        {
+            dm.GetTileByCoordinate(throwableRange[i]).TurnOffRangeIndicator();
+        }
+        throwableRange.Clear();
+    }
+
+    public void PrepareSkill(int index)
+    {
+        if ((UnitData.Skills[index] != null) && (skill == null))
+        {
+            MatchSkillData(UnitData.Skills[index]);
+            if (skill.IsUsable())
+            {
+                skill.Prepare();
+                Controllable = false;
+                IsSkillMode = true;
+            }
+            else
+            {
+                skill = null;
+            }
+        }
+    }
+
+    public void CancelSkill()
+    {
+        skill.ResetTilesInRange();
+        IsSkillMode = false;
+        Controllable = true;
+        skill = null;
+    }
+
+    public void MatchSkillData(SkillData skillData)
+    {
+        skill = skillData.Key switch
+        {
+            "POWER_STRIKE" => new SkillPowerStrike(this, dm, skillData),
+            _ => null,
+        };
     }
 }

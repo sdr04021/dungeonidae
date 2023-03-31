@@ -138,6 +138,7 @@ public class DungeonManager : MonoBehaviour
         {
             units[i].SetUnitListIndex(i);
             units[i].TrimTurn(trimAmount);
+            units[i].UnitData.ReduceSkillCurrentCooldowns(trimAmount);
             if (units[i].TurnIndicator == min)
                 maxOrder++;
             else break;
@@ -187,18 +188,13 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
-    public void UpdatePlayerHpBar()
-    {
-        dunUI.UpdateHpBar();
-    }
-
     public Tile GetTileByCoordinate(Coordinate c)
     {
         if (c.IsValidCoordForMap(map))
         {
             return map[c.x, c.y];
         }
-        else throw new System.Exception("Invalid coordinate");
+        else return null;
     }
     public bool IsReachable(Coordinate c)
     {

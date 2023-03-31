@@ -20,7 +20,7 @@ abstract public class Unit : MonoBehaviour
     protected Stack<Directions> path;
     public List<Unit> UnitsInSight { get; private set; } = new();
     protected bool foundSomething = false;
-    bool isAnimationFinished = false;
+    public bool isAnimationFinished;
     protected Unit chaseTarget;
     protected Coordinate chaseTargetRecentCoord;
 
@@ -28,12 +28,14 @@ abstract public class Unit : MonoBehaviour
     public UnitData UnitData { get; private set; }
     public SpriteRenderer MySpriteRenderer { get; private set; }
     public Animator MyAnimator { get; private set; }
+    [field: SerializeField] public Animator EffectAnimator { get; private set; }
     public Canvas canvas;
     [SerializeField] Image hpBarBg;
     public Image hpBar;
-    readonly WaitForSeconds shortDelay = new(0.1f);
 
     protected ItemEffectDirector itemEffectDirector;
+
+    public Skill skill { get; protected set; }
 
     protected virtual void Awake()
     {
@@ -47,6 +49,7 @@ abstract public class Unit : MonoBehaviour
     protected virtual void Start()
     {
         UpdateHpBar();
+        UnitData.OnHpValueChanged += new UnitData.EventHandler(UpdateHpBar);
     }
 
     public virtual void Init(DungeonManager dungeonManager, Coordinate c)
@@ -138,6 +141,31 @@ abstract public class Unit : MonoBehaviour
         EndTurn(100f / UnitData.Speed.Total());
     }
 
+    public bool IsHostileUnit(Unit target)
+    {
+        switch (UnitData.Team)
+        {
+            case Team.Neutral:
+                return false;
+            case Team.Free:
+                return true;
+            case Team.Player:
+                if ((target.UnitData.Team == Team.Player) || (target.UnitData.Team == Team.Neutral) || (target.UnitData.Team == Team.Ally))
+                    return false;
+                else return true;
+            case Team.Enemy:
+                if ((target.UnitData.Team == Team.Enemy) || (target.UnitData.Team == Team.Neutral))
+                    return false;
+                else return true;
+            case Team.Enemy2:
+                if ((target.UnitData.Team == Team.Enemy2) || (target.UnitData.Team == Team.Neutral))
+                    return false;
+                else return true;
+            default:
+                throw new System.NotImplementedException();
+        }
+    }
+
     public void StartBasicAttack(Unit target)
     {
         if (!Controllable || UnitData.Aspd.Total() <= 0) return;
@@ -160,7 +188,7 @@ abstract public class Unit : MonoBehaviour
         target.GetDamage(new AttackData(this, damage, 0));
         while (!isAnimationFinished || !target.isAnimationFinished)
         {
-            yield return shortDelay;
+            yield return Constants.ZeroPointOne;
         }
         isAnimationFinished = false;
         target.isAnimationFinished = false;
@@ -177,11 +205,10 @@ abstract public class Unit : MonoBehaviour
         int damage = attackDamage + magicAttackDamage;
 
         UnitData.Hp -= damage;
-        UpdateHpBar();
         if(canvas!= null)
         {
             DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
-            dt.SetValue(damage);
+            dt.SetValue(damage, DamageType.Normal);
         }
         MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(ToDefaultColor);
         if (UnitData.Hp <= 0)
@@ -193,6 +220,7 @@ abstract public class Unit : MonoBehaviour
     protected virtual void StartDie()
     {
         MySpriteRenderer.DOFade(0, 1.1f).OnComplete(Die);
+        dm.GetTileByCoordinate(Coord).unit = null;
         if (hpBarBg != null) { hpBarBg.DOFade(0, 1f); }
     }
     void Die()
@@ -215,8 +243,11 @@ abstract public class Unit : MonoBehaviour
     {
         amount = Mathf.Min(amount, UnitData.MaxHp.Total() - UnitData.Hp);
         UnitData.Hp += amount;
-
-        UpdateHpBar();
+        if (canvas != null)
+        {
+            DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
+            dt.SetValue(amount, DamageType.Normal);
+        }
     }
 
 
@@ -224,8 +255,6 @@ abstract public class Unit : MonoBehaviour
     {
         if (hpBar != null)
             hpBar.fillAmount = UnitData.Hp / (float)UnitData.MaxHp.Total();
-        else
-            dm.UpdatePlayerHpBar();
     }
 
     protected void RandomStep()
@@ -388,6 +417,12 @@ abstract public class Unit : MonoBehaviour
         UnitsInSight = detectedUnits;
     }
 
+    public void EndSkill(float turnSpent)
+    {
+        skill = null;
+        EndTurn(turnSpent);
+    }
+
     protected void EndTurn(float turnSpent)
     {
         TurnIndicator += turnSpent;
@@ -422,5 +457,34 @@ abstract public class Unit : MonoBehaviour
                 canvas.transform.localScale = new Vector3(sign * canvas.transform.localScale.x, canvas.transform.localScale.y, canvas.transform.localScale.z);
             }
         }
+    }
+    protected void FlipSprite(Coordinate lookAt)
+    {
+        float sign = Mathf.Sign(transform.localScale.x);
+        if (Coord == lookAt)
+            return;
+        else if ((lookAt.x - Coord.x) > 0)
+        {
+            transform.localScale = new Vector3(sign * transform.localScale.x, transform.localScale.y, transform.localScale.z);
+            if (canvas != null)
+            {
+                canvas.transform.localScale = new Vector3(sign * canvas.transform.localScale.x, canvas.transform.localScale.y, canvas.transform.localScale.z);
+            }
+        }
+        else if ((lookAt.x - Coord.x) < 0)
+        {
+            sign *= -1;
+            transform.localScale = new Vector3(sign * transform.localScale.x, transform.localScale.y, transform.localScale.z);
+            if (canvas != null)
+            {
+                canvas.transform.localScale = new Vector3(sign * canvas.transform.localScale.x, canvas.transform.localScale.y, canvas.transform.localScale.z);
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        MySpriteRenderer.DOKill();
+        transform.DOKill();
     }
 }

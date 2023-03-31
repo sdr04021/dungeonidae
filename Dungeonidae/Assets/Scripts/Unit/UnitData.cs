@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 
 [System.Serializable]
@@ -10,6 +8,9 @@ public class UnitData
 {
     public delegate void EventHandler();
     public event EventHandler OnHpValueChanged;
+    public event EventHandler OnMpValueChanged;
+    public event EventHandler OnSkillChanged;
+    public event EventHandler OnSkillCurrentCooldownChanged;
 
     [SerializeField] string unitName;
     public string UnitName { get => unitName; }
@@ -52,6 +53,7 @@ public class UnitData
         set
         {
             mp = value >= 0 ? value <= maxMp.Total() ? value : maxMp.Total() : 0;
+            OnMpValueChanged?.Invoke();
         }
     }
 
@@ -140,6 +142,9 @@ public class UnitData
         }
     }
 
+    [field:SerializeField] public SkillData[] Skills { get; private set; } = new SkillData[5];
+    public List<SkillData> learnedSkills = new();
+
     public UnitData(BaseStats baseStats)
     {
         unitName = baseStats.UnitName;
@@ -210,6 +215,7 @@ public class UnitData
                     StatTypeToUnitStat(statType).percent.Add(key, amount);
                 break;
         }
+        InvokeStatChangedEvent(statType);
     }
     public void RemoveStatValue(string key, StatType statType, StatValueType statValueType)
     {
@@ -234,6 +240,20 @@ public class UnitData
                 {
                     StatTypeToUnitStat(statType).percent.Remove(key);
                 }
+                break;
+        }
+        InvokeStatChangedEvent(statType);
+    }
+
+    public void InvokeStatChangedEvent(StatType statType)
+    {
+        switch (statType)
+        {
+            case StatType.HP:
+                OnHpValueChanged.Invoke();
+                break;
+            case StatType.Mp:
+                OnHpValueChanged.Invoke();
                 break;
         }
     }
@@ -287,5 +307,28 @@ public class UnitData
             case StatType.Speed: return ref speed;
             default: throw new NotImplementedException();
         }
+    }
+
+    public void AddSkill(SkillData skill, int index)
+    {
+        Skills[index] = skill;
+        learnedSkills.Add(skill);
+        OnSkillChanged?.Invoke();
+    }
+    public void SwapSkillSlots(int a, int b)
+    {
+        (Skills[a], Skills[b]) = (Skills[b], Skills[a]);
+        OnSkillChanged?.Invoke();
+    }
+    public void ReduceSkillCurrentCooldowns(int turn)
+    {
+        for(int i=0; i<Skills.Length; i++)
+        {
+            if ((Skills[i] != null) && (Skills[i].coolDown >= 1))
+            {
+                Skills[i].coolDown -= turn;
+            }
+        }
+        OnSkillCurrentCooldownChanged?.Invoke();
     }
 }
