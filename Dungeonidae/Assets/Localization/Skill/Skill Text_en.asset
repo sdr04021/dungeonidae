@@ -32,10 +32,23 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 3135477992852029468
+  - m_Id: 862045540630528
+    m_Localized: Rush
+    m_Metadata:
+      m_Items: []
+  - m_Id: 862107859599360
+    m_Localized: MP cost {0.0}, Move {0.1} tiles. Cooldown {0.2} turn.
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029468
+  - m_Id: 862104399298560
+    m_Localized: Moves to the selected location.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
     - rid: 3135477992852029468
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_Entries: 0050b92a1d000000
+        m_Entries: 0050b92a1d00000000c0ba2015100300

@@ -6,31 +6,53 @@ public abstract class Skill
 {
     protected Unit owner;
     protected DungeonManager dm;
-    public SkillData skillData { get; protected set; }
+    public SkillData SkillData { get; protected set; }
 
-    public List<Coordinate> availableTilesInRange = new();
-    public List<Coordinate> unAvailableTilesInRange = new();
+    public List<Coordinate> AvailableTilesInRange { get; protected set; } = new();
+    public List<Coordinate> UnAvailableTilesInRange { get; protected set; } = new ();
+
+    protected List<Coordinate> targetArea = new();
+
+    protected bool showRange = false;
 
     public Skill(Unit owner, DungeonManager dm, SkillData skillData)
     {
         this.owner = owner;
         this.dm = dm;
-        this.skillData = skillData;
+        SkillData = skillData;
     }
 
     public abstract void Prepare();
     public abstract bool IsUsable();
-    public abstract void SetRange();
+    public abstract void SetRange(bool showRange);
 
-    public abstract void ResetTilesInRange();
+    public void ResetTilesInRange()
+    {
+        if (showRange)
+        {
+            for (int i = 0; i < AvailableTilesInRange.Count; i++)
+            {
+                dm.GetTileByCoordinate(AvailableTilesInRange[i]).TurnOffRangeIndicator();
+            }
+            for (int i = 0; i < UnAvailableTilesInRange.Count; i++)
+            {
+                dm.GetTileByCoordinate(UnAvailableTilesInRange[i]).TurnOffRangeIndicator();
+            }
+        }
+
+        AvailableTilesInRange.Clear();
+        UnAvailableTilesInRange.Clear();
+    }
 
     public abstract void StartSkill(Coordinate coord);
 
-    protected abstract IEnumerator SkillEffect(Unit target);
+    protected abstract IEnumerator SkillEffect(Coordinate coord);
 
     public abstract void ShowTargetArea(Coordinate coord);
 
     public abstract List<Coordinate> SetTargetArea(Coordinate coord);
+
+    public abstract Coordinate? SelectTargetAutomatically();
 
     public abstract AttackData MakeAttackData(Unit target);
 }

@@ -24,7 +24,8 @@ public class MapGenerator
 
         for(int i=0; i<roomSeedAmount; i++)
         {
-            rooms.Add(new Room(new Coordinate(Random.Range(2, map.GetLength(0) - 2), Random.Range(2, map.GetLength(1) - 2))));
+            //rooms.Add(new Room(new Coordinate(Random.Range(2, map.GetLength(0) - 2), Random.Range(2, map.GetLength(1) - 2))));
+            rooms.Add(new Room(new Coordinate(Random.Range(2, 50), Random.Range(2, 50))));
         }
 
         for(int i=0; i<growCount; i++)

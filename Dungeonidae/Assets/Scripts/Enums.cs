@@ -1,6 +1,6 @@
 
 public enum AreaType { Room, Hallway, Entrance, None }
-public enum AttackType { Atk, MAtk}
+public enum AttackType { Atk, MAtk, Fixed}
 public enum DamageType { Normal, Miss, Critical, Block, Heal }
 public enum Directions { N, NE, E, SE, S, SW, W, NW, NONE }
 public enum ItemType { Equipment, Misc}

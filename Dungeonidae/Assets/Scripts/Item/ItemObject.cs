@@ -12,8 +12,6 @@ public class ItemObject : MonoBehaviour
     DungeonManager dm;
     public Coordinate Coord { get; private set; }
 
-    Sequence dropSequence;
-
     public void Init(DungeonManager dungeonManager, Coordinate c, ItemData item)
     {
         dm = dungeonManager;
@@ -27,15 +25,24 @@ public class ItemObject : MonoBehaviour
 
     public void Bounce()
     {
-        dropSequence = transform.DOJump(new Vector3(Coord.x, Coord.y - 0.2f, transform.position.z), 0.4f, 1, 0.5f);
+        transform.DOJump(new Vector3(Coord.x, Coord.y - 0.2f, transform.position.z), 0.4f, 1, 0.5f);
     }
     public void Drop()
     {
         transform.DOMove(new Vector3(Coord.x, Coord.y - 0.2f, transform.position.z), 0.2f);
     }
+    public void Loot()
+    {
+        transform.DOMove(new Vector3(Coord.x, Coord.y, transform.position.z), 0.1f).OnComplete(DestroyThis);
+    }
+
+    void DestroyThis()
+    {
+        Destroy(gameObject);
+    }
 
     private void OnDestroy()
     {
-        dropSequence?.Kill();
+        transform.DOKill();
     }
 }

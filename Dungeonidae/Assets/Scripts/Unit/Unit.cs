@@ -32,6 +32,7 @@ abstract public class Unit : MonoBehaviour
     public Canvas canvas;
     [SerializeField] Image hpBarBg;
     public Image hpBar;
+    public BasicAttack BasicAttack { get; private set; }
 
     protected ItemEffectDirector itemEffectDirector;
 
@@ -56,6 +57,7 @@ abstract public class Unit : MonoBehaviour
     {
         dm = dungeonManager;
         map = dm.map;
+        BasicAttack = new BasicAttack(this, dm, null);
         SetStartPosition(c.x, c.y);
         UpdateSightArea();
     }
@@ -141,6 +143,18 @@ abstract public class Unit : MonoBehaviour
         EndTurn(100f / UnitData.Speed.Total());
     }
 
+    public void UpdateCoordinateFromTransform()
+    {
+        _coord.Set((int)transform.position.x, (int)transform.position.y);
+        dm.GetTileByCoordinate(Coord).unit = this;
+        UpdateSightArea();
+    }
+
+    public bool IsTargetable(Tile tile)
+    {
+        return false;
+    }
+
     public bool IsHostileUnit(Unit target)
     {
         switch (UnitData.Team)
@@ -165,27 +179,29 @@ abstract public class Unit : MonoBehaviour
                 throw new System.NotImplementedException();
         }
     }
-
+    /*
     public void StartBasicAttack(Unit target)
     {
         if (!Controllable || UnitData.Aspd.Total() <= 0) return;
         if (_coord.IsTargetInRange(target.Coord, UnitData.AtkRange.Total())){
             Controllable = false;
             MyAnimator.SetBool("Attack", true);
-            StartCoroutine(BasicAttack(target));
+            StartCoroutine(IBasicAttack(target));
         }
     }
+    */
     public void EndBasicAttack()
     {
         MyAnimator.SetBool("Attack", false);
         isAnimationFinished = true;
     }
-    IEnumerator BasicAttack(Unit target)
+    /*
+    IEnumerator IBasicAttack(Unit target)
     {
         float animationLength = MyAnimator.GetCurrentAnimatorStateInfo(0).length;
         int damage = UnitData.Atk.Total();
         yield return new WaitForSeconds(animationLength * 0.5f);
-        target.GetDamage(new AttackData(this, damage, 0));
+        target.GetDamage(new AttackData(this, damage, 0, 0));
         while (!isAnimationFinished || !target.isAnimationFinished)
         {
             yield return Constants.ZeroPointOne;
@@ -194,6 +210,7 @@ abstract public class Unit : MonoBehaviour
         target.isAnimationFinished = false;
         EndTurn(100f / UnitData.Aspd.Total());
     }
+    */
 
     public virtual void GetDamage(AttackData attackData)
     {
@@ -246,7 +263,7 @@ abstract public class Unit : MonoBehaviour
         if (canvas != null)
         {
             DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
-            dt.SetValue(amount, DamageType.Normal);
+            dt.SetValue(amount, DamageType.Heal);
         }
     }
 

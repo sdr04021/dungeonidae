@@ -84,6 +84,24 @@ public class Controller : MonoBehaviour
                 }
             }
         }
+        else if (Input.GetKeyDown(KeyCode.A))
+        {
+            if (player.Controllable)
+            {
+                player.PrepareBasicAttack();
+            }
+            else if (player.IsBasicAttackMode)
+            {
+                player.AutoBasicAttack();
+            }
+        }
+        else if (Input.GetKeyUp(KeyCode.A))
+        {
+            if (player.IsBasicAttackMode && (player.BasicAttack.AvailableTilesInRange.Count == 0))
+            {
+                player.CancelBasicAttack();
+            }
+        }
         else if (Input.GetKeyDown(KeyCode.S))
         {
             if (player.Controllable)
@@ -104,10 +122,14 @@ public class Controller : MonoBehaviour
             {
                 player.PrepareSkill(0);
             }
+            else if (player.IsSkillMode)
+            {
+                player.AutoSkill();
+            }
         }
         else if (Input.GetKeyUp(KeyCode.Q))
         {
-            if (player.IsSkillMode && (player.skill.availableTilesInRange.Count==0))
+            if (player.IsSkillMode && (player.skill.AvailableTilesInRange.Count==0))
             {
                 player.CancelSkill();
             }
@@ -118,10 +140,14 @@ public class Controller : MonoBehaviour
             {
                 player.PrepareSkill(1);
             }
+            else if (player.IsSkillMode)
+            {
+                player.AutoSkill();
+            }
         }
         else if (Input.GetKeyUp(KeyCode.W))
         {
-            if (player.IsSkillMode && (player.skill.availableTilesInRange.Count == 0))
+            if (player.IsSkillMode && (player.skill.AvailableTilesInRange.Count == 0))
             {
                 player.CancelSkill();
             }
@@ -132,10 +158,14 @@ public class Controller : MonoBehaviour
             {
                 player.PrepareSkill(2);
             }
+            else if (player.IsSkillMode)
+            {
+                player.AutoSkill();
+            }
         }
         else if (Input.GetKeyUp(KeyCode.E))
         {
-            if (player.IsSkillMode && (player.skill.availableTilesInRange.Count == 0))
+            if (player.IsSkillMode && (player.skill.AvailableTilesInRange.Count == 0))
             {
                 player.CancelSkill();
             }
@@ -146,10 +176,14 @@ public class Controller : MonoBehaviour
             {
                 player.PrepareSkill(3);
             }
+            else if (player.IsSkillMode)
+            {
+                player.AutoSkill();
+            }
         }
         else if (Input.GetKeyUp(KeyCode.R))
         {
-            if (player.IsSkillMode && (player.skill.availableTilesInRange.Count == 0))
+            if (player.IsSkillMode && (player.skill.AvailableTilesInRange.Count == 0))
             {
                 player.CancelSkill();
             }
@@ -160,10 +194,14 @@ public class Controller : MonoBehaviour
             {
                 player.PrepareSkill(4);
             }
+            else if (player.IsSkillMode)
+            {
+                player.AutoSkill();
+            }
         }
         else if (Input.GetKeyUp(KeyCode.T))
         {
-            if (player.IsSkillMode && (player.skill.availableTilesInRange.Count == 0))
+            if (player.IsSkillMode && (player.skill.AvailableTilesInRange.Count == 0))
             {
                 player.CancelSkill();
             }

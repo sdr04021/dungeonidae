@@ -30,7 +30,8 @@ public class Monster : Unit
                 chaseTargetRecentCoord = chaseTarget.Coord;
                 if (Coord.IsTargetInRange(chaseTarget.Coord, UnitData.AtkRange.Total()))
                 {
-                    StartBasicAttack(chaseTarget);
+                    Controllable = false;
+                    BasicAttack.StartSkill(chaseTarget.Coord);
                 }
                 else
                 {

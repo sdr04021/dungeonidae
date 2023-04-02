@@ -9,7 +9,7 @@ public class DamageText : MonoBehaviour
 {
     [SerializeField] TMP_Text tmpro;
     [SerializeField] RectTransform rect;
-    Color healColor = new Color(0.5f, 1.244f, 0.5f);
+    Color healColor = new(0.5f, 1.244f, 0.5f);
 
     public void SetValue(int amount, DamageType damageType)
     {

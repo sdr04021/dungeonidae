@@ -27,6 +27,18 @@ MonoBehaviour:
     m_Key: POWER_STRIKE_EFFECT
     m_Metadata:
       m_Items: []
+  - m_Id: 862045540630528
+    m_Key: RUSH_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 862104399298560
+    m_Key: RUSH_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 862107859599360
+    m_Key: RUSH_EFFECT
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

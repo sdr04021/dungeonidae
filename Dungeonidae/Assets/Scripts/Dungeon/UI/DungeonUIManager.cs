@@ -10,6 +10,8 @@ public class DungeonUIManager : MonoBehaviour
     [SerializeField] DungeonManager dm;
     public Player Player { get; private set; }
 
+    [SerializeField] Canvas gameCanvas;
+
     [SerializeField] TMP_Text lvText;
     [SerializeField] Image hpBar;
     [SerializeField] TMP_Text hpText;
@@ -21,7 +23,7 @@ public class DungeonUIManager : MonoBehaviour
     [SerializeField] ShortcutButton[] skillShortcutButtons;
     bool shortCutPressed = false;
 
-    [SerializeField] GameObject menuCanvas;
+    [SerializeField] Canvas menuCanvas;
     public enum Menu { Status, Inventory, Ability, Skill, Soulstone }
     Menu currentMenu = Menu.Status;
 
@@ -40,6 +42,15 @@ public class DungeonUIManager : MonoBehaviour
     readonly LocalizedStringTable tableItemDescription = new("Item Description");
     readonly LocalizedStringTable tableAbility = new("Ability");
     readonly LocalizedStringTable tableSkill = new("Skill Text");
+
+    private void Awake()
+    {
+        if (!Application.isMobilePlatform)
+        {
+            gameCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(3840, 2160);
+            menuCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(3840, 2160);
+        }
+    }
 
     public void Init()
     {
@@ -129,10 +140,14 @@ public class DungeonUIManager : MonoBehaviour
         {
             dm.Player.PrepareSkill(index);
         }
+        else if (dm.Player.IsSkillMode)
+        {
+            dm.Player.AutoSkill();
+        }
     }
     public void Btn_SkillShortcutPointerUp()
     {
-        if (dm.Player.IsSkillMode && (dm.Player.skill.availableTilesInRange.Count == 0))
+        if (dm.Player.IsSkillMode && (dm.Player.skill.AvailableTilesInRange.Count == 0))
         {
             dm.Player.CancelSkill();
         }
@@ -146,6 +161,10 @@ public class DungeonUIManager : MonoBehaviour
         switch(index)
         {
             case 0:
+                if (dm.Player.IsBasicAttackMode)
+                    dm.Player.AutoBasicAttack();
+                else
+                    dm.Player.PrepareBasicAttack();
                 break;
             case 1:
                 dm.Player.SkipTurn();
@@ -163,7 +182,10 @@ public class DungeonUIManager : MonoBehaviour
     {
         if (index == 0)
         {
-
+            if (dm.Player.IsBasicAttackMode && (dm.Player.BasicAttack.AvailableTilesInRange.Count == 0))
+            {
+                dm.Player.CancelBasicAttack();
+            }
         }
         shortCutPressed = false;
     }
@@ -191,29 +213,25 @@ public class DungeonUIManager : MonoBehaviour
     {
         if(dm.Player.Controllable)
         {
-            menuCanvas.SetActive(true);
+            menuCanvas.gameObject.SetActive(true);
             UpdateMenuUI(currentMenu);
         }
     }
     public void CloseMenuCanvas()
     {
-        menuCanvas.SetActive(false);
+        menuCanvas.gameObject.SetActive(false);
     }
 
     GameObject MenuToGameObject(Menu menu)
     {
-        switch (menu)
+        return menu switch
         {
-            case Menu.Status:
-                return statusUI.gameObject;
-            case Menu.Inventory:
-                return inventoryUI.gameObject;
-            case Menu.Ability:
-                return abilityUI.gameObject;
-            case Menu.Skill:
-                return skillUI.gameObject;
-            default: return null;
-        }
+            Menu.Status => statusUI.gameObject,
+            Menu.Inventory => inventoryUI.gameObject,
+            Menu.Ability => abilityUI.gameObject,
+            Menu.Skill => skillUI.gameObject,
+            _ => null,
+        };
     }
 
     public void TabButtonClick(int menu)

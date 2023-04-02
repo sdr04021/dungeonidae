@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using DG.Tweening;
 
 public class PlayerCamera : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class PlayerCamera : MonoBehaviour
     bool found = false;
     bool dragging = false;
 
+    Vector3 currentVelocity;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,7 +28,8 @@ public class PlayerCamera : MonoBehaviour
     {
         if (target != null)
         {
-            if(found && target.Controllable)
+            targetPosition.Set(target.transform.position.x, target.transform.position.y, transform.position.z);
+            if (found && target.Controllable)
             {
                 if (EventSystem.current.IsPointerOverGameObject()) return;
 
@@ -46,9 +50,9 @@ public class PlayerCamera : MonoBehaviour
             }
             else
             {
-                targetPosition.Set(target.transform.position.x, target.transform.position.y, transform.position.z);
                 //transform.position = targetPosition;
-                transform.position = Vector3.Lerp(transform.position, targetPosition, 0.1f);
+                //transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, Time.deltaTime*50);
+                transform.DOMove(targetPosition, Time.deltaTime * 20);
             }
 
             if (!EventSystem.current.IsPointerOverGameObject())

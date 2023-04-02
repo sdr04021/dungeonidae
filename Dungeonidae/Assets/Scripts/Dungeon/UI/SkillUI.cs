@@ -56,20 +56,22 @@ public class SkillUI : MonoBehaviour
                         break;
                     case 2:
                         upButtons[i].SetActive(true);
-                        downButtons[i].SetActive(true);
+                        if (dm.Player.UnitData.Skills[i + 1]?.Type == SkillType.Status)
+                            downButtons[i].SetActive(false);
+                        else
+                            downButtons[i].SetActive(true);
                         break;
                     case 3:
                         if (dm.Player.UnitData.Skills[i].Type == SkillType.Attack)
-                        {
                             upButtons[i].SetActive(true);
-                        }
                         else if (dm.Player.UnitData.Skills[i].Type == SkillType.Status)
-                        {
                             downButtons[i].SetActive(true);
-                        }
                         break;
                     case 4:
-                        upButtons[i].SetActive(true);
+                        if (dm.Player.UnitData.Skills[i - 1]?.Type == SkillType.Attack)
+                            upButtons[i].SetActive(false);
+                        else
+                            upButtons[i].SetActive(true);
                         break;
                 }
             }

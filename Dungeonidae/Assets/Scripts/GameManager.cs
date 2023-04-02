@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     public MiscBase testItem;
     public EquipmentBase testEquip;
     public AbilityBase[] testAbility;
-    public SkillBase testSkill;
+    public SkillBase[] testSkill;
 
     private static GameManager instance = null;
     private void Awake()

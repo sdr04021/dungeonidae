@@ -34,10 +34,24 @@ MonoBehaviour:
       \uD53C\uD574\uB97C \uC785\uD78C\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 862045540630528
+    m_Localized: "\uB3CC\uC9C4"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 862107859599360
+    m_Localized: "MP {0.0} \uC18C\uBE44, {0.1}\uCE78 \uC774\uB3D9. \uC7AC\uC0AC\uC6A9
+      \uB300\uAE30\uC2DC\uAC04 {0.2}\uD134."
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029459
+  - m_Id: 862104399298560
+    m_Localized: "\uC120\uD0DD\uD55C \uC704\uCE58\uAE4C\uC9C0 \uC774\uB3D9\uD55C\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
     - rid: 3135477992852029459
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_Entries: 0050b92a1d000000
+        m_Entries: 0050b92a1d00000000c0ba2015100300
