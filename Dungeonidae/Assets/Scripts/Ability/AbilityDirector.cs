@@ -18,7 +18,7 @@ public class AbilityDirector
         switch (ability.Key)
         {
             case "HP_INCREASE":
-                player.UnitData.SetStatValue(ability.Key, StatType.HP, StatValueType.Percent, ability.EffectValues[ability.Level - 1]);
+                player.UnitData.SetStatValue(ability.Key, StatType.MaxHp, StatValueType.Percent, ability.EffectValues[ability.Level - 1]);
                 player.UpdateHpBar();
                 break;
             case "BERSERK":
@@ -35,7 +35,7 @@ public class AbilityDirector
         switch (ability.Key)
         {
             case "HP_INCREASE":
-                player.UnitData.RemoveStatValue(ability.Key, StatType.HP, StatValueType.Percent);
+                player.UnitData.RemoveStatValue(ability.Key, StatType.MaxHp, StatValueType.Percent);
                 player.UpdateHpBar();
                 break;
             case "BERSERK":

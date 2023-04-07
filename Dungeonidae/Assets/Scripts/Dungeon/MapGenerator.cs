@@ -2,20 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DelaunatorSharp;
+using Priority_Queue;
 
 public class MapGenerator
 {
     public Tile[,] map;
 
+    int generationArea = 50;
     int roomSeedAmount = 300;
-    int growCount = 20;
 
-    List<Room> rooms = new List<Room>();
+    List<Room> rooms = new();
     public List<Room> Rooms {  get { return rooms; } }
 
-    void Start()
+    public MapGenerator()
     {
-        //GenerateRooms(map);
+        //generationArea = Mathf.Min(100, generationArea);
+        //roomSeedAmount = generationArea * 6;
     }
 
     public void GenerateRooms(Tile[,] map)
@@ -24,47 +26,62 @@ public class MapGenerator
 
         for(int i=0; i<roomSeedAmount; i++)
         {
-            //rooms.Add(new Room(new Coordinate(Random.Range(2, map.GetLength(0) - 2), Random.Range(2, map.GetLength(1) - 2))));
-            rooms.Add(new Room(new Coordinate(Random.Range(2, 50), Random.Range(2, 50))));
+            //rooms.Add(new Room(new Coordinate(Random.Range(2, map.GetLength(0) - 2), Random.Range(2, map.GetLength(1) - 2)),10));
+            rooms.Add(new Room(new Coordinate(Random.Range(2, generationArea), Random.Range(2, generationArea)), Random.Range(8,12)));
         }
 
-        for(int i=0; i<growCount; i++)
+        while (true)
         {
-            for (int j = rooms.Count-1; j>=0; j--)
+            int finished = 0;
+            for (int i = rooms.Count - 1; i >= 0; i--)
             {
-                if (!rooms[j].finished)
+                if (rooms[i].GrowthCount > 0)
                 {
-                    rooms[j].Grow(Random.Range(0, 5), map);
-                    for (int k = 0; k < rooms.Count; k++)
+                    rooms[i].Grow(Random.Range(0, 5), map);
+                    for (int j = 0; j < rooms.Count; j++)
                     {
-                        if ((j != k) && CheckOverlap(rooms[j], rooms[k]))
+                        if ((i != j) && CheckOverlap(rooms[i], rooms[j]))
                         {
-                            if (rooms[j].Width < 9)
+                            if (rooms[i].Width < 9)
                             {
-                                rooms[k].Average(rooms[j]);
-                                rooms.RemoveAt(j);
+                                rooms[j].Average(rooms[i]);
+                                rooms.RemoveAt(i);
                             }
                             else
                             {
-                                rooms[j].finished = true;
-                                rooms[k].finished = true;
+                                rooms[i].ExcludeBorder();
+                                rooms[i].FinishGrowth();
+                                rooms[j].ExcludeBorder();
+                                rooms[j].FinishGrowth();
                             }
                             break;
                         }
                     }
                 }
+                else finished++;
             }
+            if (finished == rooms.Count)
+                break;
         }
 
         for (int i = rooms.Count - 1; i >= 0; i--)
         {
-            if ((rooms[i].Width < 3) || (rooms[i].Height<3))
+            if ((rooms[i].Width < 5) || (rooms[i].Height<5))
                 rooms.RemoveAt(i);
             else rooms[i].SetCenter();
         }
 
         for (int i = 0; i < rooms.Count; i++) 
         {
+            for (int j = rooms[i].Left; j <= rooms[i].Right; j++)
+            {
+                for (int k = rooms[i].Bottom; k <= rooms[i].Top; k++)
+                {
+                    map[j, k].SetTileType(TileType.Wall);
+                    map[j, k].SetAreaType(AreaType.Border);
+                }
+            }
+            rooms[i].ExcludeBorder();
             for (int j = rooms[i].Left; j <= rooms[i].Right; j++) 
             {
                 for(int k = rooms[i].Bottom; k <= rooms[i].Top; k++)
@@ -73,8 +90,10 @@ public class MapGenerator
                     map[j, k].SetAreaType(AreaType.Room);
                 }
             }
+            rooms[i].SetEntranceCandidates(map);
         }
 
+        /*
         for (int i = 1; i < rooms.Count; i++)
         {
             int dice = Random.Range(0, 10);
@@ -83,9 +102,36 @@ public class MapGenerator
             else if (dice == 1)
                 SetPillarRoom(rooms[i]);
         }
+        */
+        
+        /*
+        for(int i=0; i<rooms.Count; i++)
+        {
+            rooms[i].SetBorderAndEntrance(map);
+            //map[rooms[i].center.x, rooms[i].center.y].SetTileType(TileType.Wall);
+        }
+        */
 
+        /*
+        for(int i=0; i<map.GetLength(0); i++)
+        {
+            for(int j=0; j<map.GetLength(0); j++)
+            {
+                if (map[i,j].Area == AreaType.Border)
+                {
+                    map[i,j].gameObject.SetActive(false);
+                }
+            }
+        }
+        */
+
+        ConnectRooms();
+    }
+
+    void ConnectRooms()
+    {
         int[,] graph = new int[rooms.Count, rooms.Count];
-        Dictionary<Coordinate,int> roomIndexDict = new();
+        Dictionary<Coordinate, int> roomIndexDict = new();
         for (int i = 0; i < rooms.Count; i++)
         {
             roomIndexDict.Add(rooms[i].center, i);
@@ -94,7 +140,7 @@ public class MapGenerator
                 graph[i, j] = -1;
             }
         }
-        
+
         IPoint[] points = new IPoint[rooms.Count];
         for (int i = 0; i < rooms.Count; i++)
         {
@@ -102,7 +148,7 @@ public class MapGenerator
         }
         Delaunator delaunator = new Delaunator(points);
         IEnumerable<IEdge> iEdges = delaunator.GetEdges();
-        foreach(IEdge item in iEdges)
+        foreach (IEdge item in iEdges)
         {
             Coordinate P = new((int)item.P.X, (int)item.P.Y);
             Coordinate Q = new((int)item.Q.X, (int)item.Q.Y);
@@ -112,7 +158,7 @@ public class MapGenerator
             graph[roomIndexDict[Q], roomIndexDict[P]] = dist;
         }
 
-        PriorityQueue<Coordinate> pQueue = new();
+        SimplePriorityQueue<Coordinate> pQueue = new();
         int current = 0;
         int visited = 1;
         bool[] visitFlag = new bool[rooms.Count];
@@ -120,13 +166,13 @@ public class MapGenerator
         visitFlag[current] = true;
         List<Coordinate> hallways = new();
 
-        while (visited < rooms.Count) 
+        while (visited < rooms.Count)
         {
             for (int i = 0; i < rooms.Count; i++)
             {
                 if ((graph[current, i] > 0) && !visitFlag[i])
                 {
-                    pQueue.Enqueue(new Coordinate(current, i), -graph[current, i]);
+                    pQueue.Enqueue(new Coordinate(current, i), graph[current, i]);
                 }
             }
             while (pQueue.Count > 0)
@@ -144,14 +190,14 @@ public class MapGenerator
         }
 
         List<Coordinate> additional = new();
-        for (int i=0; i<hallways.Count; i++)
+        for (int i = 0; i < hallways.Count; i++)
         {
             graph[hallways[i].x, hallways[i].y] = -1;
             graph[hallways[i].y, hallways[i].x] = -1;
         }
-        for(int i=0; i<graph.GetLength(0)-1; i++)
+        for (int i = 0; i < graph.GetLength(0) - 1; i++)
         {
-            for(int j=i+1; j<graph.GetLength(1); j++)
+            for (int j = i + 1; j < graph.GetLength(1); j++)
             {
                 if (graph[i, j] > 0)
                     additional.Add(new Coordinate(i, j));
@@ -176,58 +222,39 @@ public class MapGenerator
         {
             Coordinate start = rooms[hallways[i].x].center;
             Coordinate end = rooms[hallways[i].y].center;
-            Coordinate amount = end - start;
-            bool foundStartEntrance = false;
-            int stepDir = Random.Range(0, 1);
 
-            while (amount.x != 0 || amount.y != 0)
+            AStar aStar = new(map, start, end);
+
+            Coordinate key = end;
+            while(aStar.ParentTable.ContainsKey(key))
             {
-                Coordinate step = new(0, 0);
-
-                if (stepDir == 0)
-                {
-                    if (amount.x != 0)
-                        step.x = (int)Mathf.Sign(amount.x) * 1;
-                    else
-                        step.y += (int)Mathf.Sign(amount.y) * 1;
-                }
-                else
-                {
-                    if (amount.y != 0)
-                        step.y = (int)Mathf.Sign(amount.y) * 1;
-                    else
-                        step.x += (int)Mathf.Sign(amount.x) * 1;
-                }
-
-                start += step;
-                amount -= step;
-                if (map[start.x, start.y].Area != AreaType.Room)
-                {
-                    if (!foundStartEntrance)
-                    {
-                        map[start.x, start.y].SetAreaType(AreaType.Entrance);
-                        map[start.x, start.y].SetTileType(TileType.Floor);
-                        start += step;
-                        //amount -= step;
-                        foundStartEntrance = true;
-                    }
-                    map[start.x, start.y].SetAreaType(AreaType.Hallway);
-                    map[start.x, start.y].SetTileType(TileType.Floor);
-                    if (rooms[hallways[i].y].IsAttached(start))
-                    {
-                        map[start.x, start.y].SetAreaType(AreaType.Entrance);
-                        break;
-                    }
-                }
+                key = aStar.ParentTable[key];
+                map[key.x, key.y].SetTileType(TileType.Floor);
+                if (map[key.x, key.y].Area != AreaType.Room)
+                    map[key.x, key.y].SetAreaType(AreaType.Hallway);
             }
         }
-        
-        /*
+
         for(int i=0; i<rooms.Count; i++)
         {
-            map[rooms[i].center.x, rooms[i].center.y].SetTileType(TileType.Wall);
+            for(int j = rooms[i].Entrances.Count-1; j>=0; j--)
+            {
+                Coordinate c = rooms[i].Entrances[j];
+                if (map[c.x, c.y].Area != AreaType.Hallway)
+                    rooms[i].Entrances.RemoveAt(j);
+            }
         }
-        */
+
+        SetRoomType();
+    }
+
+    void SetRoomType()
+    {
+        for(int i=0; i<rooms.Count; i++)
+        {
+            if (Random.Range(0, 2) == 1)
+                SetComplicatedRoom(rooms[i]);
+        }
     }
 
     bool CheckOverlap (Room a, Room b)
@@ -237,7 +264,7 @@ public class MapGenerator
         int left = Mathf.Max(a.Left,b.Left);
         int right = Mathf.Min(a.Right, b.Right);
 
-        if (((top - bottom) >= -3) && ((right - left) >= -3))
+        if (((top - bottom) >= 0) && ((right - left) >= 0))
             return true;
         else return false;
     }
@@ -268,5 +295,10 @@ public class MapGenerator
                 map[i, j].SetTileType(TileType.Wall);
             }
         }
+    }
+
+    void SetComplicatedRoom(Room room)
+    {
+
     }
 }

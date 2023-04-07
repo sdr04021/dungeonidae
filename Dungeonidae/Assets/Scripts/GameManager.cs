@@ -18,6 +18,10 @@ public class GameManager : MonoBehaviour
     public EquipmentBase testEquip;
     public AbilityBase[] testAbility;
     public SkillBase[] testSkill;
+    [SerializeField] BuffBase[] buffBases;
+    public Dictionary<string, BuffBase> buffBaseDict = new();
+
+    public int temp = 0;
 
     private static GameManager instance = null;
     private void Awake()
@@ -26,6 +30,9 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+
+            for(int i=0; i<buffBases.Length; i++)
+                buffBaseDict.Add(buffBases[i].key, buffBases[i]);
         }
         else
         {

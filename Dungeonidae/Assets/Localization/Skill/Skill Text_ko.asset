@@ -48,10 +48,25 @@ MonoBehaviour:
     m_Localized: "\uC120\uD0DD\uD55C \uC704\uCE58\uAE4C\uC9C0 \uC774\uB3D9\uD55C\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 2891726909521920
+    m_Localized: "\uC804\uB825\uC9C8\uC8FC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2891760661086208
+    m_Localized: "\uC9C0\uC18D \uC2DC\uAC04\uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uAC00
+      \uC99D\uAC00\uD55C\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2891762204590080
+    m_Localized: "MP {0.0} \uC18C\uBE44, {0.1}\uD134 \uB3D9\uC548 \uC774\uB3D9\uC18D\uB3C4
+      {0.2}%P \uC99D\uAC00. \uC7AC\uC0AC\uC6A9 \uB300\uAE30\uC2DC\uAC04 {0.3}\uD134. "
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029459
   references:
     version: 2
     RefIds:
     - rid: 3135477992852029459
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_Entries: 0050b92a1d00000000c0ba2015100300
+        m_Entries: 0050b92a1d00000000c0ba201510030000c0fada0a460a00

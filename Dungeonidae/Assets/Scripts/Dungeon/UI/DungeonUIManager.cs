@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Localization;
+using System;
 
 public class DungeonUIManager : MonoBehaviour
 {
@@ -19,6 +20,10 @@ public class DungeonUIManager : MonoBehaviour
     [SerializeField] TMP_Text mpText;
     [SerializeField] Image expBar;
     [SerializeField] TMP_Text expText;
+
+    [SerializeField] RectTransform buffIconField;
+    [SerializeField] BuffIcon buffIconPrefab;
+    List<BuffIcon> buffIcons = new();
 
     [SerializeField] ShortcutButton[] skillShortcutButtons;
     bool shortCutPressed = false;
@@ -47,21 +52,27 @@ public class DungeonUIManager : MonoBehaviour
     {
         if (!Application.isMobilePlatform)
         {
-            gameCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(3840, 2160);
-            menuCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(3840, 2160);
+            gameCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(2560, 1440);
+            menuCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(2560, 1440);
         }
     }
 
     public void Init()
     {
         UpdateLevelText();
+        dm.Player.UnitData.OnLevelChanged += UpdateLevelText;
         UpdateHpBar();
         dm.Player.UnitData.OnHpValueChanged += UpdateHpBar;
         UpdateMpBar();
         dm.Player.UnitData.OnMpValueChanged += UpdateMpBar;
         UpdateExpBar();
-        dm.Player.UnitData.OnSkillChanged += SetSkillIcons;
+        dm.Player.UnitData.OnExpValueChanged += UpdateExpBar;
+        UpdateBuffIcons();
+        dm.Player.UnitData.OnBuffListChanged += UpdateBuffIcons;
+        UpdateBuffIconDurations();
+        dm.Player.UnitData.OnBuffDurationChanged += UpdateBuffIconDurations;
         SetSkillIcons();
+        dm.Player.UnitData.OnSkillChanged += SetSkillIcons;
         UpdateSkillIconCooldowns();
         dm.Player.UnitData.OnSkillCurrentCooldownChanged += UpdateSkillIconCooldowns;
         dm.Player.UnitData.OnSkillChanged += UpdateSkillIconCooldowns;
@@ -99,6 +110,42 @@ public class DungeonUIManager : MonoBehaviour
         expText.text = exp.ToString() + "/" + maxExp.ToString() +"(" + Mathf.Round(exp/(float)maxExp*100) + "%)";
     }
 
+    public void UpdateBuffIcons()
+    {
+        List<BuffData> buffs = dm.Player.UnitData.Buffs;
+        for (int i = 0; i < buffs.Count; i++)
+        {
+            if (i < buffIcons.Count)
+            {
+                buffIcons[i].SetBuff(buffs[i]);
+            }
+            else
+            {
+                BuffIcon temp = Instantiate(buffIconPrefab, buffIconField);
+                temp.Init(this);
+                temp.SetBuff(buffs[i]);
+                buffIcons.Add(temp);
+            }
+        }
+        for (int i = buffIcons.Count - 1; i >= 0; i--)
+        {
+            if (i >= buffs.Count)
+            {
+                Destroy(buffIcons[i].gameObject);
+                buffIcons.RemoveAt(i);
+            }
+        }
+    }
+
+    public void UpdateBuffIconDurations()
+    {
+        List<BuffData> buffs = dm.Player.UnitData.Buffs;
+        for (int i = 0; i < buffs.Count; i++)
+        {
+            buffIcons[i].SetDuration(buffs[i]);
+        }
+    }
+
     void SetSkillIcons()
     {
         for(int i=0; i<skillShortcutButtons.Length; i++)
@@ -117,7 +164,7 @@ public class DungeonUIManager : MonoBehaviour
         for (int i = 0; i < skillShortcutButtons.Length; i++)
         {
             SkillData skill = dm.Player.UnitData.Skills[i];
-            if ((skill == null) || (skill.coolDown <= 0))
+            if ((skill == null) || (skill.currentCoolDown <= 0))
             {
                 skillShortcutButtons[i].curtain.gameObject.SetActive(false);
                 skillShortcutButtons[i].coolDownText.gameObject.SetActive(false);
@@ -126,7 +173,7 @@ public class DungeonUIManager : MonoBehaviour
             {
                 skillShortcutButtons[i].curtain.gameObject.SetActive(true);
                 skillShortcutButtons[i].coolDownText.gameObject.SetActive(true);
-                skillShortcutButtons[i].coolDownText.text = skill.coolDown.ToString();
+                skillShortcutButtons[i].coolDownText.text = skill.currentCoolDown.ToString();
             }
         }
     }
@@ -135,7 +182,6 @@ public class DungeonUIManager : MonoBehaviour
     {
         if (shortCutPressed) return;
         shortCutPressed = true;
-
         if (dm.Player.Controllable)
         {
             dm.Player.PrepareSkill(index);
@@ -261,9 +307,9 @@ public class DungeonUIManager : MonoBehaviour
             StatType.LifeSteal => tableStatusText.GetTable().GetEntry("LIFE_STEAL").GetLocalizedString(),
             StatType.ManaSteal => tableStatusText.GetTable().GetEntry("MANA_STEAL").GetLocalizedString(),
             StatType.DmgIncrease => tableStatusText.GetTable().GetEntry("DAMAGE_INCREASE").GetLocalizedString(),
-            StatType.HP => "HP",
-            StatType.Mp => "MP",
-            StatType.Hunger => tableStatusText.GetTable().GetEntry("HUNGER").GetLocalizedString(),
+            StatType.MaxHp => "HP",
+            StatType.MaxMp => "MP",
+            StatType.MaxHunger => tableStatusText.GetTable().GetEntry("HUNGER").GetLocalizedString(),
             StatType.Def => tableStatusText.GetTable().GetEntry("DEFENSE").GetLocalizedString(),
             StatType.MDef => tableStatusText.GetTable().GetEntry("MAGIC_DEFENSE").GetLocalizedString(),
             StatType.Eva => tableStatusText.GetTable().GetEntry("EVASION").GetLocalizedString(),

@@ -9,17 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18537ca3f0af86747ac873ccaed004c9, type: 3}
-  m_Name: TestMob1
+  m_Script: {fileID: 11500000, guid: 5196101a978c8b44faade1c717bc013b, type: 3}
+  m_Name: TestMob
   m_EditorClassIdentifier: 
-  unitName: TestMob1
+  key: TESTMOB
   team: 4
   level: 0
-  maxExp: 0
-  maxHp: 10
+  expTable: 00000000
+  expReward: 0300000002000000030000000400000005000000060000000700000008000000090000000a000000
+  maxHp: 15
   hpRegen: 0
-  maxMp: 0
+  maxMp: 5
   mpRegen: 0
+  maxHunger: 0
   atk: 5
   mAtk: 0
   atkRange: 1
@@ -28,8 +30,8 @@ MonoBehaviour:
   acc: 0
   aspd: 100
   cri: 0
-  criDmg: 0
-  proficiency: 0
+  criDmg: 200
+  proficiency: 50
   lifeSteal: 0
   manaSteal: 0
   def: 0
@@ -43,4 +45,9 @@ MonoBehaviour:
   sight: 3
   instinct: 0
   searchRange: 0
-  maxHunger: 0
+  maxHpGrowth: 0
+  maxMpGrowth: 0
+  atkGrowth: 0
+  mAtkGrowth: 0
+  defGrowth: 0
+  mDefGrowth: 0

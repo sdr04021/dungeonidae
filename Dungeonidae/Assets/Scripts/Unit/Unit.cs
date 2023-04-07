@@ -24,7 +24,7 @@ abstract public class Unit : MonoBehaviour
     protected Unit chaseTarget;
     protected Coordinate chaseTargetRecentCoord;
 
-    [SerializeField] BaseStats baseStats;
+    [SerializeField] UnitBase unitBase;
     public UnitData UnitData { get; private set; }
     public SpriteRenderer MySpriteRenderer { get; private set; }
     public Animator MyAnimator { get; private set; }
@@ -35,6 +35,7 @@ abstract public class Unit : MonoBehaviour
     public BasicAttack BasicAttack { get; private set; }
 
     protected ItemEffectDirector itemEffectDirector;
+    public BuffDirector BuffDirector { get; private set; }
 
     public Skill skill { get; protected set; }
 
@@ -43,8 +44,9 @@ abstract public class Unit : MonoBehaviour
         MySpriteRenderer = GetComponent<SpriteRenderer>();
         MyAnimator = GetComponent<Animator>();
         //map = GameManager.Instance.dungeonManager.map;
-        UnitData = new(baseStats);
+        UnitData = new(unitBase);
         itemEffectDirector = new ItemEffectDirector(this);
+        BuffDirector = new BuffDirector(this);
     }
 
     protected virtual void Start()
@@ -60,6 +62,7 @@ abstract public class Unit : MonoBehaviour
         BasicAttack = new BasicAttack(this, dm, null);
         SetStartPosition(c.x, c.y);
         UpdateSightArea();
+        UnitData.OnLevelChanged += LevelUp;
     }
 
     public void SetStartPosition(int x, int y)
@@ -88,6 +91,15 @@ abstract public class Unit : MonoBehaviour
 
     public void TrimTurn(int amount)
     {
+        UnitData.ReduceSkillCurrentCooldowns(amount);
+        UnitData.UpdateBuffDurations(amount);
+        for(int i= UnitData.Buffs.Count-1; i>=0; i--)
+        {
+            if (UnitData.Buffs[i].durationLeft <= 0)
+            {
+                BuffDirector.RemoveBuff(UnitData.Buffs[i]);
+            }
+        }
         TurnIndicator -= amount;
     }
 
@@ -114,8 +126,10 @@ abstract public class Unit : MonoBehaviour
 
                 if (MySpriteRenderer.enabled)
                 {
+                    float walkDelay = 0.15f;
+
                     MyAnimator.SetBool("Walk", true);
-                    transform.DOMove(dest.ToVector2(), 0.2f)
+                    transform.DOMove(dest.ToVector2(), walkDelay)
                     .SetEase(Ease.Linear)
                     .OnComplete(EndMove);
                 }
@@ -179,38 +193,12 @@ abstract public class Unit : MonoBehaviour
                 throw new System.NotImplementedException();
         }
     }
-    /*
-    public void StartBasicAttack(Unit target)
-    {
-        if (!Controllable || UnitData.Aspd.Total() <= 0) return;
-        if (_coord.IsTargetInRange(target.Coord, UnitData.AtkRange.Total())){
-            Controllable = false;
-            MyAnimator.SetBool("Attack", true);
-            StartCoroutine(IBasicAttack(target));
-        }
-    }
-    */
+
     public void EndBasicAttack()
     {
         MyAnimator.SetBool("Attack", false);
         isAnimationFinished = true;
     }
-    /*
-    IEnumerator IBasicAttack(Unit target)
-    {
-        float animationLength = MyAnimator.GetCurrentAnimatorStateInfo(0).length;
-        int damage = UnitData.Atk.Total();
-        yield return new WaitForSeconds(animationLength * 0.5f);
-        target.GetDamage(new AttackData(this, damage, 0, 0));
-        while (!isAnimationFinished || !target.isAnimationFinished)
-        {
-            yield return Constants.ZeroPointOne;
-        }
-        isAnimationFinished = false;
-        target.isAnimationFinished = false;
-        EndTurn(100f / UnitData.Aspd.Total());
-    }
-    */
 
     public virtual void GetDamage(AttackData attackData)
     {
@@ -236,9 +224,9 @@ abstract public class Unit : MonoBehaviour
     }
     protected virtual void StartDie()
     {
-        MySpriteRenderer.DOFade(0, 1.1f).OnComplete(Die);
+        MySpriteRenderer.DOFade(0, 0.5f).OnComplete(Die);
         dm.GetTileByCoordinate(Coord).unit = null;
-        if (hpBarBg != null) { hpBarBg.DOFade(0, 1f); }
+        if (hpBarBg != null) { hpBarBg.DOFade(0, 0.4f); }
     }
     void Die()
     {
@@ -251,9 +239,22 @@ abstract public class Unit : MonoBehaviour
         MySpriteRenderer.DOColor(Color.white, 0.2f);
     }
 
-    public void GetExp(int amount)
+    public void IncreaseExp(int amount)
     {
-        
+        if (canvas != null)
+        {
+            DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
+            dt.SetExpValue(amount);
+            UnitData.IncreaseExpValue(amount);
+        }
+    }
+    public void LevelUp()
+    {
+        if (canvas != null)
+        {
+            DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
+            dt.SetLevelUp();
+        }
     }
 
     public void RecoverHp(int amount)
@@ -295,6 +296,15 @@ abstract public class Unit : MonoBehaviour
 
     protected bool FindPath(Coordinate targetCoord)
     {
+        AStar aStar = new(map, Coord, targetCoord, dm.FogMap);
+        if (aStar.Path.Count == 0)
+            return false;
+        else
+        {
+            path = aStar.Path;
+            return true;
+        }
+        /*
         PathFinder pf = new();
         Directions dir = pf.FindPath(_coord, targetCoord, dm.map, dm.FogMap);
 
@@ -307,6 +317,7 @@ abstract public class Unit : MonoBehaviour
             path = pf.Path;
             return true;
         }
+        */
     }
     protected virtual void FollowPath()
     {

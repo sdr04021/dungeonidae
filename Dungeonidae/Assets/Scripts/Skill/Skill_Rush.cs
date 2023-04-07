@@ -20,7 +20,7 @@ public class Skill_Rush : Skill
 
     public override bool IsUsable()
     {
-        if ((owner.UnitData.Mp >= SkillData.EffectValues[0]) && (SkillData.coolDown == 0))
+        if ((owner.UnitData.Mp >= SkillData.EffectValues[0]) && (SkillData.currentCoolDown == 0))
             return true;
         else return false;
     }
@@ -81,7 +81,7 @@ public class Skill_Rush : Skill
     {
         owner.UpdateCoordinateFromTransform();
 
-        SkillData.coolDown = SkillData.EffectValues[2] + 1;
+        SkillData.currentCoolDown = SkillData.EffectValues[2] + 1;
         owner.EndSkill(1);
     }
 

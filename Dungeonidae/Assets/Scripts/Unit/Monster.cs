@@ -69,6 +69,8 @@ public class Monster : Unit
         //item.Init(dm, new Coordinate((Vector2)transform.position), new Item(GameManager.Instance.testItem));
         //dm.GetTileByCoordinate(item.Coord).items.Push(item);
 
+        dm.Player.IncreaseExp(UnitData.ExpReward[0]);
+
         ItemObject item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
         item.Init(dm, new Coordinate((Vector2)transform.position), new EquipmentData(GameManager.Instance.testEquip));
         item.Bounce();

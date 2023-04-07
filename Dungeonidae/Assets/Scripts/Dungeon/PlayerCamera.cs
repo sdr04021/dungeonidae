@@ -37,7 +37,7 @@ public class PlayerCamera : MonoBehaviour
                 if (Input.GetMouseButton(0))
                 {
                     Vector3 diff = lastMousePostion - Input.mousePosition;
-                    if (diff.magnitude > 12f)
+                    if (diff.magnitude > 16f)
                         dragging = true;
                     if (dragging)
                         cameraPostion += (cam.ScreenToWorldPoint(lastMousePostion) - cam.ScreenToWorldPoint(Input.mousePosition));
@@ -50,9 +50,9 @@ public class PlayerCamera : MonoBehaviour
             }
             else
             {
-                //transform.position = targetPosition;
+                transform.position = targetPosition;
                 //transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, Time.deltaTime*50);
-                transform.DOMove(targetPosition, Time.deltaTime * 20);
+                //transform.DOMove(targetPosition, Time.deltaTime * 20);
             }
 
             if (!EventSystem.current.IsPointerOverGameObject())

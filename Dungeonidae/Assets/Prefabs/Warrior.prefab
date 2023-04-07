@@ -214,7 +214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isAnimationFinished: 0
-  baseStats: {fileID: 11400000, guid: 1fbec41c8b790084a99dbc82945f7749, type: 2}
+  unitBase: {fileID: 11400000, guid: 48df20b673d97f3479d0efce441d03f6, type: 2}
   <EffectAnimator>k__BackingField: {fileID: 6915717407275194006}
   canvas: {fileID: 1632552042767368798}
   hpBarBg: {fileID: 0}

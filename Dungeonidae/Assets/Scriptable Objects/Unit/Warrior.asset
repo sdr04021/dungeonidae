@@ -9,31 +9,39 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18537ca3f0af86747ac873ccaed004c9, type: 3}
+  m_Script: {fileID: 11500000, guid: 5196101a978c8b44faade1c717bc013b, type: 3}
   m_Name: Warrior
   m_EditorClassIdentifier: 
-  unitName: Warrior
+  key: WARRIOR
   team: 2
   level: 0
-  maxExp: 10
-  maxHp: 100
-  hpRegen: 100
+  expTable: 0a00000014000000190000001e00000023000000280000002d0000003200000037000000
+  expReward: 
+  maxHp: 50
+  maxHpGrowth: 10
+  hpRegen: 1
   maxMp: 50
+  maxMpGrowth: 1
   mpRegen: 1
-  atk: 5
+  maxHunger: 100
+  atk: 10
+  atkGrowth: 2
   mAtk: 0
+  mAtkGrowth: 0
   atkRange: 1
   pen: 0
-  mPen: 0
+  mpen: 0
   acc: 0
   aspd: 100
   cri: 0
   criDmg: 200
-  proficiency: 50
+  proficiency: 10
   lifeSteal: 0
   manaSteal: 0
-  def: 1
+  def: 0
+  defGrowth: 2
   mDef: 0
+  mDefGrowth: 1
   eva: 0
   block: 0
   resist: 0
@@ -41,6 +49,5 @@ MonoBehaviour:
   dmgReduction: 0
   speed: 100
   sight: 5
-  instinct: 0
-  searchRange: 0
-  maxHunger: 100
+  instinct: 30
+  searchRange: 1

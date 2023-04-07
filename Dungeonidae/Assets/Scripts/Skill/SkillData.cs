@@ -19,14 +19,18 @@ public class SkillData
     [field: SerializeField]
     public int[] MutableValueIndex { get; private set; }
 
-    public int coolDown = 0;
+    public int currentCoolDown = 0;
+
+    [field: SerializeField]
+    public bool NeedTarget { get; private set; }
 
     public SkillData(SkillBase skill)
     {
-        Key = skill.Key;
-        Type = skill.Type;
-        Sprite = skill.Sprite;
-        EffectValues = skill.EffectValues;
-        MutableValueIndex = skill.MutableValueIndex;
+        Key = skill.key;
+        Type = skill.type;
+        Sprite = skill.sprite;
+        EffectValues = skill.effectValues;
+        MutableValueIndex = skill.mutableValueIndex;
+        NeedTarget = skill.needTarget;
     }
 }

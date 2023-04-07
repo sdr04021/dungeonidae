@@ -17,5 +17,5 @@ MonoBehaviour:
   <Price>k__BackingField: 10
   <EquipmentType>k__BackingField: 1
   <Stats>k__BackingField:
-  - statType: 0
+  - statType: 3
     val: 4

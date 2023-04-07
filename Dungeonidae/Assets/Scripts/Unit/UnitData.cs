@@ -9,8 +9,12 @@ public class UnitData
     public delegate void EventHandler();
     public event EventHandler OnHpValueChanged;
     public event EventHandler OnMpValueChanged;
+    public event EventHandler OnExpValueChanged;
     public event EventHandler OnSkillChanged;
     public event EventHandler OnSkillCurrentCooldownChanged;
+    public event EventHandler OnLevelChanged;
+    public event EventHandler OnBuffListChanged;
+    public event EventHandler OnBuffDurationChanged;
 
     [SerializeField] string unitName;
     public string UnitName { get => unitName; }
@@ -26,6 +30,12 @@ public class UnitData
 
     [SerializeField] int maxExp;
     public int MaxExp { get => maxExp; }
+
+    [SerializeField] int[] expTable;
+    public int[] ExpTable { get => expTable; }
+
+    [SerializeField] int[] expReward;
+    public int[] ExpReward { get => expReward; }
 
     [SerializeField] UnitStat maxHp;
     public UnitStat MaxHp { get => maxHp; }
@@ -142,46 +152,91 @@ public class UnitData
         }
     }
 
+    int maxHpGrowth;
+    int maxMpGrowth;
+    int atkGrowth;
+    int mAtkGrowth;
+    int defGrowth;
+    int mDefGrowth;
+
     [field:SerializeField] public SkillData[] Skills { get; private set; } = new SkillData[5];
     public List<SkillData> learnedSkills = new();
 
-    public UnitData(BaseStats baseStats)
+    [field:SerializeField] public List<BuffData> Buffs { get; private set; } = new();
+
+    public UnitData(UnitBase unitBase)
     {
-        unitName = baseStats.UnitName;
-        team = baseStats.Team;
-        level = baseStats.Level;
-        maxExp = baseStats.MaxExp;
+        unitName = unitBase.key;
+        team = unitBase.team;
+        level = unitBase.level;
+        maxExp = unitBase.expTable[0];
         exp = 0;
-        maxHp = new(baseStats.MaxHp);
+        expTable = unitBase.expTable;
+        expReward = unitBase.expReward;
+
+        maxHp = new(unitBase.maxHp);
         hp = maxHp.original;
-        hpRegen = new(baseStats.HpRegen);
-        maxMp = new(baseStats.MaxMp);
+        hpRegen = new(unitBase.hpRegen);
+        maxMp = new(unitBase.maxMp);
         mp = maxMp.original;
-        mpRegen = new(baseStats.MpRegen);
-        atk = new(baseStats.Atk);
-        mAtk = new(baseStats.MAtk);
-        atkRange = new(baseStats.AtkRange);
-        pen = new(baseStats.Pen);
-        mPen = new(baseStats.MPen);
-        acc = new(baseStats.Acc);
-        aspd = new(baseStats.Aspd);
-        cri = new(baseStats.Cri);
-        criDmg = new(baseStats.CriDmg);
-        proficiency = new(baseStats.Proficiency);
-        lifeSteal = new(baseStats.LifeSteal);
-        manaSteal  = new(baseStats.ManaSteal);
-        def = new(baseStats.Def);
-        mDef = new(baseStats.MDef);
-        eva = new(baseStats.Eva);
-        block = new(baseStats.Block);
-        resist = new(baseStats.Resist);
-        dmgIncrease = new(baseStats.DmgIncrease);
-        dmgReduction = new(baseStats.DmgReduction);
-        speed = new(baseStats.Speed);
-        sight = new(baseStats.Sight);
-        instinct = new(baseStats.Instinct);
-        searchRange = new(baseStats.SearchRange);
-        maxHunger = new(baseStats.MaxHunger);
+        mpRegen = new(unitBase.mpRegen);
+        atk = new(unitBase.atk);
+        mAtk = new(unitBase.mAtk);
+        atkRange = new(unitBase.atkRange);
+        pen = new(unitBase.pen);
+        mPen = new(unitBase.mPen);
+        acc = new(unitBase.acc);
+        aspd = new(unitBase.aspd);
+        cri = new(unitBase.cri);
+        criDmg = new(unitBase.criDmg);
+        proficiency = new(unitBase.proficiency);
+        lifeSteal = new(unitBase.lifeSteal);
+        manaSteal  = new(unitBase.manaSteal);
+        def = new(unitBase.def);
+        mDef = new(unitBase.mDef);
+        eva = new(unitBase.eva);
+        block = new(unitBase.block);
+        resist = new(unitBase.resist);
+        dmgIncrease = new(unitBase.dmgIncrease);
+        dmgReduction = new(unitBase.dmgReduction);
+        speed = new(unitBase.speed);
+        sight = new(unitBase.sight);
+        instinct = new(unitBase.instinct);
+        searchRange = new(unitBase.searchRange);
+        maxHunger = new(unitBase.maxHunger);
+
+        maxHpGrowth = unitBase.maxHpGrowth;
+        maxMpGrowth = unitBase.maxMpGrowth;
+        atkGrowth = unitBase.atkGrowth;
+        mAtkGrowth = unitBase.mAtkGrowth;
+        defGrowth = unitBase.mDefGrowth;
+        mDefGrowth = unitBase.mDefGrowth;
+    }
+
+    public void IncreaseExpValue(int amount)
+    {
+        exp += amount;
+        while (exp >= maxExp)
+        {
+            exp -= maxExp;
+            IncreaseLevelValue();
+        }
+        OnExpValueChanged?.Invoke();
+    }
+    public void IncreaseLevelValue()
+    {
+        level++;
+        GrowStats();
+        OnLevelChanged?.Invoke();
+    }
+    void GrowStats()
+    {
+        maxHp.original += maxHpGrowth;
+        maxMp.original += maxMpGrowth;
+        atk.original += atkGrowth;
+        mAtk.original += mAtkGrowth;
+        def.original += defGrowth;
+        mDef.original += mDefGrowth;
     }
 
     public void SetStatValue(string key, StatType statType, StatValueType statValueType, int amount)
@@ -249,10 +304,10 @@ public class UnitData
     {
         switch (statType)
         {
-            case StatType.HP:
+            case StatType.MaxHp:
                 OnHpValueChanged.Invoke();
                 break;
-            case StatType.Mp:
+            case StatType.MaxMp:
                 OnHpValueChanged.Invoke();
                 break;
         }
@@ -290,9 +345,9 @@ public class UnitData
             case StatType.LifeSteal: return ref lifeSteal;
             case StatType.ManaSteal: return ref manaSteal;
             case StatType.DmgIncrease: return ref dmgIncrease;
-            case StatType.HP: return ref maxHp;
-            case StatType.Mp: return ref maxMp;
-            case StatType.Hunger: return ref maxHunger;
+            case StatType.MaxHp: return ref maxHp;
+            case StatType.MaxMp: return ref maxMp;
+            case StatType.MaxHunger: return ref maxHunger;
             case StatType.Def: return ref def;
             case StatType.MDef: return ref mDef;
             case StatType.Eva: return ref eva;
@@ -324,11 +379,43 @@ public class UnitData
     {
         for(int i=0; i<Skills.Length; i++)
         {
-            if ((Skills[i] != null) && (Skills[i].coolDown >= 1))
+            if ((Skills[i] != null) && (Skills[i].currentCoolDown >= 1))
             {
-                Skills[i].coolDown -= turn;
+                Skills[i].currentCoolDown -= turn;
             }
         }
         OnSkillCurrentCooldownChanged?.Invoke();
+    }
+
+    public void AddBuff(BuffData buff)
+    {
+        for (int i = 0; i < Buffs.Count; i++)
+        {
+            if (Buffs[i].Key == buff.Key)
+            {
+                Buffs[i].durationLeft = buff.MaxDuration + 1;
+                return;
+            }
+        }
+
+        Buffs.Add(buff);
+        OnBuffListChanged?.Invoke();
+    }
+    public void RemoveBuff(BuffData buff)
+    {
+        Buffs.Remove(buff);
+        OnBuffListChanged?.Invoke();
+    }
+    public void UpdateBuffDurations(int turnSpent)
+    {
+        for(int i=0; i<Buffs.Count; i++)
+        {
+            Buffs[i].durationLeft -= turnSpent;
+            if (Buffs[i].durationLeft <= 0)
+            {
+                Buffs[i].durationLeft = 0;
+            }
+        }
+        OnBuffDurationChanged?.Invoke();
     }
 }

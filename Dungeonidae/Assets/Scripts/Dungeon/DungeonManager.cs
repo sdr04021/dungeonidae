@@ -129,16 +129,15 @@ public class DungeonManager : MonoBehaviour
         units = units.OrderBy(x => x.TurnIndicator).ToList();
  
         float min = units[0].TurnIndicator;
-        curTurn += min;
-        Debug.Log("Turn: " + curTurn.ToString());
 
         int trimAmount = Mathf.FloorToInt(min);
         min -= trimAmount;
+        curTurn += trimAmount;
+        Debug.Log("Turn: " + curTurn.ToString());
         for (int i = 0; i < units.Count; i++)
         {
             units[i].SetUnitListIndex(i);
             units[i].TrimTurn(trimAmount);
-            units[i].UnitData.ReduceSkillCurrentCooldowns(trimAmount);
             if (units[i].TurnIndicator == min)
                 maxOrder++;
             else break;

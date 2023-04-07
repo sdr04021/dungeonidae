@@ -120,7 +120,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 832594d7ba3b0a0418dfd731935bb524, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseStats: {fileID: 11400000, guid: 0849ee90c6b9af6439dddcca8f5881de, type: 2}
+  isAnimationFinished: 0
+  unitBase: {fileID: 11400000, guid: 461ba6ed3983a394199a17736f11e70f, type: 2}
+  <EffectAnimator>k__BackingField: {fileID: 0}
   canvas: {fileID: 8863694669425357271}
   hpBarBg: {fileID: 5345523644967427601}
   hpBar: {fileID: 7690976371466471541}

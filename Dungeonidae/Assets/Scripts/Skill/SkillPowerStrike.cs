@@ -18,7 +18,7 @@ public class SkillPowerStrike : Skill
 
     public override bool IsUsable()
     {
-        if ((owner.UnitData.Mp >= SkillData.EffectValues[0]) && (SkillData.coolDown == 0))
+        if ((owner.UnitData.Mp >= SkillData.EffectValues[0]) && (SkillData.currentCoolDown == 0))
             return true;
         else return false;
     }
@@ -74,7 +74,7 @@ public class SkillPowerStrike : Skill
         }
         owner.isAnimationFinished = false;
         target.isAnimationFinished = false;
-        SkillData.coolDown = SkillData.EffectValues[2] + 1;
+        SkillData.currentCoolDown = SkillData.EffectValues[2] + 1;
         owner.EndSkill(1);
     }
 

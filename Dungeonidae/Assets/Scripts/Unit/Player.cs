@@ -39,7 +39,8 @@ public class Player : Unit
             PlayerData.AddAbility(new AbilityData(GameManager.Instance.testAbility[i]));
         }
         UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[0]), 0);
-        UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[1]), 4);
+        UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[1]), 3);
+        UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[2]), 4);
     }
 
     public override void StartTurn()
@@ -355,7 +356,8 @@ public class Player : Unit
             {
                 skill.Prepare();
                 Controllable = false;
-                IsSkillMode = true;
+                if (skill.SkillData.NeedTarget)
+                    IsSkillMode = true;
             }
             else
             {
@@ -414,6 +416,7 @@ public class Player : Unit
         {
             "POWER_STRIKE" => new SkillPowerStrike(this, dm, skillData),
             "RUSH" => new Skill_Rush(this, dm, skillData),
+            "SPRINT" => new Skill_Buff(this, dm, skillData),
             _ => null,
         };
     }

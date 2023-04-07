@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Priority_Queue;
 
 public class PathFinder
 {
@@ -19,7 +20,8 @@ public class PathFinder
         }
     }
 
-    PriorityQueue<Node> openList = new();
+    //PriorityQueue<Node> openList = new();
+    SimplePriorityQueue<Node> openList = new();
     List<Node> closeList = new();
     Coordinate target;
     Tile[,] map;
@@ -55,16 +57,16 @@ public class PathFinder
             //Debug.Log(openList[0].coord.CoordinateToString());
             if (openList.Count > 0)
             {
-                if(!isVisited.ContainsKey(openList.Peek().coord))
+                if(!isVisited.ContainsKey(openList.First.coord))
                 {
-                    closeList.Add(openList.Peek());
-                    inCloseList.Add(openList.Peek().coord, true);
-                    if (openList.Peek().coord == target)
+                    closeList.Add(openList.First);
+                    inCloseList.Add(openList.First.coord, true);
+                    if (openList.First.coord == target)
                     {
                         reachable = true;
                         break;
                     }
-                    isVisited.Add(openList.Peek().coord, true);
+                    isVisited.Add(openList.First.coord, true);
                     openList.Dequeue();
                     FindNeighbors(closeList[^1]);
                 }
@@ -136,7 +138,15 @@ public class PathFinder
                     node.firstStep = dir;
                 else node.firstStep = start.firstStep;
 
-                openList.Enqueue(node, -(node.G + node.H));
+                float priority = node.G + node.H;
+
+                if (openList.Contains(node))
+                {
+                    if (priority < openList.GetPriority(node))
+                        openList.UpdatePriority(node, priority);
+                }
+                else
+                    openList.Enqueue(node, priority);
             }   
         }
     }

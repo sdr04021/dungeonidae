@@ -7,6 +7,8 @@ public class Tile : MonoBehaviour
     public TileType type = TileType.Floor;
     public AreaType Area { get; private set; } = AreaType.None;
 
+    TileData tileData;
+
     public Unit unit;
     public Stack<ItemObject> items = new();
 

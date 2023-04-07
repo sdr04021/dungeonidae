@@ -39,6 +39,18 @@ MonoBehaviour:
     m_Key: RUSH_EFFECT
     m_Metadata:
       m_Items: []
+  - m_Id: 2891726909521920
+    m_Key: SPRINT_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2891760661086208
+    m_Key: SPRINT_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2891762204590080
+    m_Key: SPRINT_EFFECT
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

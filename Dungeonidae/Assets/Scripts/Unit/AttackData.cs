@@ -13,8 +13,8 @@ public class AttackData
     public AttackData(Unit attacker, int attackDamage, int magicAttackDamage, int fixedDamage)
     {
         Attacker = attacker;
-        AttackDamage = attackDamage;
-        MagicAttackDamage = magicAttackDamage;
+        AttackDamage = (int)(attackDamage * (Random.Range(attacker.UnitData.Proficiency.Total() - 1, 100) + 1) * 0.01f);
+        MagicAttackDamage = (int)(magicAttackDamage * (Random.Range(attacker.UnitData.Proficiency.Total() - 1, 100) + 1) * 0.01f);
         FixedDamage = fixedDamage;
     }
 }

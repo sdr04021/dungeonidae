@@ -3916,7 +3916,7 @@ RectTransform:
   m_Children:
   - {fileID: 1958712907}
   m_Father: {fileID: 301415115}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -4050,7 +4050,7 @@ RectTransform:
   - {fileID: 825091981}
   - {fileID: 867045271}
   m_Father: {fileID: 301415115}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
@@ -5445,6 +5445,67 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 268452420}
   m_CullTransparentMesh: 1
+--- !u!1 &281672691
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 281672692}
+  - component: {fileID: 281672693}
+  m_Layer: 5
+  m_Name: Buff Field
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &281672692
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281672691}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 301415115}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 329, y: -201}
+  m_SizeDelta: {x: 656, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &281672693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281672691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 8
+    m_Right: 8
+    m_Top: 8
+    m_Bottom: 8
+  m_ChildAlignment: 0
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 64, y: 64}
+  m_Spacing: {x: 8, y: 8}
+  m_Constraint: 1
+  m_ConstraintCount: 9
 --- !u!1 &283583137
 GameObject:
   m_ObjectHideFlags: 0
@@ -5767,6 +5828,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 825889937}
+  - {fileID: 281672692}
   - {fileID: 784892163}
   - {fileID: 301501813}
   - {fileID: 186259918}
@@ -5814,7 +5876,7 @@ RectTransform:
   m_Children:
   - {fileID: 1125160146}
   m_Father: {fileID: 301415115}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -6595,7 +6657,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 0.509434, g: 0.509434, b: 0.509434, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -8424,6 +8486,10 @@ PrefabInstance:
     - target: {fileID: 61447543612025334, guid: 8f24bdc69cd66b14fafba203d085e7a3, type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
       value: DungeonUIManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 61447543612025334, guid: 8f24bdc69cd66b14fafba203d085e7a3, type: 3}
+      propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_IntArgument
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 61447543612025334, guid: 8f24bdc69cd66b14fafba203d085e7a3, type: 3}
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_BoolArgument
@@ -11091,7 +11157,7 @@ RectTransform:
   - {fileID: 1881324286}
   - {fileID: 622622811}
   m_Father: {fileID: 301415115}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -12906,6 +12972,8 @@ MonoBehaviour:
   mpText: {fileID: 1340203457}
   expBar: {fileID: 686822229}
   expText: {fileID: 805984580}
+  buffIconField: {fileID: 281672692}
+  buffIconPrefab: {fileID: 4400216429110131321, guid: 3dceffe0cf3a2f24d8f8128b1d364e04, type: 3}
   skillShortcutButtons:
   - {fileID: 201365520}
   - {fileID: 2042151622}
@@ -23285,6 +23353,10 @@ MonoBehaviour:
   testSkill:
   - {fileID: 11400000, guid: aa2e824b687309d488581c9d003d3cd1, type: 2}
   - {fileID: 11400000, guid: dbf1220d37fb5c941b2396b637d4dc8e, type: 2}
+  - {fileID: 11400000, guid: c6b14368d8e9b274391c4fd939b26c96, type: 2}
+  buffBases:
+  - {fileID: 11400000, guid: 149d9751d5145944bb673e89fe44fda8, type: 2}
+  temp: 0
 --- !u!4 &1664475623
 Transform:
   m_ObjectHideFlags: 0
@@ -25680,7 +25752,7 @@ RectTransform:
   - {fileID: 1589100031}
   - {fileID: 533544988}
   m_Father: {fileID: 301415115}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -27478,7 +27550,7 @@ RectTransform:
   m_Children:
   - {fileID: 881779943}
   m_Father: {fileID: 301415115}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
