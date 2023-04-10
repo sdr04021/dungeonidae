@@ -76,7 +76,8 @@ public class PlayerCamera : MonoBehaviour
         }
         else
         {
-            if(GameObject.Find("Warrior(Clone)").TryGetComponent(out Player player))
+            GameObject temp = GameObject.Find("Warrior(Clone)");
+            if((temp!=null)&&temp.TryGetComponent(out Player player))
             {
                 target = player;
             }

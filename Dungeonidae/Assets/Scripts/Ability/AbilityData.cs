@@ -1,33 +1,65 @@
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
+[System.Serializable]
 public class AbilityData
 {
-    [SerializeField]
-    string key;
-    public string Key { get => key; }
+    [JsonProperty]
+    public string Key { get; private set; }
 
-    [SerializeField]
-    Sprite sprite;
-    public Sprite Sprite { get => sprite; }
+    Sprite _sprite;
+    [JsonIgnore]
+    public Sprite Sprite
+    {
+        get
+        {
+            if (_sprite == null)
+            {
+                LoadAbilityIcon();
+            }
+            return _sprite;
+        }
+        private set
+        {
+            _sprite = value;
+        }
+    }
 
-    [SerializeField]
-    int[] effectValues;
-    public int[] EffectValues { get => effectValues; }
+    [JsonProperty]
+    public int[] EffectValues { get; private set; }
 
-    int level = 0;
-    public int Level { get => level; }
+    [JsonProperty]
+    public int Level { get; private set; }
+
+    AsyncOperationHandle<Sprite> loadHandle;
+
+    public AbilityData() { }
 
     public AbilityData(AbilityBase ability)
     {
-        key = ability.Key;
-        sprite = ability.Sprite;
-        effectValues = ability.EffectValues;
+        Key = ability.Key;
+        _sprite = ability.Sprite;
+        EffectValues = ability.EffectValues;
     }
-
     public void IncreaseLevel()
     {
-        if (level < 3) level++;
+        if (Level < 3) Level++;
+    }
+
+    void LoadAbilityIcon()
+    {
+        loadHandle = Addressables.LoadAssetAsync<Sprite>("Assets/Sprites/Ability Icons/" + Key + ".png");
+        loadHandle.WaitForCompletion();
+        if (loadHandle.Status == AsyncOperationStatus.Succeeded)
+            Sprite = loadHandle.Result;
+    }
+
+    ~AbilityData()
+    {
+        Addressables.Release(loadHandle);
     }
 }

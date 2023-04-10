@@ -84,9 +84,9 @@ public class InventoryUI : MonoBehaviour
     {
         for(int i=0; i<9; i++)
         {
-            if (dm.Player.PlayerData.equipped[i] != null)
+            if (dm.Player.UnitData.equipped[i] != null)
             {
-                equippedSlots[i].SetItem(dm.Player.PlayerData.equipped[i], i);
+                equippedSlots[i].SetItem(dm.Player.UnitData.equipped[i], i);
             }
             else equippedSlots[i].RemoveItem();
         }
@@ -94,7 +94,7 @@ public class InventoryUI : MonoBehaviour
 
     public void UpdateEquipInventory()
     {
-        List<EquipmentData> equips = dm.Player.PlayerData.equipInventory;
+        List<EquipmentData> equips = dm.Player.UnitData.equipInventory;
         for(int i=0; i< equipmentSlots.Count; i++)
         {
             if (i < equips.Count)
@@ -111,7 +111,7 @@ public class InventoryUI : MonoBehaviour
 
     public void UpdateMiscInventory()
     {
-        List<MiscData> miscs = dm.Player.PlayerData.miscInventory;
+        List<MiscData> miscs = dm.Player.UnitData.miscInventory;
         for(int i=0; i< miscSlots.Count; i++)
         {
             if(i < miscs.Count)
@@ -129,9 +129,9 @@ public class InventoryUI : MonoBehaviour
     {
         itemInfoBg.SetActive(true);
         if (equipmentSlotField.activeSelf)
-            itemInfo.ShowItemInfo(dm.Player.PlayerData.equipInventory[index], index);
+            itemInfo.ShowItemInfo(dm.Player.UnitData.equipInventory[index], index);
         else if(miscSlotField.activeSelf)
-            itemInfo.ShowItemInfo(dm.Player.PlayerData.miscInventory[index], index);
+            itemInfo.ShowItemInfo(dm.Player.UnitData.miscInventory[index], index);
     }
 
     public void CloseInfoBox()
@@ -150,7 +150,7 @@ public class InventoryUI : MonoBehaviour
             dunUI.CloseMenuCanvas();
         }
         else
-            equippedInfo.ShowItemInfo(dm.Player.PlayerData.equipped[index], index);
+            equippedInfo.ShowItemInfo(dm.Player.UnitData.equipped[index], index);
     }
     public void CloseEquippedINfo()
     {
@@ -162,11 +162,11 @@ public class InventoryUI : MonoBehaviour
         CloseInfoBox();
         CloseEquippedINfo();
 
-        EquipmentData equip = dm.Player.PlayerData.equipInventory[index];
+        EquipmentData equip = dm.Player.UnitData.equipInventory[index];
 
         if (equip.EquipmentType != EquipmentType.Accessory)
         {
-            if (dm.Player.PlayerData.equipped[(int)equip.EquipmentType] == null)
+            if (dm.Player.UnitData.equipped[(int)equip.EquipmentType] == null)
                 dm.Player.EquipEquipment(index, (int)equip.EquipmentType);
             else
                 dm.Player.ExchangeEquipment(index, (int)equip.EquipmentType);
@@ -176,7 +176,7 @@ public class InventoryUI : MonoBehaviour
         {
             for(int i=5; i<9; i++)
             {
-                if (dm.Player.PlayerData.equipped[i] == null)
+                if (dm.Player.UnitData.equipped[i] == null)
                 {
                     dm.Player.EquipEquipment(index, i);
                     dunUI.CloseMenuCanvas();

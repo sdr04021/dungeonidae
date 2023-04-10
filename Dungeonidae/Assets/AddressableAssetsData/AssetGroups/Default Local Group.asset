@@ -16,7 +16,24 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: fd16fdb4c4725124d907e0d9047a5e94
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 30e3b94296de36441af983276a880c15
+    m_Address: Assets/Sprites/Skill Icons
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Skill Icon
+  - m_GUID: bcadf9147988f034a8a48bb66a827019
+    m_Address: Assets/Sprites/Ability Icons
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: bc6aaca6c5ed5dd4088897595c8cae66
+    m_Address: Assets/Sprites/Misc Sprites
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: c9d65064b2c8abd468c1653a7e7ecb78
+    m_Address: Assets/Sprites/Equipment Sprites
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: b53bedf15dc1db54e89466810ca69c3d, type: 2}
   m_SchemaSet:

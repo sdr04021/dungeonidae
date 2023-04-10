@@ -10,7 +10,7 @@ public class Skill_Buff : Skill
 
     public override void Prepare()
     {
-        StartSkill(owner.Coord);
+        StartSkill(owner.UnitData.coord);
     }
 
     public override bool IsUsable()

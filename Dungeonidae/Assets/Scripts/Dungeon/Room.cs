@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class Room
 {
     public Coordinate center;
@@ -27,12 +28,12 @@ public class Room
         GrowthCount = growthCount;
     }
 
-    public void Grow(int randomNumber, Tile[,] map)
+    public void Grow(int randomNumber, List<List<TileData>> mapData)
     {
         switch (randomNumber % 5)
         {
             case 0:
-                if (Top < map.GetLength(1) - 3)
+                if (Top < mapData[0].Count - 3)
                     Top += 1;
                 break;
             case 1:
@@ -40,7 +41,7 @@ public class Room
                     Bottom -= 1;
                 break;
             case 2:
-                if (Right < map.GetLength(0) - 3)
+                if (Right < mapData.Count - 3)
                     Right += 1;
                 break;
             case 3:
@@ -105,43 +106,15 @@ public class Room
         SetCenter();
     }
 
-    public void SetEntranceCandidates(Tile[,] map)
+    public void SetEntranceCandidates(List<List<TileData>> mapData, System.Random random)
     {
-        Entrances.Add(new Coordinate(Random.Range(Left, Right + 1), Bottom - 1));
-        Entrances.Add(new Coordinate(Random.Range(Left, Right + 1), Top + 1));
-        Entrances.Add(new Coordinate(Left - 1, Random.Range(Bottom, Top + 1)));
-        Entrances.Add(new Coordinate(Right + 1, Random.Range(Bottom, Top + 1)));
+        Entrances.Add(new Coordinate(random.Next(Left, Right + 1), Bottom - 1));
+        Entrances.Add(new Coordinate(random.Next(Left, Right + 1), Top + 1));
+        Entrances.Add(new Coordinate(Left - 1, random.Next(Bottom, Top + 1)));
+        Entrances.Add(new Coordinate(Right + 1, random.Next(Bottom, Top + 1)));
         for(int i=0; i<Entrances.Count; i++)
         {
-            map[Entrances[i].x, Entrances[i].y].SetAreaType(AreaType.None);
+            mapData[Entrances[i].x][Entrances[i].y].areaType = AreaType.None;
         }
-    }
-
-    public void SetBorderAndEntrance(Tile[,] map)
-    {
-        Coordinate navigation = new(Left - 1, Bottom - 1);
-        for (int i = 0; i < Height + 2; i++)
-        {
-            map[navigation.x, navigation.y + i].SetAreaType(AreaType.Border);
-            map[navigation.x + Width + 1, navigation.y + i].SetAreaType(AreaType.Border);
-            map[navigation.x, navigation.y + i].SetTileType(TileType.Wall);
-            map[navigation.x + Width + 1, navigation.y + i].SetTileType(TileType.Wall);
-        }
-        navigation = new(Left, Bottom - 1);
-        for (int i = 0; i < Width; i++)
-        {
-            map[navigation.x + i, navigation.y].SetAreaType(AreaType.Border);
-            map[navigation.x + i, navigation.y + Height + 1].SetAreaType(AreaType.Border);
-            map[navigation.x + i, navigation.y].SetTileType(TileType.Wall);
-            map[navigation.x + i, navigation.y + Height + 1].SetTileType(TileType.Wall);
-        }
-        map[Random.Range(Left, Right + 1), Bottom - 1].SetAreaType(AreaType.None);
-        //map[Random.Range(Left, Right + 1), Bottom - 1].SetTileType(TileType.Floor);
-        map[Random.Range(Left, Right + 1), Top + 1].SetAreaType(AreaType.None);
-        //map[Random.Range(Left, Right + 1), Top + 1].SetTileType(TileType.Floor);
-        map[Left - 1, Random.Range(Bottom, Top + 1)].SetAreaType(AreaType.None);
-        //map[Left - 1, Random.Range(Bottom, Top + 1)].SetTileType(TileType.Floor);
-        map[Right + 1, Random.Range(Bottom, Top + 1)].SetAreaType(AreaType.None);
-        //map[Right + 1, Random.Range(Bottom, Top + 1)].SetTileType(TileType.Floor);
     }
 }

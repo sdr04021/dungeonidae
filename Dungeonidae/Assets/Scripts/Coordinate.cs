@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
+[System.Serializable]
 public struct Coordinate
 {
     public int x;
@@ -162,7 +162,13 @@ public struct Coordinate
     {
         return this + new Coordinate(direction) * amount;
     }
-    
+
+    public bool IsValidCoordForMap(List<List<TileData>> mapData)
+    {
+        if ((x >= 0 && x < mapData.Count) && (y >= 0 && y < mapData[0].Count))
+            return true;
+        else return false;
+    }
     public bool IsValidCoordForMap(Tile[,] map)
     {
         if ((x >= 0 && x < map.GetLength(0)) && (y >= 0 && y < map.GetLength(1)))

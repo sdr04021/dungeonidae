@@ -4,15 +4,12 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 
+[System.Serializable]
 abstract public class Unit : MonoBehaviour
 {
     protected DungeonManager dm;
-    protected Tile[,] map;
-    Coordinate _coord = new (0, 0);
-    public Coordinate Coord => _coord;
+
     public bool Controllable { get; protected set; } = false;
-    public int UnitListIndex { get; private set; } = 0;
-    public float TurnIndicator { get; private set; } = 0;
     public bool IsDead { get; private set; } = false;
 
     protected List<Coordinate> tilesInSight = new();
@@ -21,8 +18,6 @@ abstract public class Unit : MonoBehaviour
     public List<Unit> UnitsInSight { get; private set; } = new();
     protected bool foundSomething = false;
     public bool isAnimationFinished;
-    protected Unit chaseTarget;
-    protected Coordinate chaseTargetRecentCoord;
 
     [SerializeField] UnitBase unitBase;
     public UnitData UnitData { get; private set; }
@@ -45,6 +40,7 @@ abstract public class Unit : MonoBehaviour
         MyAnimator = GetComponent<Animator>();
         //map = GameManager.Instance.dungeonManager.map;
         UnitData = new(unitBase);
+        UnitData.SetOwner(this);
         itemEffectDirector = new ItemEffectDirector(this);
         BuffDirector = new BuffDirector(this);
     }
@@ -55,29 +51,41 @@ abstract public class Unit : MonoBehaviour
         UnitData.OnHpValueChanged += new UnitData.EventHandler(UpdateHpBar);
     }
 
+    public void SetUnitData(DungeonManager dungeonManager, UnitData unitData)
+    {
+        UnitData = unitData;
+        UnitData.SetOwner(this);
+        dm = dungeonManager;
+        BasicAttack = new BasicAttack(this, dm, null);
+        SetStartPosition(unitData.coord.x, unitData.coord.y);
+        UnitData.OnLevelChanged += LevelUp;
+        UnitData.SetOwner(this);
+    }
+
     public virtual void Init(DungeonManager dungeonManager, Coordinate c)
     {
         dm = dungeonManager;
-        map = dm.map;
         BasicAttack = new BasicAttack(this, dm, null);
         SetStartPosition(c.x, c.y);
-        UpdateSightArea();
+        //UpdateSightArea();
         UnitData.OnLevelChanged += LevelUp;
+        UnitData.SetOwner(this);
     }
 
     public void SetStartPosition(int x, int y)
     {
-        transform.position = map[x, y].transform.position;
-        _coord.Set(x, y);
-        map[x, y].unit = this;
+        transform.position = dm.Map[x, y].transform.position;
+        UnitData.coord.Set(x, y);
+        dm.Map[x, y].unit = this;
     }
     public void SetUnitListIndex(int i)
     {
-        UnitListIndex = i;
+        UnitData.unitListIndex = i;
     }
 
     public virtual void StartTurn()
     {
+        UpdateSightArea();
         CheckNewInSight();
         if (isFollowingPath)
         {
@@ -100,29 +108,29 @@ abstract public class Unit : MonoBehaviour
                 BuffDirector.RemoveBuff(UnitData.Buffs[i]);
             }
         }
-        TurnIndicator -= amount;
+        UnitData.turnIndicator -= amount;
     }
 
     public bool Move(Directions direction)
     {
         FlipSprite(direction);
 
-        Coordinate dest = _coord.ToMovedCoordinate(direction, 1);
+        Coordinate dest = UnitData.coord.ToMovedCoordinate(direction, 1);
 
-        if (dest.IsValidCoordForMap(map))
+        if (dest.IsValidCoordForMap(dm.Map))
         {
-            if (dm.IsReachable(dest))
+            if (dm.GetTileByCoordinate(dest).IsReachableTile())
             {
                 Controllable = false;
 
-                if (!dm.FogMap[dest.x, dest.y].IsOn)
+                if (!dm.FogMap[dest.x, dest.y].FogData.IsOn)
                 {
                     MySpriteRenderer.enabled = true;
                     if (canvas != null) canvas.enabled = true;
                 }
 
-                map[_coord.x, _coord.y].unit = null;
-                _coord = dest;
+                dm.Map[UnitData.coord.x, UnitData.coord.y].unit = null;
+                UnitData.coord = dest;
 
                 if (MySpriteRenderer.enabled)
                 {
@@ -135,7 +143,7 @@ abstract public class Unit : MonoBehaviour
                 }
                 else
                 {
-                    transform.position = map[dest.x, dest.y].transform.position;
+                    transform.position = dm.Map[dest.x, dest.y].transform.position;
                     EndMove();
                 }
                 return true;
@@ -148,19 +156,19 @@ abstract public class Unit : MonoBehaviour
         UpdateSightArea();
         if (isFollowingPath)
             MyAnimator.SetBool("Walk", false);
-        if (dm.FogMap[_coord.x, _coord.y].IsOn)
+        if (dm.FogMap[UnitData.coord.x, UnitData.coord.y].FogData.IsOn)
         {
             MySpriteRenderer.enabled = false;
             if (canvas != null) canvas.enabled = false;
         }
-        map[_coord.x, _coord.y].unit = this;
-        EndTurn(100f / UnitData.Speed.Total());
+        dm.Map[UnitData.coord.x, UnitData.coord.y].unit = this;
+        EndTurn(100f / UnitData.speed.Total());
     }
 
     public void UpdateCoordinateFromTransform()
     {
-        _coord.Set((int)transform.position.x, (int)transform.position.y);
-        dm.GetTileByCoordinate(Coord).unit = this;
+        UnitData.coord.Set((int)transform.position.x, (int)transform.position.y);
+        dm.GetTileByCoordinate(UnitData.coord).unit = this;
         UpdateSightArea();
     }
 
@@ -171,22 +179,22 @@ abstract public class Unit : MonoBehaviour
 
     public bool IsHostileUnit(Unit target)
     {
-        switch (UnitData.Team)
+        switch (UnitData.team)
         {
             case Team.Neutral:
                 return false;
             case Team.Free:
                 return true;
             case Team.Player:
-                if ((target.UnitData.Team == Team.Player) || (target.UnitData.Team == Team.Neutral) || (target.UnitData.Team == Team.Ally))
+                if ((target.UnitData.team == Team.Player) || (target.UnitData.team == Team.Neutral) || (target.UnitData.team == Team.Ally))
                     return false;
                 else return true;
             case Team.Enemy:
-                if ((target.UnitData.Team == Team.Enemy) || (target.UnitData.Team == Team.Neutral))
+                if ((target.UnitData.team == Team.Enemy) || (target.UnitData.team == Team.Neutral))
                     return false;
                 else return true;
             case Team.Enemy2:
-                if ((target.UnitData.Team == Team.Enemy2) || (target.UnitData.Team == Team.Neutral))
+                if ((target.UnitData.team == Team.Enemy2) || (target.UnitData.team == Team.Neutral))
                     return false;
                 else return true;
             default:
@@ -202,8 +210,8 @@ abstract public class Unit : MonoBehaviour
 
     public virtual void GetDamage(AttackData attackData)
     {
-        int attackDamage = attackData.AttackDamage - UnitData.Def.Total();
-        int magicAttackDamage = attackData.MagicAttackDamage - UnitData.MDef.Total();
+        int attackDamage = attackData.AttackDamage - UnitData.def.Total();
+        int magicAttackDamage = attackData.MagicAttackDamage - UnitData.mDef.Total();
 
         if (attackDamage < 0) attackDamage = 0;
         if(magicAttackDamage < 0) magicAttackDamage = 0;
@@ -225,7 +233,7 @@ abstract public class Unit : MonoBehaviour
     protected virtual void StartDie()
     {
         MySpriteRenderer.DOFade(0, 0.5f).OnComplete(Die);
-        dm.GetTileByCoordinate(Coord).unit = null;
+        dm.GetTileByCoordinate(UnitData.coord).unit = null;
         if (hpBarBg != null) { hpBarBg.DOFade(0, 0.4f); }
     }
     void Die()
@@ -259,7 +267,7 @@ abstract public class Unit : MonoBehaviour
 
     public void RecoverHp(int amount)
     {
-        amount = Mathf.Min(amount, UnitData.MaxHp.Total() - UnitData.Hp);
+        amount = Mathf.Min(amount, UnitData.maxHp.Total() - UnitData.Hp);
         UnitData.Hp += amount;
         if (canvas != null)
         {
@@ -272,7 +280,7 @@ abstract public class Unit : MonoBehaviour
     public void UpdateHpBar()
     {
         if (hpBar != null)
-            hpBar.fillAmount = UnitData.Hp / (float)UnitData.MaxHp.Total();
+            hpBar.fillAmount = UnitData.Hp / (float)UnitData.maxHp.Total();
     }
 
     protected void RandomStep()
@@ -280,10 +288,10 @@ abstract public class Unit : MonoBehaviour
         List<Directions> deck = new();
         for(int i=0; i<8; i++)
         {
-            Coordinate dest = _coord.ToMovedCoordinate((Directions)i, 1);
-            if (dest.IsValidCoordForMap(dm.map))
+            Coordinate dest = UnitData.coord.ToMovedCoordinate((Directions)i, 1);
+            if (dest.IsValidCoordForMap(dm.Map))
             {
-                if(dm.IsReachable(dest))
+                if(dm.GetTileByCoordinate(dest).IsReachableTile())
                     deck.Add((Directions)i);
             }
         }
@@ -296,7 +304,7 @@ abstract public class Unit : MonoBehaviour
 
     protected bool FindPath(Coordinate targetCoord)
     {
-        AStar aStar = new(map, Coord, targetCoord, dm.FogMap);
+        AStar aStar = new(dm.Map, UnitData.coord, targetCoord, dm.FogMap);
         if (aStar.Path.Count == 0)
             return false;
         else
@@ -304,20 +312,6 @@ abstract public class Unit : MonoBehaviour
             path = aStar.Path;
             return true;
         }
-        /*
-        PathFinder pf = new();
-        Directions dir = pf.FindPath(_coord, targetCoord, dm.map, dm.FogMap);
-
-        if (dir==Directions.NONE)
-        {
-            return false;
-        }
-        else
-        {
-            path = pf.Path;
-            return true;
-        }
-        */
     }
     protected virtual void FollowPath()
     {
@@ -332,74 +326,19 @@ abstract public class Unit : MonoBehaviour
     }
     protected Directions FollowTarget(Coordinate targetCoord)
     {
-        PathFinder pf = new();
-        Directions dir = pf.FindPath(_coord, targetCoord, dm.map, dm.FogMap);
-
-        if (dir == Directions.NONE)
-            return dir;
+        AStar aStar = new(dm.Map, UnitData.coord, targetCoord, dm.FogMap);
+        if (aStar.Path.Count == 0)
+            return Directions.NONE;
         else
-        {
-            return pf.Path.Pop();
-        }
-    }
-
-    protected virtual void UpdateSightAreaOld()
-    {
-        int northBound = Mathf.Min(_coord.y + UnitData.Sight.Total(), map.GetLength(1) - 1);
-        int southBound = Mathf.Max(_coord.y - UnitData.Sight.Total(), 0);
-        int eastBound = Mathf.Min(_coord.x + UnitData.Sight.Total(), map.GetLength(1) - 1);
-        int westBound = Mathf.Max(_coord.x - UnitData.Sight.Total(), 0);
-        
-        tilesInSight.Clear();
-
-        RaycastHit2D[] hit;
-        for (int i = 0; i <= eastBound - westBound; i++)
-        {
-            Vector2 dir = new Vector2(westBound + i, northBound) - (Vector2)transform.position;
-            hit = Physics2D.RaycastAll(transform.position, dir, dir.magnitude, LayerMask.GetMask("Tile"));
-            for(int j=0; j<hit.Length; j++)
-            {
-                Coordinate c = new Coordinate(hit[j].transform.position);
-                tilesInSight.Add(c);
-                if (map[tilesInSight[^1].x, tilesInSight[^1].y].type == TileType.Wall)
-                    break;
-            }
-            dir = new Vector2(westBound + i, southBound) - (Vector2)transform.position;
-            hit = Physics2D.RaycastAll(transform.position, dir, dir.magnitude, LayerMask.GetMask("Tile"));
-            for (int j = 0; j < hit.Length; j++)
-            {
-                tilesInSight.Add(new Coordinate(hit[j].transform.position));
-                if (map[tilesInSight[^1].x, tilesInSight[^1].y].type == TileType.Wall)
-                    break;
-            }
-        }
-        for (int i = 1; southBound + i < northBound; i++)
-        {
-            Vector2 dir = new Vector2(westBound, southBound + i) - (Vector2)transform.position;
-            hit = Physics2D.RaycastAll(transform.position, dir, dir.magnitude, LayerMask.GetMask("Tile"));
-            for (int j = 0; j < hit.Length; j++)
-            {
-                tilesInSight.Add(new Coordinate(hit[j].transform.position));
-                if (map[tilesInSight[^1].x, tilesInSight[^1].y].type == TileType.Wall)
-                    break;
-            }
-            dir = new Vector2(eastBound, southBound + i) - (Vector2)transform.position;
-            hit = Physics2D.RaycastAll(transform.position, dir, dir.magnitude, LayerMask.GetMask("Tile"));
-            for (int j = 0; j < hit.Length; j++)
-            {
-                tilesInSight.Add(new Coordinate(hit[j].transform.position));
-                if (map[tilesInSight[^1].x, tilesInSight[^1].y].type == TileType.Wall)
-                    break;
-            }
-        }
+            return aStar.Path.Pop();
     }
 
     protected virtual void UpdateSightArea()
     {
-        int northBound = Mathf.Min(_coord.y + UnitData.Sight.Total(), map.GetLength(1) - 1);
-        int southBound = Mathf.Max(_coord.y - UnitData.Sight.Total(), 0);
-        int eastBound = Mathf.Min(_coord.x + UnitData.Sight.Total(), map.GetLength(1) - 1);
-        int westBound = Mathf.Max(_coord.x - UnitData.Sight.Total(), 0);
+        int northBound = Mathf.Min(UnitData.coord.y + UnitData.sight.Total(), dm.Map.GetLength(0) - 1);
+        int southBound = Mathf.Max(UnitData.coord.y - UnitData.sight.Total(), 0);
+        int eastBound = Mathf.Min(UnitData.coord.x + UnitData.sight.Total(), dm.Map.GetLength(1) - 1);
+        int westBound = Mathf.Max(UnitData.coord.x - UnitData.sight.Total(), 0);
 
         tilesInSight.Clear();
 
@@ -418,7 +357,7 @@ abstract public class Unit : MonoBehaviour
                         Coordinate c = new(hit[k].transform.position);
                         tilesInSight.Add(c);
                     }
-                    else if (map[(int)hit[k].transform.position.x, (int)hit[k].transform.position.y].type == TileType.Wall)
+                    else if (dm.Map[(int)hit[k].transform.position.x, (int)hit[k].transform.position.y].TileData.tileType == TileType.Wall)
                         break;
                 }
             }
@@ -453,14 +392,14 @@ abstract public class Unit : MonoBehaviour
 
     protected void EndTurn(float turnSpent)
     {
-        TurnIndicator += turnSpent;
+        UnitData.turnIndicator += turnSpent;
         Controllable = false;
         dm.EndTurn();
     }
 
     public void SkipTurn()
     {
-        TurnIndicator += 1;
+        UnitData.turnIndicator += 1;
         Controllable = false;
         dm.EndTurn();
     }
@@ -489,9 +428,9 @@ abstract public class Unit : MonoBehaviour
     protected void FlipSprite(Coordinate lookAt)
     {
         float sign = Mathf.Sign(transform.localScale.x);
-        if (Coord == lookAt)
+        if (UnitData.coord == lookAt)
             return;
-        else if ((lookAt.x - Coord.x) > 0)
+        else if ((lookAt.x - UnitData.coord.x) > 0)
         {
             transform.localScale = new Vector3(sign * transform.localScale.x, transform.localScale.y, transform.localScale.z);
             if (canvas != null)
@@ -499,7 +438,7 @@ abstract public class Unit : MonoBehaviour
                 canvas.transform.localScale = new Vector3(sign * canvas.transform.localScale.x, canvas.transform.localScale.y, canvas.transform.localScale.z);
             }
         }
-        else if ((lookAt.x - Coord.x) < 0)
+        else if ((lookAt.x - UnitData.coord.x) < 0)
         {
             sign *= -1;
             transform.localScale = new Vector3(sign * transform.localScale.x, transform.localScale.y, transform.localScale.z);

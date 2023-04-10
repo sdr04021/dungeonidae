@@ -29,11 +29,11 @@ public class Skill_Rush : Skill
     {
         this.showRange = showRange;
         RaycastHit2D[] hit;
-        for (int i = owner.Coord.x - SkillData.EffectValues[1]; i <= owner.Coord.x + SkillData.EffectValues[1]; i++)
+        for (int i = owner.UnitData.coord.x - SkillData.EffectValues[1]; i <= owner.UnitData.coord.x + SkillData.EffectValues[1]; i++)
         {
-            for (int j = owner.Coord.y - SkillData.EffectValues[1]; j <= owner.Coord.y + SkillData.EffectValues[1]; j++)
+            for (int j = owner.UnitData.coord.y - SkillData.EffectValues[1]; j <= owner.UnitData.coord.y + SkillData.EffectValues[1]; j++)
             {
-                if (dm.IsValidIndexForMap(i, j) && (!dm.FogMap[i, j].IsOn))
+                if (dm.IsValidIndexForMap(i, j) && (!dm.FogMap[i, j].FogData.IsOn))
                 {
                     Vector2 dir = new Vector2(i, j) - (Vector2)owner.transform.position;
                     hit = Physics2D.RaycastAll(owner.transform.position, dir, dir.magnitude, LayerMask.GetMask("Tile"));
@@ -42,8 +42,8 @@ public class Skill_Rush : Skill
                     {
                         if (k == hit.Length - 1)
                         {
-                            Tile tile = dm.map[i, j];
-                            if ((tile.type == TileType.Floor) && (tile.Coord != owner.Coord))
+                            Tile tile = dm.Map[i, j];
+                            if ((tile.TileData.tileType == TileType.Floor) && (tile.Coord != owner.UnitData.coord))
                             {
                                 if ((tile.IsReachableTile()))
                                 {
@@ -59,7 +59,7 @@ public class Skill_Rush : Skill
                                 }
                             }
                         }
-                        else if (dm.map[(int)hit[k].transform.position.x, (int)hit[k].transform.position.y].type == TileType.Wall)
+                        else if (dm.Map[(int)hit[k].transform.position.x, (int)hit[k].transform.position.y].TileData.tileType == TileType.Wall)
                             break;
                     }
                 }
@@ -73,8 +73,8 @@ public class Skill_Rush : Skill
         owner.UnitData.Mp -= SkillData.EffectValues[0];
         //owner.EffectAnimator.SetTrigger(SkillData.Key);
         //owner.MyAnimator.SetBool("Attack", true);
-        dm.GetTileByCoordinate(owner.Coord).unit = null;
-        owner.transform.DOMove(coord.ToVector3(0), 0.1f * Coordinate.Distance(owner.Coord, coord)).OnComplete(Finsh);
+        dm.GetTileByCoordinate(owner.UnitData.coord).unit = null;
+        owner.transform.DOMove(coord.ToVector3(0), 0.1f * Coordinate.Distance(owner.UnitData.coord, coord)).OnComplete(Finsh);
     }
 
     void Finsh()

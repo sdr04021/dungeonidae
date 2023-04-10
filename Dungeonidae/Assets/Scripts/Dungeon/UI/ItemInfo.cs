@@ -41,7 +41,7 @@ public class ItemInfo : MonoBehaviour
 
     public void ShowItemInfo(ItemData item, int index)
     {
-        icon.sprite = item.MySprite;
+        icon.sprite = item.Sprite;
         Index = index;
         StringBuilder equipStatusString = new();
         if (item is EquipmentData equip)

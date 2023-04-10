@@ -4,6 +4,7 @@ using UnityEngine;
 using Priority_Queue;
 using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine.UIElements;
+using UnityEngine.Localization.SmartFormat.Core.Parsing;
 
 public class AStar
 {
@@ -13,15 +14,12 @@ public class AStar
     public Dictionary<Coordinate, Coordinate> ParentTable { get; private set; } = new();
     Dictionary<Coordinate, Directions> directionTable = new();
 
-    Tile[,] map;
     Coordinate start;
     Coordinate end;
-    Fog[,] fogMap = null;
     public Stack<Directions> Path { get; private set; } = new();
 
-    public AStar(Tile[,] map, Coordinate start, Coordinate end)
+    public AStar(List<List<TileData>> mapData, Coordinate start, Coordinate end)
     {
-        this.map = map;
         this.start = start;
         this.end = end;
         openList.Enqueue(start, 0);
@@ -35,19 +33,17 @@ public class AStar
             {
                 return;
             }
-            CheckNeighborArea(now, Directions.N);
-            CheckNeighborArea(now, Directions.E);
-            CheckNeighborArea(now, Directions.S);
-            CheckNeighborArea(now, Directions.W);
+            CheckNeighborArea(mapData, now, Directions.N);
+            CheckNeighborArea(mapData, now, Directions.E);
+            CheckNeighborArea(mapData, now, Directions.S);
+            CheckNeighborArea(mapData, now, Directions.W);
         }
     }
 
     public AStar(Tile[,] map, Coordinate start, Coordinate end, Fog[,] fogMap)
     {
-        this.map = map;
         this.start = start;
         this.end = end;
-        this.fogMap = fogMap;
         openList.Enqueue(start, 0);
         gTable.Add(start, 0);
 
@@ -59,14 +55,14 @@ public class AStar
             {
                 break;
             }
-            CheckNeighborArea(now, Directions.N);
-            CheckNeighborArea(now, Directions.E);
-            CheckNeighborArea(now, Directions.S);
-            CheckNeighborArea(now, Directions.W);
-            CheckNeighborArea(now, Directions.SW);
-            CheckNeighborArea(now, Directions.SE);
-            CheckNeighborArea(now, Directions.NE);
-            CheckNeighborArea(now, Directions.NW);
+            CheckNeighborArea(map, fogMap, now, Directions.N);
+            CheckNeighborArea(map, fogMap, now, Directions.E);
+            CheckNeighborArea(map, fogMap, now, Directions.S);
+            CheckNeighborArea(map, fogMap, now, Directions.W);
+            CheckNeighborArea(map, fogMap, now, Directions.SW);
+            CheckNeighborArea(map, fogMap, now, Directions.SE);
+            CheckNeighborArea(map, fogMap, now, Directions.NE);
+            CheckNeighborArea(map, fogMap, now, Directions.NW);
         }
 
         if (closeList.Count > 0)
@@ -80,12 +76,42 @@ public class AStar
         }
     }
 
-    void CheckNeighborArea(Coordinate now, Directions direction)
+    void CheckNeighborArea(List<List<TileData>> mapData, Coordinate now, Directions direction)
     {
         Coordinate neighbor = now + new Coordinate(direction);
-        if ((neighbor.IsValidCoordForMap(map)) && (map[neighbor.x, neighbor.y].Area != AreaType.Border)) 
+        if ((neighbor.IsValidCoordForMap(mapData)) && (mapData[neighbor.x][neighbor.y].areaType != AreaType.Border))
         {
-            if (fogMap != null && (!map[neighbor.x, neighbor.y].IsReachableTile() || !fogMap[neighbor.x, neighbor.y].IsObserved))
+            int G = gTable[now] + 1;
+            float H = NonDiagonalHeuristic(neighbor, end);
+            float F = G + H;
+
+            if (!gTable.ContainsKey(neighbor))
+            {
+                if (openList.Contains(neighbor))
+                {
+                    if (F < openList.GetPriority(neighbor))
+                    {
+                        openList.UpdatePriority(neighbor, F);
+                        gTable[neighbor] = G;
+                        ParentTable[neighbor] = now;
+                    }
+                }
+                else
+                {
+                    openList.Enqueue(neighbor, F);
+                    gTable.Add(neighbor, G);
+                    ParentTable.Add(neighbor, now);
+                }
+            }
+        }
+    }
+
+    void CheckNeighborArea(Tile[,] map, Fog[,] fogMap, Coordinate now, Directions direction)
+    {
+        Coordinate neighbor = now + new Coordinate(direction);
+        if ((neighbor.IsValidCoordForMap(map)) && (map[neighbor.x, neighbor.y].TileData.areaType != AreaType.Border)) 
+        {
+            if (!map[neighbor.x, neighbor.y].IsReachableTile() || !fogMap[neighbor.x, neighbor.y].FogData.IsObserved)
                 return;
 
             int G = gTable[now] + 1;
@@ -101,7 +127,7 @@ public class AStar
                         openList.UpdatePriority(neighbor, F);
                         gTable[neighbor] = G;
                         ParentTable[neighbor] = now;
-                        if (fogMap != null) directionTable[neighbor] = direction;
+                        directionTable[neighbor] = direction;
                     }
                 }
                 else
@@ -109,7 +135,7 @@ public class AStar
                     openList.Enqueue(neighbor, F);
                     gTable.Add(neighbor, G);
                     ParentTable.Add(neighbor, now);
-                    if (fogMap != null) directionTable.Add(neighbor, direction);
+                    directionTable.Add(neighbor, direction);
                 }
             }
         }
@@ -121,7 +147,12 @@ public class AStar
     }
     float DiagonalHeuristic(Coordinate from, Coordinate taregt)
     {
-        return Mathf.Max(Mathf.Abs(taregt.x-from.x), Mathf.Abs(taregt.y-from.y));
+        //return Mathf.Max(Mathf.Abs(taregt.x-from.x), Mathf.Abs(taregt.y-from.y));
+        int x = Mathf.Abs(from.x - taregt.x);
+        int y = Mathf.Abs(from.y - taregt.y);
+        int d = Mathf.Min(x, y);
+        x -= d;
+        y -= d;
+        return x + y + d;
     }
-    //https://gamedev.stackexchange.com/questions/64392/a-tile-costs-and-heuristic-how-to-approach
 }

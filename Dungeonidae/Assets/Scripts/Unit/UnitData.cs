@@ -1,9 +1,10 @@
-using System;
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
+[JsonObject(IsReference = true)]
 public class UnitData
 {
     public delegate void EventHandler();
@@ -16,139 +17,78 @@ public class UnitData
     public event EventHandler OnBuffListChanged;
     public event EventHandler OnBuffDurationChanged;
 
-    [SerializeField] string unitName;
-    public string UnitName { get => unitName; }
+    [JsonIgnore] public Unit Owner { get; private set; }
+    public Coordinate coord = new(0, 0);
+    public float turnIndicator = 0;
+    public int unitListIndex = 0;
+    public UnitData chaseTarget;
+    public Coordinate chaseTargetRecentCoord;
 
-    [SerializeField] Team team;
-    public Team Team { get => team; }
-
-    [SerializeField] int level;
-    public int Level { get => level; }
-
-    [SerializeField] int exp;
-    public int Exp { get => exp; }
-
-    [SerializeField] int maxExp;
-    public int MaxExp { get => maxExp; }
-
-    [SerializeField] int[] expTable;
-    public int[] ExpTable { get => expTable; }
-
-    [SerializeField] int[] expReward;
-    public int[] ExpReward { get => expReward; }
-
-    [SerializeField] UnitStat maxHp;
-    public UnitStat MaxHp { get => maxHp; }
-
-    [SerializeField] int hp;
-    public int Hp { 
-        get => hp;
+    public string unitName;
+    public Team team;
+    public int level;
+    public int exp;
+    public int maxExp;
+    public int[] expTable;
+    public int[] expReward;
+    public UnitStat maxHp;
+    [JsonProperty] private int _hp;
+    [JsonIgnore]
+    public int Hp {
+        get => _hp;
         set
         {
-            hp = value >= 0 ? value <= maxHp.Total()? value : maxHp.Total() : 0;
+            _hp = value >= 0 ? value <= maxHp.Total()? value : maxHp.Total() : 0;
             OnHpValueChanged?.Invoke();
         }
     }
 
-    [SerializeField] UnitStat hpRegen;
-    public UnitStat HpRegen { get => hpRegen; }
-
-    [SerializeField] public UnitStat maxMp;
-    public UnitStat MaxMp { get => maxMp; }
-
-    [SerializeField] int mp;
+    public UnitStat hpRegen;
+    public UnitStat maxMp;
+    [JsonProperty] private int _mp;
+    [JsonIgnore]
     public int Mp
     {
-        get => mp;
+        get => _mp;
         set
         {
-            mp = value >= 0 ? value <= maxMp.Total() ? value : maxMp.Total() : 0;
+            _mp = value >= 0 ? value <= maxMp.Total() ? value : maxMp.Total() : 0;
             OnMpValueChanged?.Invoke();
         }
     }
-
-    [SerializeField] UnitStat mpRegen;
-    public UnitStat MpRegen { get => mpRegen; }
-
-    [SerializeField] UnitStat atk;
-    public UnitStat Atk { get => atk; }
-
-    [SerializeField] UnitStat mAtk;
-    public UnitStat MAtk { get => mAtk; }
-
-    [SerializeField] UnitStat atkRange;
-    public UnitStat AtkRange { get => atkRange; }
-
-    [SerializeField] UnitStat pen;
-    public UnitStat Pen { get => pen;}
-
-    [SerializeField] UnitStat mPen;
-    public UnitStat MPen { get => mPen; }
-
-    [SerializeField] UnitStat acc;
-    public UnitStat Acc { get => acc; }
-
-    [SerializeField] UnitStat aspd;
-    public UnitStat Aspd { get => aspd; }
-
-    [SerializeField] UnitStat cri;
-    public UnitStat Cri { get => cri; }
-
-    [SerializeField] UnitStat criDmg;
-    public UnitStat CriDmg { get => criDmg; }
-
-    [SerializeField] UnitStat proficiency;
-    public UnitStat Proficiency { get => proficiency; }
-
-    [SerializeField] UnitStat lifeSteal;
-    public UnitStat LifeSteal { get => lifeSteal; }
-
-    [SerializeField] UnitStat manaSteal;
-    public UnitStat ManaSteal { get => manaSteal; }
-
-    [SerializeField] UnitStat def;
-    public UnitStat Def { get => def; }
-
-    [SerializeField] UnitStat mDef;
-    public UnitStat MDef { get => mDef; }
-
-    [SerializeField] UnitStat eva;
-    public UnitStat Eva { get => eva; }
-
-    [SerializeField] UnitStat block;
-    public UnitStat Block { get => block; } 
-
-    [SerializeField] UnitStat resist;
-    public UnitStat Resist { get => resist; }
-
-    [SerializeField] UnitStat dmgIncrease;
-    public UnitStat DmgIncrease { get => dmgIncrease;}
-
-    [SerializeField] UnitStat dmgReduction;
-    public UnitStat DmgReduction { get => dmgReduction;}
-
-    [SerializeField] UnitStat speed;
-    public UnitStat Speed { get => speed; }
-
-    [SerializeField] UnitStat sight;
-    public UnitStat Sight {  get => sight; }
-
-    [SerializeField] UnitStat instinct;
-    public UnitStat Instinct { get => instinct; }
-
-    [SerializeField] UnitStat searchRange;
-    public UnitStat SearchRange { get => searchRange; }
-
-    [SerializeField] UnitStat maxHunger;
-    public UnitStat MaxHunger { get => maxHunger; }
-
-    [SerializeField] int hunger;
+    public UnitStat mpRegen;
+    public UnitStat atk;
+    public UnitStat mAtk;
+    public UnitStat atkRange;
+    public UnitStat pen;
+    public UnitStat mPen;
+    public UnitStat acc;
+    public UnitStat aspd;
+    public UnitStat cri;
+    public UnitStat criDmg;
+    public UnitStat proficiency;
+    public UnitStat lifeSteal;
+    public UnitStat manaSteal;
+    public UnitStat def;
+    public UnitStat mDef;
+    public UnitStat eva;
+    public UnitStat block;
+    public UnitStat resist;
+    public UnitStat dmgIncrease;
+    public UnitStat dmgReduction;
+    public UnitStat speed;
+    public UnitStat sight;
+    public UnitStat instinct;
+    public UnitStat searchRange;
+    public UnitStat maxHunger;
+    [JsonProperty] private int _hunger;
+    [JsonIgnore]
     public int Hunger
     {
-        get => hunger;
+        get => _hunger;
         set
         {
-            hunger = value >= 0 ? value <= maxHunger.Total() ? value : maxHunger.Total() : 0;
+            _hunger = value >= 0 ? value <= maxHunger.Total() ? value : maxHunger.Total() : 0;
         }
     }
 
@@ -159,13 +99,24 @@ public class UnitData
     int defGrowth;
     int mDefGrowth;
 
-    [field:SerializeField] public SkillData[] Skills { get; private set; } = new SkillData[5];
+    public Dictionary<string,AbilityData> abilities = new();
+    public int abilityPoint = 0;
+
+    public SkillData[] Skills = new SkillData[5];
     public List<SkillData> learnedSkills = new();
 
-    [field:SerializeField] public List<BuffData> Buffs { get; private set; } = new();
+    public List<BuffData> Buffs = new();
+
+    public int maxEquip = 20;
+    public List<EquipmentData> equipInventory = new();
+    public int maxMisc = 20;
+    public List<MiscData> miscInventory = new();
+
+    public EquipmentData[] equipped = new EquipmentData[9];
 
     public UnitData(UnitBase unitBase)
     {
+        if (unitBase == null) return;
         unitName = unitBase.key;
         team = unitBase.team;
         level = unitBase.level;
@@ -175,10 +126,10 @@ public class UnitData
         expReward = unitBase.expReward;
 
         maxHp = new(unitBase.maxHp);
-        hp = maxHp.original;
+        Hp = maxHp.original;
         hpRegen = new(unitBase.hpRegen);
         maxMp = new(unitBase.maxMp);
-        mp = maxMp.original;
+        Mp = maxMp.original;
         mpRegen = new(unitBase.mpRegen);
         atk = new(unitBase.atk);
         mAtk = new(unitBase.mAtk);
@@ -213,6 +164,11 @@ public class UnitData
         mDefGrowth = unitBase.mDefGrowth;
     }
 
+    public void SetOwner(Unit unit)
+    {
+        Owner = unit;
+    }
+
     public void IncreaseExpValue(int amount)
     {
         exp += amount;
@@ -244,7 +200,7 @@ public class UnitData
         switch (statValueType)
         {
             case StatValueType.Original:
-                throw new NotImplementedException();
+                throw new System.NotImplementedException();
             case StatValueType.Additional:
                 if (StatTypeToUnitStat(statType).additional.ContainsKey(key))
                 {
@@ -277,7 +233,7 @@ public class UnitData
         switch (statValueType)
         {
             case StatValueType.Original:
-                throw new NotImplementedException();
+                throw new System.NotImplementedException();
             case StatValueType.Additional:
                 if (StatTypeToUnitStat(statType).additional.ContainsKey(key))
                 {
@@ -360,8 +316,13 @@ public class UnitData
             case StatType.HpRegen: return ref hpRegen;
             case StatType.MpRegen: return ref mpRegen;
             case StatType.Speed: return ref speed;
-            default: throw new NotImplementedException();
+            default: throw new System.NotImplementedException();
         }
+    }
+
+    public void AddAbility(AbilityData ability)
+    {
+        abilities.Add(ability.Key, ability);
     }
 
     public void AddSkill(SkillData skill, int index)
@@ -373,6 +334,10 @@ public class UnitData
     public void SwapSkillSlots(int a, int b)
     {
         (Skills[a], Skills[b]) = (Skills[b], Skills[a]);
+        OnSkillChanged?.Invoke();
+    }
+    public void InvokeSkillChanged()
+    {
         OnSkillChanged?.Invoke();
     }
     public void ReduceSkillCurrentCooldowns(int turn)
@@ -417,5 +382,52 @@ public class UnitData
             }
         }
         OnBuffDurationChanged?.Invoke();
+    }
+
+    public bool AddEquipment(EquipmentData equip)
+    {
+        if (equipInventory.Count >= maxEquip)
+            return false;
+        else
+        {
+            equipInventory.Add(equip);
+            return true;
+        }
+    }
+
+    public bool AddMisc(MiscData misc)
+    {
+        for (int i = miscInventory.Count - 1; i >= 0; i--)
+        {
+            if ((miscInventory[i].Key == misc.Key) && (misc.Amount < misc.MaxStack))
+            {
+                if (misc.Amount <= (miscInventory[i].AmountLeft))
+                {
+                    miscInventory[i].AddAmount(misc.Amount);
+                    return true;
+                }
+                else
+                {
+                    misc.AddAmount(-miscInventory[i].AmountLeft);
+                    miscInventory[i].AddAmount(miscInventory[i].AmountLeft);
+                    break;
+                }
+            }
+        }
+
+        if (miscInventory.Count >= maxMisc)
+            return false;
+        else
+        {
+            miscInventory.Add(misc);
+            return true;
+        }
+    }
+
+    public void RemoveOneMisc(int index)
+    {
+        miscInventory[index].AddAmount(-1);
+        if (miscInventory[index].Amount <= 0)
+            miscInventory.RemoveAt(index);
     }
 }

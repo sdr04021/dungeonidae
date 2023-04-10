@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public SaveData saveData;
+
     public DungeonManager dungeonManager;
     public Player warriorPrefab;
     public Monster testMob1Prefab;
-    public GameObject fogPrefab;
+    public Fog fogPrefab;
     public Tile tilePrefab;
     public List<Sprite> tileSprites;
     public List<Sprite> pencilTiles1 = new List<Sprite>();
@@ -21,7 +23,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] BuffBase[] buffBases;
     public Dictionary<string, BuffBase> buffBaseDict = new();
 
-    public int temp = 0;
+    public AddressableLoader addressableLoader = new();
 
     private static GameManager instance = null;
     private void Awake()
@@ -33,6 +35,8 @@ public class GameManager : MonoBehaviour
 
             for(int i=0; i<buffBases.Length; i++)
                 buffBaseDict.Add(buffBases[i].key, buffBases[i]);
+
+            saveData = new SaveData();
         }
         else
         {
@@ -49,6 +53,26 @@ public class GameManager : MonoBehaviour
                 return null;
             }
             return instance;
+        }
+    }
+
+    public void SaveGame()
+    {
+        SaveData.Save(saveData);
+    }
+    public void LoadGame()
+    {
+        saveData = SaveData.Load();
+        if (saveData != null)
+        {
+            saveData.GenerateSeedList();
+            dungeonManager.LoadFloor();
+        }
+        else
+        {
+            saveData = new SaveData();
+            saveData.SetSeed();
+            dungeonManager.StartNewFloor();
         }
     }
 }

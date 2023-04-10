@@ -6,8 +6,7 @@ using UnityEngine;
 public class Fog : MonoBehaviour
 {
     SpriteRenderer spriteRenderer;
-    public bool IsOn { get; private set; } = true;
-    public bool IsObserved = false;//{ get; private set; } = false;
+    public FogData FogData { get; private set; }
     Color dark = new(1, 1, 1, 0.8f);
     DungeonManager dm;
     int x, y;
@@ -18,26 +17,33 @@ public class Fog : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    public void Init(DungeonManager dm, int x, int y)
+    public void Init(DungeonManager dm, FogData fogData, int x, int y)
     {
         this.dm = dm;
+        FogData = fogData;
         this.x = x; this.y = y;
+        transform.position = new Vector2(x, y);
+        if (fogData.IsObserved)
+            spriteRenderer.color = dark;
+        if(!fogData.IsOn)
+            spriteRenderer.enabled = false;
     }
+
 
     public void Clear()
     {
-        if (!IsObserved)
+        if (!FogData.IsObserved)
         {
             spriteRenderer.color = dark;
-            IsObserved = true;
+            FogData.IsObserved = true;
         }
-        IsOn = false;
+        FogData.IsOn = false;
         spriteRenderer.enabled = false;
         SendNeighborSignal();
     }
     public void Cover()
     {
-        IsOn = true;
+        FogData.IsOn = true;
         SendNeighborSignal();
         SetSprite();
         spriteRenderer.enabled = true;
@@ -59,31 +65,31 @@ public class Fog : MonoBehaviour
     {
         if (y + 1 < dm.FogMap.GetLength(1))
         {
-            if (dm.FogMap[x, y + 1].IsOn != IsOn)
+            if (dm.FogMap[x, y + 1].FogData.IsOn != FogData.IsOn)
                 isNeighborOn[0] = false;
             else 
-                isNeighborOn[0] = dm.FogMap[x, y + 1].IsOn;
+                isNeighborOn[0] = dm.FogMap[x, y + 1].FogData.IsOn;
         }
         if (x + 1 < dm.FogMap.GetLength(0))
         {
-            if (dm.FogMap[x + 1, y].IsOn != IsOn)
+            if (dm.FogMap[x + 1, y].FogData.IsOn != FogData.IsOn)
                 isNeighborOn[1] = false;
             else
-                isNeighborOn[1] = dm.FogMap[x + 1, y].IsOn;
+                isNeighborOn[1] = dm.FogMap[x + 1, y].FogData.IsOn;
         }
         if (y - 1 >= 0)
         {
-            if (dm.FogMap[x, y - 1].IsOn != IsOn)
+            if (dm.FogMap[x, y - 1].FogData.IsOn != FogData.IsOn)
                 isNeighborOn[2] = false;
             else
-                isNeighborOn[2] = dm.FogMap[x, y - 1].IsOn;
+                isNeighborOn[2] = dm.FogMap[x, y - 1].FogData.IsOn;
         }
         if (x - 1 >= 0)
         {
-            if (dm.FogMap[x - 1, y].IsOn != IsOn)
+            if (dm.FogMap[x - 1, y].FogData.IsOn != FogData.IsOn)
                 isNeighborOn[3] = false;
             else
-                isNeighborOn[3] = dm.FogMap[x - 1, y].IsOn;
+                isNeighborOn[3] = dm.FogMap[x - 1, y].FogData.IsOn;
         }
         /*
                  if (y + 1 < dm.FogMap.GetLength(1))

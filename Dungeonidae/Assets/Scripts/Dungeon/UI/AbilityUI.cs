@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
 
 public class AbilityUI : MonoBehaviour
 {
@@ -27,7 +28,7 @@ public class AbilityUI : MonoBehaviour
 
     public void Init()
     {
-        for(int i=0; i<dm.Player.PlayerData.Abilities.Count; i++)
+        for(int i=0; i<dm.Player.UnitData.abilities.Count; i++)
         {
             AbilitySlot slot = Instantiate(abilitySlotPrefab, content);
             slot.Init(this);
@@ -37,8 +38,9 @@ public class AbilityUI : MonoBehaviour
 
     public void Refresh()
     {
-        apText.text = dm.Player.PlayerData.abilityPoint.ToString();
-        for (int i = 0; i < dm.Player.PlayerData.Abilities.Count; i++)
+        apText.text = dm.Player.UnitData.abilityPoint.ToString();
+        List<AbilityData> abilities = dm.Player.UnitData.abilities.Values.ToList();
+        for (int i = 0; i < abilities.Count; i++)
         {
             if (i >= abilitySlot.Count)
             {
@@ -46,7 +48,7 @@ public class AbilityUI : MonoBehaviour
                 slot.Init(this);
                 abilitySlot.Add(slot);
             }
-            abilitySlot[i].SetAbility(dm.Player.PlayerData.Abilities[i], i);
+            abilitySlot[i].SetAbility(abilities[i], i);
         }
     }
 
@@ -54,9 +56,10 @@ public class AbilityUI : MonoBehaviour
     {
         if (index >= 0)
         {
+            List<AbilityData> abilities = dm.Player.UnitData.abilities.Values.ToList();
             currentIndex = index;
             abilityIcon.gameObject.SetActive(true);
-            AbilityData ability = dm.Player.PlayerData.Abilities[index];
+            AbilityData ability = abilities[index];
             abilityTitle.text = DunUI.GetAbilityName(ability.Key);
             abilityIcon.sprite = ability.Sprite;
             abilityDescription.text = DunUI.GetAbilityDescription(ability.Key);
@@ -84,12 +87,13 @@ public class AbilityUI : MonoBehaviour
     {
         if (currentIndex >= 0)
         {
+            List<AbilityData> abilities = dm.Player.UnitData.abilities.Values.ToList();
             if (dm.Player.IncreaseAbilityLevel(currentIndex))
             {
-                AbilityData ability = dm.Player.PlayerData.Abilities[currentIndex];
+                AbilityData ability = abilities[currentIndex];
                 abilitySlot[currentIndex].ApplyAbilityLevel(ability);
                 SetCurrentLevel(ability);
-                apText.text = dm.Player.PlayerData.abilityPoint.ToString();
+                apText.text = dm.Player.UnitData.abilityPoint.ToString();
             }
             else
             {

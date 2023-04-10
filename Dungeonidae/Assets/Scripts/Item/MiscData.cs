@@ -1,33 +1,44 @@
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
+[System.Serializable]
 public class MiscData : ItemData
 {
-    int[] effectValues;
-    public int[] EffectValues { get => effectValues; }    
+    [JsonProperty]
+    public int[] EffectValues { get; private set; }
 
-    int maxStack;
-    public int MaxStack { get => maxStack; }
+    [JsonProperty]
+    public int MaxStack { get; private set; }
 
-    int amount;
-    public int Amount { get => amount; }
+    [JsonProperty]
+    public int Amount { get; private set; }
 
-    public int AmountLeft { get => (maxStack - Amount); }
+    [JsonIgnore]
+    public int AmountLeft { get => (MaxStack - Amount); }
 
-    MiscBase miscBase;
-    public MiscBase MiscBase { get => miscBase; }
+    public MiscData() { }
 
     public MiscData(MiscBase misc, int amount) : base(misc)
     {
-        miscBase = misc;
-        effectValues = misc.EffectValues;
-        maxStack = misc.MaxStack;
-        this.amount = amount;
+        EffectValues = misc.EffectValues;
+        MaxStack = misc.MaxStack;
+        Amount = amount;
     }
 
     public void AddAmount(int amount)
     {
-        this.amount += amount;
+        Amount += amount;
+    }
+
+    protected override void LoadItemIcon()
+    {
+        loadHandle = Addressables.LoadAssetAsync<Sprite>("Assets/Sprites/Misc Sprites/" + Key + ".png");
+        loadHandle.WaitForCompletion();
+        if (loadHandle.Status == AsyncOperationStatus.Succeeded)
+            Sprite = loadHandle.Result;
     }
 }

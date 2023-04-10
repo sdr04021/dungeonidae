@@ -2,12 +2,11 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Linq;
 using UnityEngine;
 
 public class Player : Unit
 {
-    public PlayerData PlayerData { get; private set; } = new PlayerData();
     public bool IsThrowingMode { get; private set; } = false;
     Tuple<ItemType, int> itemToThrow;
     ItemObject throwingItem;
@@ -33,10 +32,10 @@ public class Player : Unit
     {
         base.Init(dungeonManager, c);
 
-        PlayerData.abilityPoint += 9;
+        UnitData.abilityPoint += 9;
         for (int i = 0; i < GameManager.Instance.testAbility.Length; i++)
         {
-            PlayerData.AddAbility(new AbilityData(GameManager.Instance.testAbility[i]));
+            UnitData.AddAbility(new AbilityData(GameManager.Instance.testAbility[i]));
         }
         UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[0]), 0);
         UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[1]), 3);
@@ -85,13 +84,13 @@ public class Player : Unit
 
     public void LootItem()
     {
-        Tile tile = dm.GetTileByCoordinate(Coord);
+        Tile tile = dm.GetTileByCoordinate(UnitData.coord);
         if (tile.items.Count > 0)
         {
             ItemObject itemObj = tile.items.Peek();
             if (itemObj.data is EquipmentData equip)
             {
-                if (PlayerData.AddEquipment(equip))
+                if (UnitData.AddEquipment(equip))
                 {
                     tile.items.Pop();
                     itemObj.Loot();
@@ -105,7 +104,7 @@ public class Player : Unit
             else if (itemObj.data is MiscData misc)
             {
                 int before = misc.Amount;
-                if (PlayerData.AddMisc(misc))
+                if (UnitData.AddMisc(misc))
                 {
                     tile.items.Pop();
                     itemObj.Loot(); 
@@ -127,9 +126,9 @@ public class Player : Unit
 
     public void UseItem(int index)
     {
-        if (itemEffectDirector.ItemEffect(PlayerData.miscInventory[index]))
+        if (itemEffectDirector.ItemEffect(UnitData.miscInventory[index]))
         {
-            PlayerData.RemoveOneMisc(index);
+            UnitData.RemoveOneMisc(index);
             EndTurn(1);
         }
     }
@@ -137,19 +136,19 @@ public class Player : Unit
     public void DropEquip(int index)
     {
         ItemObject item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
-        item.Init(dm, new Coordinate((Vector2)transform.position), PlayerData.equipInventory[index]);
+        item.Init(dm, new Coordinate((Vector2)transform.position), UnitData.equipInventory[index]);
         item.Bounce();
         dm.GetTileByCoordinate(item.Coord).items.Push(item);
-        PlayerData.equipInventory.RemoveAt(index);
+        UnitData.equipInventory.RemoveAt(index);
         EndTurn(1);
     }
     public void DropMisc(int index)
     {
         ItemObject item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
-        item.Init(dm, new Coordinate((Vector2)transform.position), PlayerData.miscInventory[index]);
+        item.Init(dm, new Coordinate((Vector2)transform.position), UnitData.miscInventory[index]);
         item.Bounce();
         dm.GetTileByCoordinate(item.Coord).items.Push(item);
-        PlayerData.miscInventory.RemoveAt(index);
+        UnitData.miscInventory.RemoveAt(index);
         EndTurn(1);
     }
 
@@ -162,7 +161,7 @@ public class Player : Unit
         for(int i=0; i<tilesInSight.Count; i++)
         {
             Tile tile = dm.GetTileByCoordinate(tilesInSight[i]);
-            if ((tile.Coord != Coord) && (tile.type == TileType.Floor))
+            if ((tile.Coord != UnitData.coord) && (tile.TileData.tileType == TileType.Floor))
             {
                 throwableRange.Add(tile.Coord);
                 tile.SetAvailable();
@@ -175,16 +174,16 @@ public class Player : Unit
         throwingItem = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
         if (itemToThrow.Item1 == ItemType.Equipment)
         {
-            throwingItem.Init(dm, to, PlayerData.equipInventory[itemToThrow.Item2]);
-            PlayerData.equipInventory.RemoveAt(itemToThrow.Item2);
+            throwingItem.Init(dm, to, UnitData.equipInventory[itemToThrow.Item2]);
+            UnitData.equipInventory.RemoveAt(itemToThrow.Item2);
         }
         else if (itemToThrow.Item1 == ItemType.Misc)
         {
-            throwingItem.Init(dm, to, new MiscData(PlayerData.miscInventory[itemToThrow.Item2].MiscBase, 1));
-            PlayerData.RemoveOneMisc(itemToThrow.Item2);
+            throwingItem.Init(dm, to, new MiscData(GameManager.Instance.testItem, 1));
+            UnitData.RemoveOneMisc(itemToThrow.Item2);
         }
         dm.GetTileByCoordinate(to).items.Push(throwingItem);
-        throwingItem.transform.DOMove(to.ToVector3(0), Coordinate.Distance(to, Coord) * 0.08f).OnComplete(EndThrowing);
+        throwingItem.transform.DOMove(to.ToVector3(0), Coordinate.Distance(to, UnitData.coord) * 0.08f).OnComplete(EndThrowing);
     }
     void EndThrowing()
     {
@@ -251,15 +250,15 @@ public class Player : Unit
             return;
         }
 
-        if (coord == Coord) return;
+        if (coord == UnitData.coord) return;
 
         FlipSprite(coord);
 
-        if (map[coord.x, coord.y].type == TileType.Floor)
+        if (dm.Map[coord.x, coord.y].TileData.tileType == TileType.Floor)
         {
-            if (map[coord.x, coord.y].unit == null)
+            if (dm.Map[coord.x, coord.y].unit == null)
             {
-                if (dm.FogMap[coord.x, coord.y].IsObserved)
+                if (dm.FogMap[coord.x, coord.y].FogData.IsObserved)
                 {
                     if (FindPath(coord))
                         FollowPath();
@@ -305,28 +304,28 @@ public class Player : Unit
 
     public void EquipEquipment(int inventoryIndex, int equippedIndex)
     {
-        EquipmentData equip = PlayerData.equipInventory[inventoryIndex];
-        PlayerData.equipped[equippedIndex] = equip;
-        PlayerData.equipInventory.RemoveAt(inventoryIndex);
+        EquipmentData equip = UnitData.equipInventory[inventoryIndex];
+        UnitData.equipped[equippedIndex] = equip;
+        UnitData.equipInventory.RemoveAt(inventoryIndex);
         UnitData.ApplyEquipStats(equip);
         EndTurn(3);
     }
 
     public void ExchangeEquipment(int inventoryIndex, int equippedIndex)
     {
-        (PlayerData.equipInventory[inventoryIndex], PlayerData.equipped[equippedIndex]) = (PlayerData.equipped[equippedIndex], PlayerData.equipInventory[inventoryIndex]);
-        UnitData.RemoveEquipStats(PlayerData.equipInventory[inventoryIndex]);
-        UnitData.ApplyEquipStats(PlayerData.equipped[equippedIndex]);
+        (UnitData.equipInventory[inventoryIndex], UnitData.equipped[equippedIndex]) = (UnitData.equipped[equippedIndex], UnitData.equipInventory[inventoryIndex]);
+        UnitData.RemoveEquipStats(UnitData.equipInventory[inventoryIndex]);
+        UnitData.ApplyEquipStats(UnitData.equipped[equippedIndex]);
         EndTurn(3);
     }
 
     public bool UnequipEquipment(int index)
     {
-        if (PlayerData.equipInventory.Count < PlayerData.maxEquip)
+        if (UnitData.equipInventory.Count < UnitData.maxEquip)
         {
-            EquipmentData equip = PlayerData.equipped[index];
-            PlayerData.equipInventory.Add(equip);
-            PlayerData.equipped[index] = null;
+            EquipmentData equip = UnitData.equipped[index];
+            UnitData.equipInventory.Add(equip);
+            UnitData.equipped[index] = null;
             UnitData.RemoveEquipStats(equip);
             EndTurn(3);
             return true;
@@ -336,12 +335,13 @@ public class Player : Unit
 
     public bool IncreaseAbilityLevel(int index)
     {
-        if ((PlayerData.Abilities[index].Level < 3) && (PlayerData.abilityPoint >= 1))
+        List<AbilityData> abilities = UnitData.abilities.Values.ToList();
+        if ((abilities[index].Level < 3) && (UnitData.abilityPoint >= 1))
         {
-            PlayerData.abilityPoint--;
-            abilityDirector.RemoveAbility(PlayerData.Abilities[index]);
-            PlayerData.Abilities[index].IncreaseLevel();
-            abilityDirector.ApplyAbility(PlayerData.Abilities[index]);
+            UnitData.abilityPoint--;
+            abilityDirector.RemoveAbility(abilities[index]);
+            abilities[index].IncreaseLevel();
+            abilityDirector.ApplyAbility(abilities[index]);
             return true;
         }
         else return false;

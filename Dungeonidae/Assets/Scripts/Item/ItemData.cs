@@ -1,22 +1,54 @@
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
+[System.Serializable]
 public class ItemData
 {
-    string key;
-    public string Key { get => key; }
+    [JsonProperty]
+    public string Key { get; private set; }
 
-    Sprite mySprite;
-    public Sprite MySprite { get => mySprite; }
+    Sprite _sprite;
+    [JsonIgnore]
+    public Sprite Sprite
+    {
+        get
+        {
+            if (_sprite == null)
+            {
+                LoadItemIcon();
+            }
+            return _sprite;
+        }
+        protected set
+        {
+            _sprite = value;
+        }
+    }
 
-    int price;
-    public int Price { get => price; }
+    [JsonProperty]
+    public int Price { get; private set; }
+
+    protected AsyncOperationHandle<Sprite> loadHandle;
+
+    public ItemData() { }
 
     public ItemData(ItemBase item)
     {
-        key = item.Key;
-        mySprite = item.Sprite;
-        price = item.Price;
+        Key = item.Key;
+        Price = item.Price;
+    }
+
+    protected virtual void LoadItemIcon()
+    {
+
+    }
+
+    ~ItemData()
+    {
+        Addressables.Release(loadHandle);
     }
 }

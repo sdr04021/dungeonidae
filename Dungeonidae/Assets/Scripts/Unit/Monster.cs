@@ -21,21 +21,21 @@ public class Monster : Unit
     {
         base.StartTurn();
 
-        if (chaseTarget == null)
+        if (UnitData.chaseTarget == null)
             RandomStep();
         else
         {
-            if (UnitsInSight.Contains(chaseTarget))
+            if (UnitsInSight.Contains(UnitData.chaseTarget.Owner))
             {
-                chaseTargetRecentCoord = chaseTarget.Coord;
-                if (Coord.IsTargetInRange(chaseTarget.Coord, UnitData.AtkRange.Total()))
+                UnitData.chaseTargetRecentCoord = UnitData.chaseTarget.coord;
+                if (UnitData.coord.IsTargetInRange(UnitData.chaseTarget.coord, UnitData.atkRange.Total()))
                 {
                     Controllable = false;
-                    BasicAttack.StartSkill(chaseTarget.Coord);
+                    BasicAttack.StartSkill(UnitData.chaseTarget.coord);
                 }
                 else
                 {
-                    Directions dir = FollowTarget(chaseTarget.Coord);
+                    Directions dir = FollowTarget(UnitData.chaseTarget.coord);
                     if (dir == Directions.NONE)
                         RandomStep();
                     else Move(dir);
@@ -43,8 +43,8 @@ public class Monster : Unit
             }
             else
             {
-                chaseTarget = null;
-                if (!FindPath(chaseTargetRecentCoord))
+                UnitData.chaseTarget = null;
+                if (!FindPath(UnitData.chaseTargetRecentCoord))
                 {
                     RandomStep();
                 }
@@ -58,7 +58,7 @@ public class Monster : Unit
     public override void GetDamage(AttackData attackData)
     {
         base.GetDamage(attackData);
-        chaseTarget = attackData.Attacker;
+        UnitData.chaseTarget = attackData.Attacker.UnitData;
     }
 
     protected override void StartDie()
@@ -69,7 +69,7 @@ public class Monster : Unit
         //item.Init(dm, new Coordinate((Vector2)transform.position), new Item(GameManager.Instance.testItem));
         //dm.GetTileByCoordinate(item.Coord).items.Push(item);
 
-        dm.Player.IncreaseExp(UnitData.ExpReward[0]);
+        dm.Player.IncreaseExp(UnitData.expReward[0]);
 
         ItemObject item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
         item.Init(dm, new Coordinate((Vector2)transform.position), new EquipmentData(GameManager.Instance.testEquip));

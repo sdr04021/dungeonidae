@@ -9,7 +9,7 @@ public class EquippedSlot : ItemSlot
 
     public override void SetItem(ItemData item, int listIndex)
     {
-        icon.sprite = item.MySprite;
+        icon.sprite = item.Sprite;
         ListIndex = listIndex;
         icon.gameObject.SetActive(true);
     }

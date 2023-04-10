@@ -15,7 +15,7 @@ public class BasicAttack : Skill
 
     public override bool IsUsable()
     {
-        if (owner.UnitData.Aspd.Total() > 0)
+        if (owner.UnitData.aspd.Total() > 0)
             return true;
         else return false;
     }
@@ -23,15 +23,15 @@ public class BasicAttack : Skill
     public override void SetRange(bool showRange)
     {
         this.showRange = showRange;
-        int range = owner.UnitData.AtkRange.Total();
-        for (int i = owner.Coord.x - range; i <= owner.Coord.x + range; i++)
+        int range = owner.UnitData.atkRange.Total();
+        for (int i = owner.UnitData.coord.x - range; i <= owner.UnitData.coord.x + range; i++)
         {
-            for (int j = owner.Coord.y - range; j <= owner.Coord.y + range; j++)
+            for (int j = owner.UnitData.coord.y - range; j <= owner.UnitData.coord.y + range; j++)
             {
-                if (dm.IsValidIndexForMap(i, j) && (!dm.FogMap[i, j].IsOn))
+                if (dm.IsValidIndexForMap(i, j) && (!dm.FogMap[i, j].FogData.IsOn))
                 {
-                    Tile tile = dm.map[i, j];
-                    if ((tile.type == TileType.Floor) && (tile.Coord != owner.Coord))
+                    Tile tile = dm.Map[i, j];
+                    if ((tile.TileData.tileType == TileType.Floor) && (tile.Coord != owner.UnitData.coord))
                     {
                         if ((tile.unit != null) && (owner.IsHostileUnit(tile.unit)))
                         {
@@ -70,7 +70,7 @@ public class BasicAttack : Skill
         }
         owner.isAnimationFinished = false;
         target.isAnimationFinished = false;
-        owner.EndSkill(100f / owner.UnitData.Aspd.Total());
+        owner.EndSkill(100f / owner.UnitData.aspd.Total());
     }
 
     public override void ShowTargetArea(Coordinate coord)
@@ -105,7 +105,7 @@ public class BasicAttack : Skill
 
     public override AttackData MakeAttackData(Unit target)
     {
-        AttackData ad = new(owner, owner.UnitData.Atk.Total(), 0, 0);
+        AttackData ad = new(owner, owner.UnitData.atk.Total(), 0, 0);
         return ad;
     }
 }

@@ -5,6 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class TileData
 {
-    public TileType type = TileType.Floor;
-    public AreaType Area { get; private set; } = AreaType.None;
+    public TileType tileType = TileType.Wall;
+    public AreaType areaType = AreaType.None;
 }

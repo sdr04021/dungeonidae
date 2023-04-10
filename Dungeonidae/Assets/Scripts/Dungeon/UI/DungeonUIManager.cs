@@ -83,13 +83,13 @@ public class DungeonUIManager : MonoBehaviour
 
     public void UpdateLevelText()
     {
-        lvText.text = "LV " + (dm.Player.UnitData.Level + 1).ToString();
+        lvText.text = "LV " + (dm.Player.UnitData.level + 1).ToString();
     }
 
     public void UpdateHpBar()
     {
         int hp = dm.Player.UnitData.Hp;
-        int maxHp = dm.Player.UnitData.MaxHp.Total();
+        int maxHp = dm.Player.UnitData.maxHp.Total();
         hpBar.fillAmount = hp / (float)maxHp;
         hpText.text = hp.ToString() + "/" + maxHp.ToString();
     }
@@ -104,8 +104,8 @@ public class DungeonUIManager : MonoBehaviour
 
     public void UpdateExpBar()
     {
-        int exp = dm.Player.UnitData.Exp;
-        int maxExp = dm.Player.UnitData.MaxExp;
+        int exp = dm.Player.UnitData.exp;
+        int maxExp = dm.Player.UnitData.maxExp;
         expBar.fillAmount = exp / (float)maxExp;
         expText.text = exp.ToString() + "/" + maxExp.ToString() +"(" + Mathf.Round(exp/(float)maxExp*100) + "%)";
     }

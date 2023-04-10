@@ -6,53 +6,69 @@ using Priority_Queue;
 
 public class MapGenerator
 {
-    public Tile[,] map;
-
-    int generationArea = 50;
     int roomSeedAmount = 300;
+    int mapWidth = 50;
+    int mapHeight = 50;
 
-    List<Room> rooms = new();
-    public List<Room> Rooms {  get { return rooms; } }
+    DungeonData dungeonData;
 
-    public MapGenerator()
+    public MapGenerator(DungeonData dungeonData)
     {
         //generationArea = Mathf.Min(100, generationArea);
         //roomSeedAmount = generationArea * 6;
+        this.dungeonData = dungeonData;
+        GenereateBase();
+        GenerateRooms();
+        ConnectRooms();
     }
 
-    public void GenerateRooms(Tile[,] map)
+    void GenereateBase()
     {
-        this.map = map;
+        for (int i = 0; i < mapWidth; i++)
+        {
+            List<TileData> temp = new();
+            List<FogData> tempFog = new();
+            for (int j = 0; j < mapHeight; j++)
+            {
+                temp.Add(new TileData());
+                tempFog.Add(new FogData());
+            }
+            dungeonData.mapData.Add(temp);
+            dungeonData.fogData.Add(tempFog);
+        }
+    }
 
+    void GenerateRooms()
+    {
         for(int i=0; i<roomSeedAmount; i++)
         {
             //rooms.Add(new Room(new Coordinate(Random.Range(2, map.GetLength(0) - 2), Random.Range(2, map.GetLength(1) - 2)),10));
-            rooms.Add(new Room(new Coordinate(Random.Range(2, generationArea), Random.Range(2, generationArea)), Random.Range(8,12)));
+            dungeonData.rooms.Add(new Room(new Coordinate(dungeonData.Rand.Next(3, mapWidth - 3), dungeonData.Rand.Next(3, mapHeight - 3)), dungeonData.Rand.Next(8, 12)));
         }
-
+        
         while (true)
         {
             int finished = 0;
-            for (int i = rooms.Count - 1; i >= 0; i--)
+            for (int i = dungeonData.rooms.Count - 1; i >= 0; i--)
             {
-                if (rooms[i].GrowthCount > 0)
+                if (dungeonData.rooms[i].GrowthCount > 0)
                 {
-                    rooms[i].Grow(Random.Range(0, 5), map);
-                    for (int j = 0; j < rooms.Count; j++)
+                    dungeonData.rooms[i].Grow(dungeonData.Rand.Next(0, 5), dungeonData.mapData);
+                    for (int j = 0; j < dungeonData.rooms.Count; j++)
                     {
-                        if ((i != j) && CheckOverlap(rooms[i], rooms[j]))
+                        if ((i != j) && CheckOverlap(dungeonData.rooms[i], dungeonData.rooms[j]))
                         {
-                            if (rooms[i].Width < 9)
+                            if (dungeonData.rooms[i].Width < 9)
                             {
-                                rooms[j].Average(rooms[i]);
-                                rooms.RemoveAt(i);
+                                dungeonData.rooms[j].Average(dungeonData.rooms[i]);
+                                dungeonData.rooms.RemoveAt(i);
                             }
                             else
                             {
-                                rooms[i].ExcludeBorder();
-                                rooms[i].FinishGrowth();
-                                rooms[j].ExcludeBorder();
-                                rooms[j].FinishGrowth();
+                                dungeonData.rooms[i].ExcludeBorder();
+                                dungeonData.rooms[i].FinishGrowth();
+                                dungeonData.rooms[j].ExcludeBorder();
+                                dungeonData.rooms[j].FinishGrowth();
                             }
                             break;
                         }
@@ -60,37 +76,37 @@ public class MapGenerator
                 }
                 else finished++;
             }
-            if (finished == rooms.Count)
+            if (finished == dungeonData.rooms.Count)
                 break;
         }
 
-        for (int i = rooms.Count - 1; i >= 0; i--)
+        for (int i = dungeonData.rooms.Count - 1; i >= 0; i--)
         {
-            if ((rooms[i].Width < 5) || (rooms[i].Height<5))
-                rooms.RemoveAt(i);
-            else rooms[i].SetCenter();
+            if ((dungeonData.rooms[i].Width < 5) || (dungeonData.rooms[i].Height<5))
+                dungeonData.rooms.RemoveAt(i);
+            else dungeonData.rooms[i].SetCenter();
         }
 
-        for (int i = 0; i < rooms.Count; i++) 
+        for (int i = 0; i < dungeonData.rooms.Count; i++) 
         {
-            for (int j = rooms[i].Left; j <= rooms[i].Right; j++)
+            for (int j = dungeonData.rooms[i].Left; j <= dungeonData.rooms[i].Right; j++)
             {
-                for (int k = rooms[i].Bottom; k <= rooms[i].Top; k++)
+                for (int k = dungeonData.rooms[i].Bottom; k <= dungeonData.rooms[i].Top; k++)
                 {
-                    map[j, k].SetTileType(TileType.Wall);
-                    map[j, k].SetAreaType(AreaType.Border);
+                    dungeonData.mapData[j][k].tileType = TileType.Wall;
+                    dungeonData.mapData[j][k].areaType = AreaType.Border;
                 }
             }
-            rooms[i].ExcludeBorder();
-            for (int j = rooms[i].Left; j <= rooms[i].Right; j++) 
+            dungeonData.rooms[i].ExcludeBorder();
+            for (int j = dungeonData.rooms[i].Left; j <= dungeonData.rooms[i].Right; j++) 
             {
-                for(int k = rooms[i].Bottom; k <= rooms[i].Top; k++)
+                for(int k = dungeonData.rooms[i].Bottom; k <= dungeonData.rooms[i].Top; k++)
                 {
-                    map[j, k].SetTileType(TileType.Floor);
-                    map[j, k].SetAreaType(AreaType.Room);
+                    dungeonData.mapData[j][k].tileType = TileType.Floor;
+                    dungeonData.mapData[j][k].areaType = AreaType.Room;
                 }
             }
-            rooms[i].SetEntranceCandidates(map);
+            dungeonData.rooms[i].SetEntranceCandidates(dungeonData.mapData, dungeonData.Rand);
         }
 
         /*
@@ -124,27 +140,25 @@ public class MapGenerator
             }
         }
         */
-
-        ConnectRooms();
     }
 
     void ConnectRooms()
     {
-        int[,] graph = new int[rooms.Count, rooms.Count];
+        int[,] graph = new int[dungeonData.rooms.Count, dungeonData.rooms.Count];
         Dictionary<Coordinate, int> roomIndexDict = new();
-        for (int i = 0; i < rooms.Count; i++)
+        for (int i = 0; i < dungeonData.rooms.Count; i++)
         {
-            roomIndexDict.Add(rooms[i].center, i);
-            for (int j = 0; j < rooms.Count; j++)
+            roomIndexDict.Add(dungeonData.rooms[i].center, i);
+            for (int j = 0; j < dungeonData.rooms.Count; j++)
             {
                 graph[i, j] = -1;
             }
         }
 
-        IPoint[] points = new IPoint[rooms.Count];
-        for (int i = 0; i < rooms.Count; i++)
+        IPoint[] points = new IPoint[dungeonData.rooms.Count];
+        for (int i = 0; i < dungeonData.rooms.Count; i++)
         {
-            points[i] = new Point(rooms[i].center.x, rooms[i].center.y);
+            points[i] = new Point(dungeonData.rooms[i].center.x, dungeonData.rooms[i].center.y);
         }
         Delaunator delaunator = new Delaunator(points);
         IEnumerable<IEdge> iEdges = delaunator.GetEdges();
@@ -161,14 +175,14 @@ public class MapGenerator
         SimplePriorityQueue<Coordinate> pQueue = new();
         int current = 0;
         int visited = 1;
-        bool[] visitFlag = new bool[rooms.Count];
+        bool[] visitFlag = new bool[dungeonData.rooms.Count];
         System.Array.Fill(visitFlag, false);
         visitFlag[current] = true;
         List<Coordinate> hallways = new();
 
-        while (visited < rooms.Count)
+        while (visited < dungeonData.rooms.Count)
         {
-            for (int i = 0; i < rooms.Count; i++)
+            for (int i = 0; i < dungeonData.rooms.Count; i++)
             {
                 if ((graph[current, i] > 0) && !visitFlag[i])
                 {
@@ -206,7 +220,7 @@ public class MapGenerator
         int pickAmount = hallways.Count / 4;
         for (int i = 0; i < pickAmount; i++)
         {
-            int pick = Random.Range(0, additional.Count);
+            int pick = dungeonData.Rand.Next(0, additional.Count);
             hallways.Add(additional[pick]);
             additional.RemoveAt(pick);
         }
@@ -220,40 +234,38 @@ public class MapGenerator
 
         for (int i = 0; i < hallways.Count; i++)
         {
-            Coordinate start = rooms[hallways[i].x].center;
-            Coordinate end = rooms[hallways[i].y].center;
+            Coordinate start = dungeonData.rooms[hallways[i].x].center;
+            Coordinate end = dungeonData.rooms[hallways[i].y].center;
 
-            AStar aStar = new(map, start, end);
+            AStar aStar = new(dungeonData.mapData, start, end);
 
             Coordinate key = end;
             while(aStar.ParentTable.ContainsKey(key))
             {
                 key = aStar.ParentTable[key];
-                map[key.x, key.y].SetTileType(TileType.Floor);
-                if (map[key.x, key.y].Area != AreaType.Room)
-                    map[key.x, key.y].SetAreaType(AreaType.Hallway);
+                dungeonData.mapData[key.x][key.y].tileType = TileType.Floor;
+                if (dungeonData.mapData[key.x][key.y].areaType != AreaType.Room)
+                    dungeonData.mapData[key.x][key.y].areaType = AreaType.Hallway;
             }
         }
 
-        for(int i=0; i<rooms.Count; i++)
+        for(int i=0; i<dungeonData.rooms.Count; i++)
         {
-            for(int j = rooms[i].Entrances.Count-1; j>=0; j--)
+            for(int j = dungeonData.rooms[i].Entrances.Count-1; j>=0; j--)
             {
-                Coordinate c = rooms[i].Entrances[j];
-                if (map[c.x, c.y].Area != AreaType.Hallway)
-                    rooms[i].Entrances.RemoveAt(j);
+                Coordinate c = dungeonData.rooms[i].Entrances[j];
+                if (dungeonData.mapData[c.x][c.y].areaType != AreaType.Hallway)
+                    dungeonData.rooms[i].Entrances.RemoveAt(j);
             }
         }
-
-        SetRoomType();
     }
 
     void SetRoomType()
     {
-        for(int i=0; i<rooms.Count; i++)
+        for(int i=0; i<dungeonData.rooms.Count; i++)
         {
-            if (Random.Range(0, 2) == 1)
-                SetComplicatedRoom(rooms[i]);
+            if (dungeonData.Rand.Next(0, 2) == 1)
+                SetComplicatedRoom(dungeonData.rooms[i]);
         }
     }
 
@@ -277,7 +289,7 @@ public class MapGenerator
             {
                 if (i % 2 == 0 && j % 2 == 0)
                 {
-                    map[i, j].SetTileType(TileType.Wall);
+                    dungeonData.mapData[i][j].tileType = TileType.Wall;
                 }
             }
         }
@@ -292,7 +304,7 @@ public class MapGenerator
         {
             for (int j = room.Bottom + bezel; j <= room.Top - bezel; j++)
             {
-                map[i, j].SetTileType(TileType.Wall);
+                dungeonData.mapData[i][j].tileType = TileType.Wall;
             }
         }
     }

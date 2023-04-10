@@ -17,9 +17,9 @@ public class ItemObject : MonoBehaviour
         dm = dungeonManager;
         Coord = c;
         data = item;
-        spriteRenderer.sprite = data.MySprite;
+        spriteRenderer.sprite = data.Sprite;
         //Vector2 spriteSize = new Vector2(myItem.MySprite.texture.width, myItem.MySprite.texture.height);
-        Vector2 spriteSize = new Vector2(data.MySprite.textureRect.size.x, data.MySprite.textureRect.size.y);
+        Vector2 spriteSize = new Vector2(data.Sprite.textureRect.size.x, data.Sprite.textureRect.size.y);
         transform.localScale = new Vector2(60 / spriteSize.x, 60 / spriteSize.y);
     }
 

@@ -26,14 +26,14 @@ public class SkillPowerStrike : Skill
     public override void SetRange(bool showRange)
     {
         this.showRange = showRange;
-        for (int i = owner.Coord.x - 1; i <= owner.Coord.x + 1; i++)
+        for (int i = owner.UnitData.coord.x - 1; i <= owner.UnitData.coord.x + 1; i++)
         {
-            for (int j = owner.Coord.y - 1; j <= owner.Coord.y + 1; j++)
+            for (int j = owner.UnitData.coord.y - 1; j <= owner.UnitData.coord.y + 1; j++)
             {
-                if (dm.IsValidIndexForMap(i, j) && (!dm.FogMap[i, j].IsOn))
+                if (dm.IsValidIndexForMap(i, j) && (!dm.FogMap[i, j].FogData.IsOn))
                 {
-                    Tile tile = dm.map[i, j];
-                    if ((tile.type == TileType.Floor) && (tile.Coord != owner.Coord))
+                    Tile tile = dm.Map[i, j];
+                    if ((tile.TileData.tileType == TileType.Floor) && (tile.Coord != owner.UnitData.coord))
                     {
                         if ((tile.unit != null) && (owner.IsHostileUnit(tile.unit)))
                         {
@@ -110,7 +110,7 @@ public class SkillPowerStrike : Skill
 
     public override AttackData MakeAttackData(Unit target)
     {
-        AttackData ad = new(owner, (int)(owner.UnitData.Atk.Total() * (SkillData.EffectValues[1]/100f)), 0, 0);
+        AttackData ad = new(owner, (int)(owner.UnitData.atk.Total() * (SkillData.EffectValues[1]/100f)), 0, 0);
         return ad;
     }
 }

@@ -47,8 +47,8 @@ public class AbilityDirector
 
     void Berserk()
     {
-        AbilityData ability = player.PlayerData.Abilities[player.PlayerData.AbilityNameToIndex["BERSERK"]];
-        float lostHpPercent = ((player.UnitData.MaxHp.Total() - player.UnitData.Hp) / (float)player.UnitData.MaxHp.Total()) * 100;
+        AbilityData ability = player.UnitData.abilities["BERSERK"];
+        float lostHpPercent = ((player.UnitData.maxHp.Total() - player.UnitData.Hp) / (float)player.UnitData.maxHp.Total()) * 100;
         player.UnitData.SetStatValue(ability.Key, StatType.Atk, StatValueType.Percent, (int)(lostHpPercent / ability.EffectValues[ability.Level - 1]));
     }
 }

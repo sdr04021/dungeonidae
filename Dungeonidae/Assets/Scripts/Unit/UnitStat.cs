@@ -4,7 +4,8 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public struct UnitStat
+[System.Serializable]
+public class UnitStat
 {
     public struct StatValue
     {
@@ -12,11 +13,18 @@ public struct UnitStat
         public float value;
     }
 
-    public int original;
+    public int original = 0;
     public Dictionary<string, int> additional;
     public Dictionary<string, int> temporary;
     public Dictionary<string, int> percent;
-    public int minLimit;
+    public int minLimit = 0;
+
+    public UnitStat()
+    {
+        additional ??= new();
+        temporary ??= new();
+        percent ??= new();
+    }
 
     public UnitStat(int original)
     {
