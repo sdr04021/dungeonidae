@@ -1,0 +1,2665 @@
+{
+  "currentFloor": 0,
+  "playerData": {
+    "$id": "1",
+    "coord": {
+      "x": 8,
+      "y": 17
+    },
+    "turnIndicator": 0.0,
+    "unitListIndex": 0,
+    "chaseTarget": null,
+    "chaseTargetRecentCoord": {
+      "x": 0,
+      "y": 0
+    },
+    "unitName": "WARRIOR",
+    "team": 2,
+    "level": 0,
+    "exp": 3,
+    "maxExp": 10,
+    "expTable": [
+      10,
+      20,
+      25,
+      30,
+      35,
+      40,
+      45,
+      50,
+      55
+    ],
+    "expReward": [],
+    "maxHp": {
+      "original": 50,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "_hp": 38,
+    "hpRegen": {
+      "original": 1,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "maxMp": {
+      "original": 50,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "_mp": 50,
+    "mpRegen": {
+      "original": 1,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "atk": {
+      "original": 10,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "mAtk": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "atkRange": {
+      "original": 1,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "pen": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "mPen": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "acc": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "aspd": {
+      "original": 100,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "cri": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "criDmg": {
+      "original": 200,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "proficiency": {
+      "original": 10,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "lifeSteal": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "manaSteal": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "def": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "mDef": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "eva": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "block": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "resist": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "dmgIncrease": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "dmgReduction": {
+      "original": 0,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "speed": {
+      "original": 100,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "sight": {
+      "original": 5,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "instinct": {
+      "original": 30,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "searchRange": {
+      "original": 1,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "maxHunger": {
+      "original": 100,
+      "additional": {},
+      "temporary": {},
+      "percent": {},
+      "minLimit": 0
+    },
+    "_hunger": 0,
+    "abilities": {
+      "HP_INCREASE": {
+        "Key": "HP_INCREASE",
+        "EffectValues": [
+          5,
+          10,
+          15
+        ],
+        "Level": 0
+      },
+      "BERSERK": {
+        "Key": "BERSERK",
+        "EffectValues": [
+          3,
+          2,
+          1
+        ],
+        "Level": 0
+      }
+    },
+    "abilityPoint": 9,
+    "Skills": [
+      {
+        "currentCoolDown": 0,
+        "Key": "POWER_STRIKE",
+        "Type": 0,
+        "EffectValues": [
+          10,
+          200,
+          1
+        ],
+        "MutableValueIndex": [
+          1
+        ],
+        "NeedTarget": true
+      },
+      null,
+      null,
+      {
+        "currentCoolDown": 0,
+        "Key": "RUSH",
+        "Type": 1,
+        "EffectValues": [
+          5,
+          5,
+          5
+        ],
+        "MutableValueIndex": [],
+        "NeedTarget": true
+      },
+      {
+        "currentCoolDown": 0,
+        "Key": "SPRINT",
+        "Type": 1,
+        "EffectValues": [
+          10,
+          10,
+          100,
+          5
+        ],
+        "MutableValueIndex": [],
+        "NeedTarget": false
+      }
+    ],
+    "learnedSkills": [
+      {
+        "currentCoolDown": 0,
+        "Key": "POWER_STRIKE",
+        "Type": 0,
+        "EffectValues": [
+          10,
+          200,
+          1
+        ],
+        "MutableValueIndex": [
+          1
+        ],
+        "NeedTarget": true
+      },
+      {
+        "currentCoolDown": 0,
+        "Key": "RUSH",
+        "Type": 1,
+        "EffectValues": [
+          5,
+          5,
+          5
+        ],
+        "MutableValueIndex": [],
+        "NeedTarget": true
+      },
+      {
+        "currentCoolDown": 0,
+        "Key": "SPRINT",
+        "Type": 1,
+        "EffectValues": [
+          10,
+          10,
+          100,
+          5
+        ],
+        "MutableValueIndex": [],
+        "NeedTarget": false
+      }
+    ],
+    "Buffs": [],
+    "maxEquip": 20,
+    "equipInventory": [],
+    "maxMisc": 20,
+    "miscInventory": [
+      {
+        "coord": {
+          "x": 8,
+          "y": 17
+        },
+        "EffectValues": [
+          50
+        ],
+        "MaxStack": 5,
+        "Amount": 1,
+        "Key": "RED_POTION",
+        "Price": 50
+      }
+    ],
+    "equipped": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "Seed": 2065468610,
+  "Floors": [
+    {
+      "floor": 0,
+      "observedFog": [
+        {
+          "x": 3,
+          "y": 3
+        },
+        {
+          "x": 3,
+          "y": 4
+        },
+        {
+          "x": 3,
+          "y": 5
+        },
+        {
+          "x": 3,
+          "y": 6
+        },
+        {
+          "x": 3,
+          "y": 7
+        },
+        {
+          "x": 3,
+          "y": 8
+        },
+        {
+          "x": 3,
+          "y": 9
+        },
+        {
+          "x": 3,
+          "y": 10
+        },
+        {
+          "x": 3,
+          "y": 11
+        },
+        {
+          "x": 3,
+          "y": 12
+        },
+        {
+          "x": 3,
+          "y": 13
+        },
+        {
+          "x": 4,
+          "y": 3
+        },
+        {
+          "x": 4,
+          "y": 4
+        },
+        {
+          "x": 4,
+          "y": 5
+        },
+        {
+          "x": 4,
+          "y": 6
+        },
+        {
+          "x": 4,
+          "y": 7
+        },
+        {
+          "x": 4,
+          "y": 8
+        },
+        {
+          "x": 4,
+          "y": 9
+        },
+        {
+          "x": 4,
+          "y": 10
+        },
+        {
+          "x": 4,
+          "y": 11
+        },
+        {
+          "x": 4,
+          "y": 12
+        },
+        {
+          "x": 4,
+          "y": 13
+        },
+        {
+          "x": 5,
+          "y": 3
+        },
+        {
+          "x": 5,
+          "y": 4
+        },
+        {
+          "x": 5,
+          "y": 5
+        },
+        {
+          "x": 5,
+          "y": 6
+        },
+        {
+          "x": 5,
+          "y": 7
+        },
+        {
+          "x": 5,
+          "y": 8
+        },
+        {
+          "x": 5,
+          "y": 9
+        },
+        {
+          "x": 5,
+          "y": 10
+        },
+        {
+          "x": 5,
+          "y": 11
+        },
+        {
+          "x": 5,
+          "y": 12
+        },
+        {
+          "x": 5,
+          "y": 13
+        },
+        {
+          "x": 6,
+          "y": 3
+        },
+        {
+          "x": 6,
+          "y": 4
+        },
+        {
+          "x": 6,
+          "y": 5
+        },
+        {
+          "x": 6,
+          "y": 6
+        },
+        {
+          "x": 6,
+          "y": 7
+        },
+        {
+          "x": 6,
+          "y": 8
+        },
+        {
+          "x": 6,
+          "y": 9
+        },
+        {
+          "x": 6,
+          "y": 10
+        },
+        {
+          "x": 6,
+          "y": 11
+        },
+        {
+          "x": 6,
+          "y": 12
+        },
+        {
+          "x": 6,
+          "y": 13
+        },
+        {
+          "x": 7,
+          "y": 3
+        },
+        {
+          "x": 7,
+          "y": 4
+        },
+        {
+          "x": 7,
+          "y": 5
+        },
+        {
+          "x": 7,
+          "y": 6
+        },
+        {
+          "x": 7,
+          "y": 7
+        },
+        {
+          "x": 7,
+          "y": 8
+        },
+        {
+          "x": 7,
+          "y": 9
+        },
+        {
+          "x": 7,
+          "y": 10
+        },
+        {
+          "x": 7,
+          "y": 11
+        },
+        {
+          "x": 7,
+          "y": 12
+        },
+        {
+          "x": 7,
+          "y": 13
+        },
+        {
+          "x": 8,
+          "y": 3
+        },
+        {
+          "x": 8,
+          "y": 4
+        },
+        {
+          "x": 8,
+          "y": 5
+        },
+        {
+          "x": 8,
+          "y": 6
+        },
+        {
+          "x": 8,
+          "y": 7
+        },
+        {
+          "x": 8,
+          "y": 8
+        },
+        {
+          "x": 8,
+          "y": 9
+        },
+        {
+          "x": 8,
+          "y": 10
+        },
+        {
+          "x": 8,
+          "y": 11
+        },
+        {
+          "x": 8,
+          "y": 12
+        },
+        {
+          "x": 8,
+          "y": 13
+        },
+        {
+          "x": 9,
+          "y": 3
+        },
+        {
+          "x": 9,
+          "y": 4
+        },
+        {
+          "x": 9,
+          "y": 5
+        },
+        {
+          "x": 9,
+          "y": 6
+        },
+        {
+          "x": 9,
+          "y": 7
+        },
+        {
+          "x": 9,
+          "y": 8
+        },
+        {
+          "x": 9,
+          "y": 9
+        },
+        {
+          "x": 9,
+          "y": 10
+        },
+        {
+          "x": 9,
+          "y": 11
+        },
+        {
+          "x": 9,
+          "y": 12
+        },
+        {
+          "x": 9,
+          "y": 13
+        },
+        {
+          "x": 10,
+          "y": 3
+        },
+        {
+          "x": 10,
+          "y": 4
+        },
+        {
+          "x": 10,
+          "y": 5
+        },
+        {
+          "x": 10,
+          "y": 6
+        },
+        {
+          "x": 10,
+          "y": 7
+        },
+        {
+          "x": 10,
+          "y": 8
+        },
+        {
+          "x": 10,
+          "y": 9
+        },
+        {
+          "x": 10,
+          "y": 10
+        },
+        {
+          "x": 10,
+          "y": 11
+        },
+        {
+          "x": 10,
+          "y": 12
+        },
+        {
+          "x": 10,
+          "y": 13
+        },
+        {
+          "x": 11,
+          "y": 3
+        },
+        {
+          "x": 11,
+          "y": 4
+        },
+        {
+          "x": 11,
+          "y": 5
+        },
+        {
+          "x": 11,
+          "y": 6
+        },
+        {
+          "x": 11,
+          "y": 7
+        },
+        {
+          "x": 11,
+          "y": 8
+        },
+        {
+          "x": 11,
+          "y": 9
+        },
+        {
+          "x": 11,
+          "y": 10
+        },
+        {
+          "x": 11,
+          "y": 11
+        },
+        {
+          "x": 11,
+          "y": 12
+        },
+        {
+          "x": 11,
+          "y": 13
+        },
+        {
+          "x": 12,
+          "y": 3
+        },
+        {
+          "x": 12,
+          "y": 4
+        },
+        {
+          "x": 12,
+          "y": 5
+        },
+        {
+          "x": 12,
+          "y": 6
+        },
+        {
+          "x": 12,
+          "y": 7
+        },
+        {
+          "x": 12,
+          "y": 8
+        },
+        {
+          "x": 12,
+          "y": 9
+        },
+        {
+          "x": 12,
+          "y": 10
+        },
+        {
+          "x": 12,
+          "y": 11
+        },
+        {
+          "x": 12,
+          "y": 12
+        },
+        {
+          "x": 12,
+          "y": 13
+        },
+        {
+          "x": 13,
+          "y": 3
+        },
+        {
+          "x": 13,
+          "y": 4
+        },
+        {
+          "x": 13,
+          "y": 5
+        },
+        {
+          "x": 13,
+          "y": 6
+        },
+        {
+          "x": 13,
+          "y": 7
+        },
+        {
+          "x": 13,
+          "y": 8
+        },
+        {
+          "x": 13,
+          "y": 9
+        },
+        {
+          "x": 13,
+          "y": 10
+        },
+        {
+          "x": 13,
+          "y": 11
+        },
+        {
+          "x": 13,
+          "y": 12
+        },
+        {
+          "x": 13,
+          "y": 13
+        },
+        {
+          "x": 14,
+          "y": 9
+        },
+        {
+          "x": 15,
+          "y": 9
+        },
+        {
+          "x": 7,
+          "y": 14
+        },
+        {
+          "x": 16,
+          "y": 9
+        },
+        {
+          "x": 17,
+          "y": 9
+        },
+        {
+          "x": 14,
+          "y": 8
+        },
+        {
+          "x": 14,
+          "y": 10
+        },
+        {
+          "x": 18,
+          "y": 9
+        },
+        {
+          "x": 15,
+          "y": 8
+        },
+        {
+          "x": 15,
+          "y": 10
+        },
+        {
+          "x": 19,
+          "y": 9
+        },
+        {
+          "x": 6,
+          "y": 15
+        },
+        {
+          "x": 7,
+          "y": 15
+        },
+        {
+          "x": 7,
+          "y": 16
+        },
+        {
+          "x": 8,
+          "y": 14
+        },
+        {
+          "x": 8,
+          "y": 15
+        },
+        {
+          "x": 9,
+          "y": 14
+        },
+        {
+          "x": 6,
+          "y": 14
+        },
+        {
+          "x": 6,
+          "y": 16
+        },
+        {
+          "x": 9,
+          "y": 15
+        },
+        {
+          "x": 7,
+          "y": 17
+        },
+        {
+          "x": 7,
+          "y": 18
+        },
+        {
+          "x": 7,
+          "y": 19
+        },
+        {
+          "x": 7,
+          "y": 20
+        },
+        {
+          "x": 8,
+          "y": 16
+        },
+        {
+          "x": 8,
+          "y": 17
+        },
+        {
+          "x": 8,
+          "y": 18
+        },
+        {
+          "x": 8,
+          "y": 19
+        },
+        {
+          "x": 8,
+          "y": 20
+        },
+        {
+          "x": 9,
+          "y": 17
+        },
+        {
+          "x": 9,
+          "y": 18
+        },
+        {
+          "x": 9,
+          "y": 19
+        },
+        {
+          "x": 9,
+          "y": 20
+        },
+        {
+          "x": 10,
+          "y": 18
+        },
+        {
+          "x": 10,
+          "y": 19
+        },
+        {
+          "x": 10,
+          "y": 20
+        },
+        {
+          "x": 11,
+          "y": 19
+        },
+        {
+          "x": 11,
+          "y": 20
+        },
+        {
+          "x": 12,
+          "y": 20
+        },
+        {
+          "x": 6,
+          "y": 17
+        },
+        {
+          "x": 6,
+          "y": 18
+        },
+        {
+          "x": 9,
+          "y": 16
+        },
+        {
+          "x": 10,
+          "y": 16
+        },
+        {
+          "x": 10,
+          "y": 17
+        },
+        {
+          "x": 11,
+          "y": 16
+        },
+        {
+          "x": 11,
+          "y": 17
+        },
+        {
+          "x": 11,
+          "y": 18
+        },
+        {
+          "x": 12,
+          "y": 16
+        },
+        {
+          "x": 12,
+          "y": 17
+        },
+        {
+          "x": 12,
+          "y": 18
+        },
+        {
+          "x": 12,
+          "y": 19
+        },
+        {
+          "x": 6,
+          "y": 19
+        },
+        {
+          "x": 6,
+          "y": 20
+        },
+        {
+          "x": 10,
+          "y": 15
+        },
+        {
+          "x": 10,
+          "y": 21
+        },
+        {
+          "x": 10,
+          "y": 22
+        },
+        {
+          "x": 11,
+          "y": 15
+        }
+      ],
+      "unitList": [
+        {
+          "$ref": "1"
+        },
+        {
+          "$id": "2",
+          "coord": {
+            "x": 38,
+            "y": 34
+          },
+          "turnIndicator": 0.0,
+          "unitListIndex": 1,
+          "chaseTarget": null,
+          "chaseTargetRecentCoord": {
+            "x": 0,
+            "y": 0
+          },
+          "unitName": "TESTMOB",
+          "team": 4,
+          "level": 0,
+          "exp": 0,
+          "maxExp": 0,
+          "expTable": [
+            0
+          ],
+          "expReward": [
+            3,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "maxHp": {
+            "original": 15,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hp": 15,
+          "hpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxMp": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_mp": 5,
+          "mpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atk": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mAtk": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atkRange": {
+            "original": 1,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "pen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mPen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "acc": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "aspd": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "cri": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "criDmg": {
+            "original": 200,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "proficiency": {
+            "original": 50,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "lifeSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "manaSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "def": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mDef": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "eva": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "block": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "resist": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgIncrease": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgReduction": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "speed": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "sight": {
+            "original": 3,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "instinct": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "searchRange": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxHunger": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hunger": 0,
+          "abilities": {},
+          "abilityPoint": 0,
+          "Skills": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "learnedSkills": [],
+          "Buffs": [],
+          "maxEquip": 20,
+          "equipInventory": [],
+          "maxMisc": 20,
+          "miscInventory": [],
+          "equipped": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "$id": "3",
+          "coord": {
+            "x": 24,
+            "y": 10
+          },
+          "turnIndicator": 0.0,
+          "unitListIndex": 2,
+          "chaseTarget": null,
+          "chaseTargetRecentCoord": {
+            "x": 0,
+            "y": 0
+          },
+          "unitName": "TESTMOB",
+          "team": 4,
+          "level": 0,
+          "exp": 0,
+          "maxExp": 0,
+          "expTable": [
+            0
+          ],
+          "expReward": [
+            3,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "maxHp": {
+            "original": 15,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hp": 15,
+          "hpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxMp": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_mp": 5,
+          "mpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atk": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mAtk": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atkRange": {
+            "original": 1,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "pen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mPen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "acc": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "aspd": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "cri": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "criDmg": {
+            "original": 200,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "proficiency": {
+            "original": 50,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "lifeSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "manaSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "def": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mDef": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "eva": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "block": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "resist": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgIncrease": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgReduction": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "speed": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "sight": {
+            "original": 3,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "instinct": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "searchRange": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxHunger": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hunger": 0,
+          "abilities": {},
+          "abilityPoint": 0,
+          "Skills": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "learnedSkills": [],
+          "Buffs": [],
+          "maxEquip": 20,
+          "equipInventory": [],
+          "maxMisc": 20,
+          "miscInventory": [],
+          "equipped": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "$id": "4",
+          "coord": {
+            "x": 5,
+            "y": 42
+          },
+          "turnIndicator": 0.0,
+          "unitListIndex": 3,
+          "chaseTarget": null,
+          "chaseTargetRecentCoord": {
+            "x": 0,
+            "y": 0
+          },
+          "unitName": "TESTMOB",
+          "team": 4,
+          "level": 0,
+          "exp": 0,
+          "maxExp": 0,
+          "expTable": [
+            0
+          ],
+          "expReward": [
+            3,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "maxHp": {
+            "original": 15,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hp": 15,
+          "hpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxMp": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_mp": 5,
+          "mpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atk": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mAtk": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atkRange": {
+            "original": 1,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "pen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mPen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "acc": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "aspd": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "cri": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "criDmg": {
+            "original": 200,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "proficiency": {
+            "original": 50,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "lifeSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "manaSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "def": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mDef": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "eva": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "block": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "resist": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgIncrease": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgReduction": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "speed": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "sight": {
+            "original": 3,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "instinct": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "searchRange": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxHunger": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hunger": 0,
+          "abilities": {},
+          "abilityPoint": 0,
+          "Skills": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "learnedSkills": [],
+          "Buffs": [],
+          "maxEquip": 20,
+          "equipInventory": [],
+          "maxMisc": 20,
+          "miscInventory": [],
+          "equipped": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "$id": "5",
+          "coord": {
+            "x": 41,
+            "y": 7
+          },
+          "turnIndicator": 0.0,
+          "unitListIndex": 4,
+          "chaseTarget": null,
+          "chaseTargetRecentCoord": {
+            "x": 0,
+            "y": 0
+          },
+          "unitName": "TESTMOB",
+          "team": 4,
+          "level": 0,
+          "exp": 0,
+          "maxExp": 0,
+          "expTable": [
+            0
+          ],
+          "expReward": [
+            3,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "maxHp": {
+            "original": 15,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hp": 15,
+          "hpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxMp": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_mp": 5,
+          "mpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atk": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mAtk": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atkRange": {
+            "original": 1,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "pen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mPen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "acc": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "aspd": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "cri": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "criDmg": {
+            "original": 200,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "proficiency": {
+            "original": 50,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "lifeSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "manaSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "def": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mDef": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "eva": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "block": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "resist": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgIncrease": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgReduction": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "speed": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "sight": {
+            "original": 3,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "instinct": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "searchRange": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxHunger": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hunger": 0,
+          "abilities": {},
+          "abilityPoint": 0,
+          "Skills": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "learnedSkills": [],
+          "Buffs": [],
+          "maxEquip": 20,
+          "equipInventory": [],
+          "maxMisc": 20,
+          "miscInventory": [],
+          "equipped": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "$id": "6",
+          "coord": {
+            "x": 26,
+            "y": 34
+          },
+          "turnIndicator": 0.0,
+          "unitListIndex": 5,
+          "chaseTarget": null,
+          "chaseTargetRecentCoord": {
+            "x": 0,
+            "y": 0
+          },
+          "unitName": "TESTMOB",
+          "team": 4,
+          "level": 0,
+          "exp": 0,
+          "maxExp": 0,
+          "expTable": [
+            0
+          ],
+          "expReward": [
+            3,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "maxHp": {
+            "original": 15,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hp": 15,
+          "hpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxMp": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_mp": 5,
+          "mpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atk": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mAtk": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atkRange": {
+            "original": 1,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "pen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mPen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "acc": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "aspd": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "cri": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "criDmg": {
+            "original": 200,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "proficiency": {
+            "original": 50,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "lifeSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "manaSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "def": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mDef": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "eva": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "block": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "resist": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgIncrease": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgReduction": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "speed": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "sight": {
+            "original": 3,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "instinct": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "searchRange": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxHunger": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hunger": 0,
+          "abilities": {},
+          "abilityPoint": 0,
+          "Skills": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "learnedSkills": [],
+          "Buffs": [],
+          "maxEquip": 20,
+          "equipInventory": [],
+          "maxMisc": 20,
+          "miscInventory": [],
+          "equipped": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "$id": "7",
+          "coord": {
+            "x": 36,
+            "y": 21
+          },
+          "turnIndicator": 0.0,
+          "unitListIndex": 6,
+          "chaseTarget": null,
+          "chaseTargetRecentCoord": {
+            "x": 0,
+            "y": 0
+          },
+          "unitName": "TESTMOB",
+          "team": 4,
+          "level": 0,
+          "exp": 0,
+          "maxExp": 0,
+          "expTable": [
+            0
+          ],
+          "expReward": [
+            3,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "maxHp": {
+            "original": 15,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hp": 15,
+          "hpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxMp": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_mp": 5,
+          "mpRegen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atk": {
+            "original": 5,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mAtk": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "atkRange": {
+            "original": 1,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "pen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mPen": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "acc": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "aspd": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "cri": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "criDmg": {
+            "original": 200,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "proficiency": {
+            "original": 50,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "lifeSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "manaSteal": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "def": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "mDef": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "eva": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "block": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "resist": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgIncrease": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "dmgReduction": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "speed": {
+            "original": 100,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "sight": {
+            "original": 3,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "instinct": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "searchRange": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "maxHunger": {
+            "original": 0,
+            "additional": {},
+            "temporary": {},
+            "percent": {},
+            "minLimit": 0
+          },
+          "_hunger": 0,
+          "abilities": {},
+          "abilityPoint": 0,
+          "Skills": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "learnedSkills": [],
+          "Buffs": [],
+          "maxEquip": 20,
+          "equipInventory": [],
+          "maxMisc": 20,
+          "miscInventory": [],
+          "equipped": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      ],
+      "fieldItemList": [
+        {
+          "Equip": {
+            "coord": {
+              "x": 8,
+              "y": 17
+            },
+            "EquipmentType": 1,
+            "Stats": {
+              "Atk": 4
+            },
+            "Enchant": 0,
+            "Key": "SWORD",
+            "Price": 10
+          },
+          "Misc": null
+        }
+      ]
+    }
+  ]
+}

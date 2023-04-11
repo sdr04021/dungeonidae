@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Tables;
-using Unity.VisualScripting;
 using System.Text;
 
 public class ItemInfo : MonoBehaviour
@@ -20,6 +17,7 @@ public class ItemInfo : MonoBehaviour
     [SerializeField] GameObject EquipButton;
     [SerializeField] GameObject UseButton;
 
+    [SerializeField] ItemSlotType itemSlotType;
 
     public int Index { get; private set; } = -1;
 
@@ -86,10 +84,10 @@ public class ItemInfo : MonoBehaviour
     }
     public void Btn_DropClick()
     {
-        inventoryUI.DropItem(Index);
+        inventoryUI.DropItem(Index, itemSlotType);
     }
     public void Btn_ThrowClick()
     {
-        inventoryUI.ThrowItem(Index);
+        inventoryUI.ThrowItem(Index, itemSlotType);
     }
 }

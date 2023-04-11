@@ -23,8 +23,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] BuffBase[] buffBases;
     public Dictionary<string, BuffBase> buffBaseDict = new();
 
-    public AddressableLoader addressableLoader = new();
-
     private static GameManager instance = null;
     private void Awake()
     {

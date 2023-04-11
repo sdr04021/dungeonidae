@@ -9,8 +9,5 @@ public class AbilityBase : ScriptableObject
     public string Key {get; private set;}
 
     [field: SerializeField]
-    public Sprite Sprite { get; private set; }
-
-    [field: SerializeField]
     public int[] EffectValues { get; private set; }
 }

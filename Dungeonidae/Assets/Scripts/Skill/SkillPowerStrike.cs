@@ -30,9 +30,9 @@ public class SkillPowerStrike : Skill
         {
             for (int j = owner.UnitData.coord.y - 1; j <= owner.UnitData.coord.y + 1; j++)
             {
-                if (dm.IsValidIndexForMap(i, j) && (!dm.FogMap[i, j].FogData.IsOn))
+                if (dm.IsValidIndexForMap(i, j) && (!dm.fogMap.GetElementAt(i, j).FogData.IsOn))
                 {
-                    Tile tile = dm.Map[i, j];
+                    Tile tile = dm.map.GetElementAt(i, j);
                     if ((tile.TileData.tileType == TileType.Floor) && (tile.Coord != owner.UnitData.coord))
                     {
                         if ((tile.unit != null) && (owner.IsHostileUnit(tile.unit)))

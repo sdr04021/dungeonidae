@@ -50,7 +50,6 @@ public class SkillData
         if (skill == null) return;
         Key = skill.key;
         Type = skill.type;
-        //Sprite = skill.sprite;
         EffectValues = skill.effectValues;
         MutableValueIndex = skill.mutableValueIndex;
         NeedTarget = skill.needTarget;

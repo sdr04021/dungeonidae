@@ -2,9 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Priority_Queue;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
-using UnityEngine.UIElements;
-using UnityEngine.Localization.SmartFormat.Core.Parsing;
+
 
 public class AStar
 {
@@ -40,7 +38,7 @@ public class AStar
         }
     }
 
-    public AStar(Tile[,] map, Coordinate start, Coordinate end, Fog[,] fogMap)
+    public AStar(Arr2D<Tile> map, Coordinate start, Coordinate end, Arr2D<Fog> fogMap)
     {
         this.start = start;
         this.end = end;
@@ -106,12 +104,12 @@ public class AStar
         }
     }
 
-    void CheckNeighborArea(Tile[,] map, Fog[,] fogMap, Coordinate now, Directions direction)
+    void CheckNeighborArea(Arr2D<Tile> map, Arr2D<Fog> fogMap, Coordinate now, Directions direction)
     {
         Coordinate neighbor = now + new Coordinate(direction);
-        if ((neighbor.IsValidCoordForMap(map)) && (map[neighbor.x, neighbor.y].TileData.areaType != AreaType.Border)) 
+        if ((neighbor.IsValidCoordForMap(map)) && (map.GetElementAt(neighbor.x, neighbor.y).TileData.areaType != AreaType.Border)) 
         {
-            if (!map[neighbor.x, neighbor.y].IsReachableTile() || !fogMap[neighbor.x, neighbor.y].FogData.IsObserved)
+            if (!map.GetElementAt(neighbor.x, neighbor.y).IsReachableTile() || !fogMap.GetElementAt(neighbor.x, neighbor.y).FogData.IsObserved)
                 return;
 
             int G = gTable[now] + 1;
@@ -151,8 +149,6 @@ public class AStar
         int x = Mathf.Abs(from.x - taregt.x);
         int y = Mathf.Abs(from.y - taregt.y);
         int d = Mathf.Min(x, y);
-        x -= d;
-        y -= d;
-        return x + y + d;
+        return x + y - d;
     }
 }

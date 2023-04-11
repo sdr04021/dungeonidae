@@ -74,9 +74,9 @@ abstract public class Unit : MonoBehaviour
 
     public void SetStartPosition(int x, int y)
     {
-        transform.position = dm.Map[x, y].transform.position;
+        transform.position = dm.map.GetElementAt(x, y).transform.position;
         UnitData.coord.Set(x, y);
-        dm.Map[x, y].unit = this;
+        dm.map.GetElementAt(x, y).unit = this;
     }
     public void SetUnitListIndex(int i)
     {
@@ -117,19 +117,19 @@ abstract public class Unit : MonoBehaviour
 
         Coordinate dest = UnitData.coord.ToMovedCoordinate(direction, 1);
 
-        if (dest.IsValidCoordForMap(dm.Map))
+        if (dest.IsValidCoordForMap(dm.map))
         {
             if (dm.GetTileByCoordinate(dest).IsReachableTile())
             {
                 Controllable = false;
 
-                if (!dm.FogMap[dest.x, dest.y].FogData.IsOn)
+                if (!dm.fogMap.GetElementAt(dest.x, dest.y).FogData.IsOn)
                 {
                     MySpriteRenderer.enabled = true;
                     if (canvas != null) canvas.enabled = true;
                 }
 
-                dm.Map[UnitData.coord.x, UnitData.coord.y].unit = null;
+                dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y).unit = null;
                 UnitData.coord = dest;
 
                 if (MySpriteRenderer.enabled)
@@ -143,7 +143,7 @@ abstract public class Unit : MonoBehaviour
                 }
                 else
                 {
-                    transform.position = dm.Map[dest.x, dest.y].transform.position;
+                    transform.position = dm.map.GetElementAt(dest.x, dest.y).transform.position;
                     EndMove();
                 }
                 return true;
@@ -156,12 +156,12 @@ abstract public class Unit : MonoBehaviour
         UpdateSightArea();
         if (isFollowingPath)
             MyAnimator.SetBool("Walk", false);
-        if (dm.FogMap[UnitData.coord.x, UnitData.coord.y].FogData.IsOn)
+        if (dm.fogMap.GetElementAt(UnitData.coord.x, UnitData.coord.y).FogData.IsOn)
         {
             MySpriteRenderer.enabled = false;
             if (canvas != null) canvas.enabled = false;
         }
-        dm.Map[UnitData.coord.x, UnitData.coord.y].unit = this;
+        dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y).unit = this;
         EndTurn(100f / UnitData.speed.Total());
     }
 
@@ -289,7 +289,7 @@ abstract public class Unit : MonoBehaviour
         for(int i=0; i<8; i++)
         {
             Coordinate dest = UnitData.coord.ToMovedCoordinate((Directions)i, 1);
-            if (dest.IsValidCoordForMap(dm.Map))
+            if (dest.IsValidCoordForMap(dm.map))
             {
                 if(dm.GetTileByCoordinate(dest).IsReachableTile())
                     deck.Add((Directions)i);
@@ -304,7 +304,7 @@ abstract public class Unit : MonoBehaviour
 
     protected bool FindPath(Coordinate targetCoord)
     {
-        AStar aStar = new(dm.Map, UnitData.coord, targetCoord, dm.FogMap);
+        AStar aStar = new(dm.map, UnitData.coord, targetCoord, dm.fogMap);
         if (aStar.Path.Count == 0)
             return false;
         else
@@ -326,7 +326,7 @@ abstract public class Unit : MonoBehaviour
     }
     protected Directions FollowTarget(Coordinate targetCoord)
     {
-        AStar aStar = new(dm.Map, UnitData.coord, targetCoord, dm.FogMap);
+        AStar aStar = new(dm.map, UnitData.coord, targetCoord, dm.fogMap);
         if (aStar.Path.Count == 0)
             return Directions.NONE;
         else
@@ -335,9 +335,9 @@ abstract public class Unit : MonoBehaviour
 
     protected virtual void UpdateSightArea()
     {
-        int northBound = Mathf.Min(UnitData.coord.y + UnitData.sight.Total(), dm.Map.GetLength(0) - 1);
+        int northBound = Mathf.Min(UnitData.coord.y + UnitData.sight.Total(), dm.map.arrSize.x - 1);
         int southBound = Mathf.Max(UnitData.coord.y - UnitData.sight.Total(), 0);
-        int eastBound = Mathf.Min(UnitData.coord.x + UnitData.sight.Total(), dm.Map.GetLength(1) - 1);
+        int eastBound = Mathf.Min(UnitData.coord.x + UnitData.sight.Total(), dm.map.arrSize.y - 1);
         int westBound = Mathf.Max(UnitData.coord.x - UnitData.sight.Total(), 0);
 
         tilesInSight.Clear();
@@ -357,7 +357,7 @@ abstract public class Unit : MonoBehaviour
                         Coordinate c = new(hit[k].transform.position);
                         tilesInSight.Add(c);
                     }
-                    else if (dm.Map[(int)hit[k].transform.position.x, (int)hit[k].transform.position.y].TileData.tileType == TileType.Wall)
+                    else if (dm.map.GetElementAt((int)hit[k].transform.position.x, (int)hit[k].transform.position.y).TileData.tileType == TileType.Wall)
                         break;
                 }
             }

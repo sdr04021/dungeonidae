@@ -175,6 +175,12 @@ public struct Coordinate
             return true;
         else return false;
     }
+    public bool IsValidCoordForMap(Arr2D<Tile> map)
+    {
+        if ((x >= 0 && x < map.arrSize.x) && (y >= 0 && y < map.arrSize.y))
+            return true;
+        else return false;
+    }
     public bool IsTargetInRange(Coordinate target, int range)
     {
         if ((Mathf.Abs(x - target.x) <= range) && (Mathf.Abs(y - target.y) <= range))

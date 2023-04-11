@@ -73,10 +73,12 @@ public class Monster : Unit
 
         ItemObject item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
         item.Init(dm, new Coordinate((Vector2)transform.position), new EquipmentData(GameManager.Instance.testEquip));
+        GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(new ItemDataContainer(item.data));
         item.Bounce();
         dm.GetTileByCoordinate(item.Coord).items.Push(item);
         item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
         item.Init(dm, new Coordinate((Vector2)transform.position), new MiscData(GameManager.Instance.testItem, 1));
+        GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(new ItemDataContainer(item.data));
         item.Bounce();
         dm.GetTileByCoordinate(item.Coord).items.Push(item);
     }

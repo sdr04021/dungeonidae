@@ -7,7 +7,6 @@ public class SkillBase : ScriptableObject
 {
     public string key;
     public SkillType type;
-    public Sprite sprite;
     public int[] effectValues;
     public int[] mutableValueIndex;
     public bool needTarget;

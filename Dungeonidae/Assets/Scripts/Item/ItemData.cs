@@ -34,6 +34,8 @@ public class ItemData
 
     protected AsyncOperationHandle<Sprite> loadHandle;
 
+    public Coordinate coord;
+
     public ItemData() { }
 
     public ItemData(ItemBase item)

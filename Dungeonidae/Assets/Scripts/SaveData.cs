@@ -52,3 +52,4 @@ public class SaveData
         else return null;
     }
 }
+//https://stackoverflow.com/questions/8030538/how-to-implement-custom-jsonconverter-in-json-net

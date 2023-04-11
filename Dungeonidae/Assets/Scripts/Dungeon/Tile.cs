@@ -26,7 +26,7 @@ public class Tile : MonoBehaviour
         this.dm = dm;
         TileData = tileData;
         coord = new Coordinate(x, y);
-        transform.position = new Vector2(x, y);
+        //transform.position = new Vector2(x, y);
     }
 
     public bool IsReachableTile()
@@ -42,77 +42,77 @@ public class Tile : MonoBehaviour
             spriteRenderer.sprite = GameManager.Instance.pencilTiles1[0];
         else if (TileData.tileType == TileType.Wall)
         {
-            if (dm.Map[coord.x, coord.y + 1].TileData.tileType == TileType.Wall)
+            if (dm.map.GetElementAt(coord.x, coord.y + 1).TileData.tileType == TileType.Wall)
             {
                 upSprite.SetActive(false);
             }
-            else if (dm.Map[coord.x, coord.y + 1].TileData.tileType == TileType.Floor)
+            else if (dm.map.GetElementAt(coord.x, coord.y + 1).TileData.tileType == TileType.Floor)
             {
                 upSprite.SetActive(true);
             }
 
-            if (dm.Map[coord.x - 1, coord.y].TileData.tileType == TileType.Wall)
+            if (dm.map.GetElementAt(coord.x - 1, coord.y).TileData.tileType == TileType.Wall)
             {
-                if (dm.Map[coord.x + 1, coord.y].TileData.tileType == TileType.Wall)
+                if (dm.map.GetElementAt(coord.x + 1, coord.y).TileData.tileType == TileType.Wall)
                 {
 
-                    if (dm.Map[coord.x, coord.y - 1].TileData.tileType == TileType.Wall)
+                    if (dm.map.GetElementAt(coord.x, coord.y - 1).TileData.tileType == TileType.Wall)
                     {
                         downSprite.SetActive(false);
-                        if (dm.Map[coord.x - 1, coord.y - 1].TileData.tileType == TileType.Floor) 
+                        if (dm.map.GetElementAt(coord.x - 1, coord.y - 1).TileData.tileType == TileType.Floor) 
                             spriteRenderer.sprite = GameManager.Instance.pencilTiles1[9];
-                        else if (dm.Map[coord.x + 1, coord.y - 1].TileData.tileType == TileType.Floor)
+                        else if (dm.map.GetElementAt(coord.x + 1, coord.y - 1).TileData.tileType == TileType.Floor)
                             spriteRenderer.sprite = GameManager.Instance.pencilTiles1[10];
                         else
                             spriteRenderer.sprite = GameManager.Instance.pencilTiles1[1];
                     }
-                    else if (dm.Map[coord.x, coord.y - 1].TileData.tileType == TileType.Floor)
+                    else if (dm.map.GetElementAt(coord.x, coord.y - 1).TileData.tileType == TileType.Floor)
                     {
                         downSprite.SetActive(true);
                         spriteRenderer.sprite = GameManager.Instance.pencilTiles1[7];
                     }
                 }
-                else if (dm.Map[coord.x + 1, coord.y].TileData.tileType == TileType.Floor)
+                else if (dm.map.GetElementAt(coord.x + 1, coord.y).TileData.tileType == TileType.Floor)
                 {
 
-                    if (dm.Map[coord.x, coord.y - 1].TileData.tileType == TileType.Wall)
+                    if (dm.map.GetElementAt(coord.x, coord.y - 1).TileData.tileType == TileType.Wall)
                     {
                         downSprite.SetActive(false);
                         spriteRenderer.sprite = GameManager.Instance.pencilTiles1[5];
 
                     }
-                    else if (dm.Map[coord.x, coord.y - 1].TileData.tileType == TileType.Floor)
+                    else if (dm.map.GetElementAt(coord.x, coord.y - 1).TileData.tileType == TileType.Floor)
                     {
                         downSprite.SetActive(true);
                         spriteRenderer.sprite = GameManager.Instance.pencilTiles1[3];
                     }
                 }
             }
-            else if (dm.Map[coord.x - 1, coord.y].TileData.tileType == TileType.Floor)
+            else if (dm.map.GetElementAt(coord.x - 1, coord.y).TileData.tileType == TileType.Floor)
             {
-                if (dm.Map[coord.x + 1, coord.y].TileData.tileType == TileType.Wall)
+                if (dm.map.GetElementAt(coord.x + 1, coord.y).TileData.tileType == TileType.Wall)
                 {
 
-                    if (dm.Map[coord.x, coord.y - 1].TileData.tileType == TileType.Wall)
+                    if (dm.map.GetElementAt(coord.x, coord.y - 1).TileData.tileType == TileType.Wall)
                     {
                         downSprite.SetActive(false);
                         spriteRenderer.sprite = GameManager.Instance.pencilTiles1[8];
                     }
-                    else if (dm.Map[coord.x, coord.y - 1].TileData.tileType == TileType.Floor)
+                    else if (dm.map.GetElementAt(coord.x, coord.y - 1).TileData.tileType == TileType.Floor)
                     {
                         downSprite.SetActive(true);
                         spriteRenderer.sprite = GameManager.Instance.pencilTiles1[6];
                     }
                 }
-                else if (dm.Map[coord.x + 1, coord.y].TileData.tileType == TileType.Floor)
+                else if (dm.map.GetElementAt(coord.x + 1, coord.y).TileData.tileType == TileType.Floor)
                 {
 
-                    if (dm.Map[coord.x, coord.y - 1].TileData.tileType == TileType.Wall)
+                    if (dm.map.GetElementAt(coord.x, coord.y - 1).TileData.tileType == TileType.Wall)
                     {
                         downSprite.SetActive(false);
                         spriteRenderer.sprite = GameManager.Instance.pencilTiles1[4];
                     }
-                    else if (dm.Map[coord.x, coord.y - 1].TileData.tileType == TileType.Floor)
+                    else if (dm.map.GetElementAt(coord.x, coord.y - 1).TileData.tileType == TileType.Floor)
                     {
                         downSprite.SetActive(true);
                         spriteRenderer.sprite = GameManager.Instance.pencilTiles1[2];

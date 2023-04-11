@@ -42,7 +42,6 @@ public class AbilityData
     public AbilityData(AbilityBase ability)
     {
         Key = ability.Key;
-        _sprite = ability.Sprite;
         EffectValues = ability.EffectValues;
     }
     public void IncreaseLevel()

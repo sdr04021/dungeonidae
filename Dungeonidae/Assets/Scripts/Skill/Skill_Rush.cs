@@ -33,7 +33,7 @@ public class Skill_Rush : Skill
         {
             for (int j = owner.UnitData.coord.y - SkillData.EffectValues[1]; j <= owner.UnitData.coord.y + SkillData.EffectValues[1]; j++)
             {
-                if (dm.IsValidIndexForMap(i, j) && (!dm.FogMap[i, j].FogData.IsOn))
+                if (dm.IsValidIndexForMap(i, j) && (!dm.fogMap.GetElementAt(i, j).FogData.IsOn))
                 {
                     Vector2 dir = new Vector2(i, j) - (Vector2)owner.transform.position;
                     hit = Physics2D.RaycastAll(owner.transform.position, dir, dir.magnitude, LayerMask.GetMask("Tile"));
@@ -42,7 +42,7 @@ public class Skill_Rush : Skill
                     {
                         if (k == hit.Length - 1)
                         {
-                            Tile tile = dm.Map[i, j];
+                            Tile tile = dm.map.GetElementAt(i, j);
                             if ((tile.TileData.tileType == TileType.Floor) && (tile.Coord != owner.UnitData.coord))
                             {
                                 if ((tile.IsReachableTile()))
@@ -59,7 +59,7 @@ public class Skill_Rush : Skill
                                 }
                             }
                         }
-                        else if (dm.Map[(int)hit[k].transform.position.x, (int)hit[k].transform.position.y].TileData.tileType == TileType.Wall)
+                        else if (dm.map.GetElementAt((int)hit[k].transform.position.x, (int)hit[k].transform.position.y).TileData.tileType == TileType.Wall)
                             break;
                     }
                 }

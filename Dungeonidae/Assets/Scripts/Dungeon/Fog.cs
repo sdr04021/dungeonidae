@@ -36,6 +36,7 @@ public class Fog : MonoBehaviour
         {
             spriteRenderer.color = dark;
             FogData.IsObserved = true;
+            GameManager.Instance.saveData.GetCurrentDungeonData().observedFog.Add(new Coordinate(x, y));
         }
         FogData.IsOn = false;
         spriteRenderer.enabled = false;
@@ -51,45 +52,45 @@ public class Fog : MonoBehaviour
 
     void SendNeighborSignal()
     {
-        if (y + 1 < dm.FogMap.GetLength(1))
-            dm.FogMap[x, y + 1].SetSprite();
-        if (x + 1 < dm.FogMap.GetLength(0))
-            dm.FogMap[x + 1, y].SetSprite();
+        if (y + 1 < dm.fogMap.arrSize.y)
+            dm.fogMap.GetElementAt(x, y + 1).SetSprite();
+        if (x + 1 < dm.fogMap.arrSize.x)
+            dm.fogMap.GetElementAt(x + 1, y).SetSprite();
         if (y - 1 >= 0)
-            dm.FogMap[x, y - 1].SetSprite();
+            dm.fogMap.GetElementAt(x, y - 1).SetSprite();
         if (x - 1 >= 0)
-            dm.FogMap[x - 1, y].SetSprite();
+            dm.fogMap.GetElementAt(x - 1, y).SetSprite();
     }
 
     void UpdateNeighborState()
     {
-        if (y + 1 < dm.FogMap.GetLength(1))
+        if (y + 1 < dm.fogMap.arrSize.y)
         {
-            if (dm.FogMap[x, y + 1].FogData.IsOn != FogData.IsOn)
+            if (dm.fogMap.GetElementAt(x, y + 1).FogData.IsOn != FogData.IsOn)
                 isNeighborOn[0] = false;
             else 
-                isNeighborOn[0] = dm.FogMap[x, y + 1].FogData.IsOn;
+                isNeighborOn[0] = dm.fogMap.GetElementAt(x, y + 1).FogData.IsOn;
         }
-        if (x + 1 < dm.FogMap.GetLength(0))
+        if (x + 1 < dm.fogMap.arrSize.x)
         {
-            if (dm.FogMap[x + 1, y].FogData.IsOn != FogData.IsOn)
+            if (dm.fogMap.GetElementAt(x + 1, y).FogData.IsOn != FogData.IsOn)
                 isNeighborOn[1] = false;
             else
-                isNeighborOn[1] = dm.FogMap[x + 1, y].FogData.IsOn;
+                isNeighborOn[1] = dm.fogMap.GetElementAt(x + 1, y).FogData.IsOn;
         }
         if (y - 1 >= 0)
         {
-            if (dm.FogMap[x, y - 1].FogData.IsOn != FogData.IsOn)
+            if (dm.fogMap.GetElementAt(x, y - 1).FogData.IsOn != FogData.IsOn)
                 isNeighborOn[2] = false;
             else
-                isNeighborOn[2] = dm.FogMap[x, y - 1].FogData.IsOn;
+                isNeighborOn[2] = dm.fogMap.GetElementAt(x, y - 1).FogData.IsOn;
         }
         if (x - 1 >= 0)
         {
-            if (dm.FogMap[x - 1, y].FogData.IsOn != FogData.IsOn)
+            if (dm.fogMap.GetElementAt(x - 1, y).FogData.IsOn != FogData.IsOn)
                 isNeighborOn[3] = false;
             else
-                isNeighborOn[3] = dm.FogMap[x - 1, y].FogData.IsOn;
+                isNeighborOn[3] = dm.fogMap.GetElementAt(x - 1, y).FogData.IsOn;
         }
         /*
                  if (y + 1 < dm.FogMap.GetLength(1))

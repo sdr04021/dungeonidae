@@ -6,9 +6,10 @@ using UnityEngine.UI;
 
 public class DungeonManager : MonoBehaviour
 {
-    public Tile[,] Map { get; private set; }
-    public Fog[,] FogMap { get; private set; }
-    //public Fog[,] FogMap { get { return fogMap; } }
+    //[field: SerializeField] public Tile[,] Map { get; private set; }
+    public Arr2D<Tile> map;
+    //public Fog[,] FogMap { get; private set; }
+    public Arr2D<Fog> fogMap;
 
     float curTurn = 0;
 
@@ -41,33 +42,33 @@ public class DungeonManager : MonoBehaviour
     }
     void BuildCurrentFloor()
     {
-        Map = new Tile[dungeonData.mapData.Count, dungeonData.mapData[0].Count];
-        FogMap = new Fog[dungeonData.mapData.Count, dungeonData.mapData[0].Count];
+        foreach(Coordinate c in dungeonData.observedFog)
+        {
+            dungeonData.fogData[c.x][c.y].IsObserved = true;
+        }
+
         for (int i = 0; i < dungeonData.mapData.Count; i++)
         {
             for (int j = 0; j < dungeonData.mapData[0].Count; j++)
             {
-                Tile tile = Instantiate(GameManager.Instance.tilePrefab);
-                tile.Init(this, dungeonData.mapData[i][j], i, j);
-                Map[i,j] = tile;
-
-                Fog fog = Instantiate(GameManager.Instance.fogPrefab);
-                fog.Init(this, dungeonData.fogData[i][j], i, j);
-                FogMap[i, j] = fog;
+                map.GetElementAt(i,j).Init(this, dungeonData.mapData[i][j], i, j);
+                fogMap.GetElementAt(i, j).Init(this, dungeonData.fogData[i][j], i, j);
             }
         }
+        map.arrSize.x = dungeonData.mapData.Count;
+        map.arrSize.y = dungeonData.mapData[0].Count;
 
-        for (int i = 1; i < Map.GetLength(0) - 1; i++)
+        for (int i = 1; i < map.arrSize.x - 1; i++)
         {
-            for (int j = 1; j < Map.GetLength(1) - 1; j++)
+            for (int j = 1; j < map.arrSize.y - 1; j++)
             {
-                Map[i, j].SetTileSprite();
-                FogMap[i, j].SetSprite();
+                map.x[i].y[j].SetTileSprite();
+                fogMap.GetElementAt(i, j).SetSprite();
             }
         }
 
         //ClearAllFog();///////////////////////////////////
-        ObserveAllFog();
+        //ObserveAllFog();
 
         Physics2D.SyncTransforms();
 
@@ -75,6 +76,7 @@ public class DungeonManager : MonoBehaviour
             GenerateUnits();
         else
             LoadUnits();
+        LoadFieldItems();
 
         dunUI.Init();
         maxOrder = dungeonData.unitList.Count;
@@ -83,22 +85,22 @@ public class DungeonManager : MonoBehaviour
     }
     void ObserveAllFog()
     {
-        for (int i = 1; i < Map.GetLength(0) - 1; i++)
+        for (int i = 1; i < map.arrSize.x - 1; i++)
         {
-            for (int j = 1; j < Map.GetLength(1) - 1; j++)
+            for (int j = 1; j < map.arrSize.y - 1; j++)
             {
-                FogMap[i, j].Clear();
-                FogMap[i, j].Cover();
+                fogMap.GetElementAt(i, j).Clear();
+                fogMap.GetElementAt(i, j).Cover();
             }
         }
     }
     void ClearAllFog()
     {
-        for (int i = 1; i < Map.GetLength(0) - 1; i++)
+        for (int i = 1; i < map.arrSize.x - 1; i++)
         {
-            for (int j = 1; j < Map.GetLength(1) - 1; j++)
+            for (int j = 1; j < map.arrSize.y - 1; j++)
             {
-                FogMap[i, j].Clear();
+                fogMap.GetElementAt(i, j).Clear();
             }
         }
     }
@@ -113,7 +115,7 @@ public class DungeonManager : MonoBehaviour
         for (int i = 0; i < dungeonData.rooms.Count; i++)
         {
             Coordinate c = dungeonData.rooms[i].center;
-            if (Map[c.x, c.y].IsReachableTile())
+            if (map.GetElementAt(c.x, c.y).IsReachableTile())
             {
                 Monster temp = Instantiate(GameManager.Instance.testMob1Prefab);
                 temp.SetUnitListIndex(dungeonData.unitList.Count);
@@ -139,6 +141,17 @@ public class DungeonManager : MonoBehaviour
                 temp.SetUnitData(this, dungeonData.unitList[i]);
                 temp.SetUnitListIndex(i);
             }
+        }
+    }
+
+    void LoadFieldItems()
+    {
+        for(int i=0; i<dungeonData.fieldItemList.Count; i++)
+        {
+            ItemData item = dungeonData.fieldItemList[i].GetItemData();
+            ItemObject itemObj = Instantiate(GameManager.Instance.itemObjectPrefab, new Vector3(item.coord.x, item.coord.y - 0.2f, 0), Quaternion.identity);
+            itemObj.Init(this, item.coord, dungeonData.fieldItemList[i].GetItemData());
+            map.GetElementAt(item.coord).items.Push(itemObj);
         }
     }
 
@@ -170,7 +183,7 @@ public class DungeonManager : MonoBehaviour
     {
         for (int i = 0; i < dungeonData.unitList.Count; i++)
         {
-            if (FogMap[dungeonData.unitList[i].coord.x, dungeonData.unitList[i].coord.y].FogData.IsOn)
+            if (fogMap.GetElementAt(dungeonData.unitList[i].coord.x, dungeonData.unitList[i].coord.y).FogData.IsOn)
             {
                 dungeonData.unitList[i].Owner.MySpriteRenderer.enabled = false;
                 dungeonData.unitList[i].Owner.canvas.enabled = false;
@@ -250,21 +263,21 @@ public class DungeonManager : MonoBehaviour
 
     public Tile GetTileByCoordinate(Coordinate c)
     {
-        if (c.IsValidCoordForMap(Map))
+        if (c.IsValidCoordForMap(map))
         {
-            return Map[c.x, c.y];
+            return map.GetElementAt(c.x, c.y);
         }
         else return null;
     }
     public bool IsValidIndexForMap(int x, int y)
     {
-        if ((x >= 0 && x < Map.GetLength(0)) && (y >= 0 && y < Map.GetLength(1)))
+        if ((x >= 0 && x < map.arrSize.x) && (y >= 0 && y < map.arrSize.y))
             return true;
         else return false;
     }
     public bool IsValidCoordForMap(Coordinate c)
     {
-        if ((c.x >= 0 && c.x < Map.GetLength(0)) && (c.y >= 0 && c.y < Map.GetLength(1)))
+        if ((c.x >= 0 && c.x < map.arrSize.x) && (c.y >= 0 && c.y < map.arrSize.y))
             return true;
         else return false;
     }

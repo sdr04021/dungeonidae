@@ -210,11 +210,11 @@ public class InventoryUI : MonoBehaviour
         dm.Player.UseItem(index);
         dunUI.CloseMenuCanvas();
     }
-    public void DropItem(int index)
+    public void DropItem(int index, ItemSlotType itemSlotType)
     {
         if (equipmentSlotField.activeSelf)
         {
-            dm.Player.DropEquip(index);
+            dm.Player.DropEquip(index, itemSlotType);
         }
         else if (miscSlotField.activeSelf)
         {
@@ -222,15 +222,15 @@ public class InventoryUI : MonoBehaviour
         }
         dunUI.CloseMenuCanvas();
     }
-    public void ThrowItem(int index)
+    public void ThrowItem(int index, ItemSlotType itemSlotType)
     {
         if (equipmentSlotField.activeSelf)
         {
-            dm.Player.PrepareThrowing(ItemType.Equipment, index);
+            dm.Player.PrepareThrowing(ItemType.Equipment, itemSlotType, index);
         }
         else if (miscSlotField.activeSelf)
         {
-            dm.Player.PrepareThrowing(ItemType.Misc, index);
+            dm.Player.PrepareThrowing(ItemType.Misc, itemSlotType, index);
         }
 
         //open cancel ui
