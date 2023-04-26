@@ -54,6 +54,7 @@ public class BasicAttack : Skill
     public override void StartSkill(Coordinate coord)
     {
         ResetTilesInRange();
+        owner.FlipSprite(coord);
         owner.MyAnimator.SetBool("Attack", true);
         owner.StartCoroutine(SkillEffect(coord));
     }
@@ -62,7 +63,7 @@ public class BasicAttack : Skill
     {
         Unit target = dm.GetTileByCoordinate(coord).unit;
         float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
-        yield return new WaitForSeconds(animationLength * 0.5f);
+        yield return new WaitForSeconds(animationLength * 0.4f);
         target.GetDamage(MakeAttackData(target));
         while (!owner.isAnimationFinished || !target.isAnimationFinished)
         {
@@ -70,6 +71,8 @@ public class BasicAttack : Skill
         }
         owner.isAnimationFinished = false;
         target.isAnimationFinished = false;
+        if (owner.UnitData.equipped[1] != null)
+            owner.UnitData.equipped[1].GainPotentialExp();
         owner.EndSkill(100f / owner.UnitData.aspd.Total());
     }
 

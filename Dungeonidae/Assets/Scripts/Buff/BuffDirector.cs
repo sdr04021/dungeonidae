@@ -18,7 +18,7 @@ public class BuffDirector
         switch (buff.Key)
         {
             case "SPRINT":
-                owner.UnitData.SetStatValue(buff.Key, StatType.Speed, StatValueType.Temporary, buff.EffectValues[1]);
+                owner.UnitData.SetStatValue(buff.Key, StatType.Speed, StatValueType.Temporary, buff.EffectValues[1], true);
                 break;
         }
     }

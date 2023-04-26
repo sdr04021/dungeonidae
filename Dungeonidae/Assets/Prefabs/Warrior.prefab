@@ -28,7 +28,7 @@ RectTransform:
   m_GameObject: {fileID: 2766806575576578670}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.06666, y: 0.06666, z: 0.06666}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8702698219890448965}
@@ -129,7 +129,7 @@ Transform:
   m_GameObject: {fileID: 8702698219890448967}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.15, y: 0.15, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2023237026368075732}
@@ -178,7 +178,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: 0f19e7f7568a7b347b196e402e4fa3ae, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2c3f8b42e78f3f647b02a9b7ad617ed6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -214,11 +214,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isAnimationFinished: 0
-  unitBase: {fileID: 11400000, guid: 48df20b673d97f3479d0efce441d03f6, type: 2}
+  <UnitBase>k__BackingField: {fileID: 11400000, guid: 48df20b673d97f3479d0efce441d03f6, type: 2}
   <EffectAnimator>k__BackingField: {fileID: 6915717407275194006}
   canvas: {fileID: 1632552042767368798}
   hpBarBg: {fileID: 0}
   hpBar: {fileID: 0}
+  throwableRange: []
 --- !u!95 &-938570391358087375
 Animator:
   serializedVersion: 5

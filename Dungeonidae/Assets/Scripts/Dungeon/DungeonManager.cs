@@ -1,14 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class DungeonManager : MonoBehaviour
 {
-    //[field: SerializeField] public Tile[,] Map { get; private set; }
+    AsyncOperationHandle<GameObject> unitLoadHandle;
+    Dictionary<string, AsyncOperationHandle<GameObject>> monsterHandles = new();
+
+    public Sprite[] FirstTile;
+
     public Arr2D<Tile> map;
-    //public Fog[,] FogMap { get; private set; }
     public Arr2D<Fog> fogMap;
 
     float curTurn = 0;
@@ -22,23 +27,88 @@ public class DungeonManager : MonoBehaviour
 
     DungeonData dungeonData;
 
-    public void StartNewFloor()
+    public void StartFirstFloor()
     {
-        dungeonData = new();
-        dungeonData.floor = GameManager.Instance.saveData.Floors.Count;
-        dungeonData.SetRandom();
-        _ = new MapGenerator(dungeonData);
-        
-        GameManager.Instance.saveData.Floors.Add(dungeonData);
-
-        BuildCurrentFloor();
+        player = Instantiate(GameManager.Instance.warriorPrefab);
+        GameManager.Instance.saveData.playerData = player.UnitData;
+        player.Init(this, new Coordinate(0, 0));
+        StartNewFloor();
     }
     public void LoadFloor()
     {
-        dungeonData = GameManager.Instance.saveData.GetCurrentDungeonData();
-        dungeonData.SetRandom();
+        player = Instantiate(GameManager.Instance.warriorPrefab);
+        player.SetUnitData(this, GameManager.Instance.saveData.playerData);
+        StartExistingFloor(0);
+    }
+
+    void StartNewFloor()
+    {
+        SaveData saveData = GameManager.Instance.saveData;
+        dungeonData = new();
+        saveData.Floors.Add(dungeonData);
+        saveData.UpdateFloorSeeds();
+
+        dungeonData.floor = saveData.Floors.Count - 1;
         _ = new MapGenerator(dungeonData);
+        order = 0;
         BuildCurrentFloor();
+
+        player.UnitData.coord = dungeonData.rooms[dungeonData.stairRooms.Item1].center;
+        player.SetPosition();
+
+        dungeonData.unitList.Add(player.UnitData);
+
+        GenerateUnits();
+
+        dunUI.Init();
+        maxOrder = dungeonData.unitList.Count;
+        Camera.main.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, Camera.main.transform.position.z);
+        dungeonData.unitList[order].Owner.StartTurn();
+        UpdateUnitRenderers();
+    }
+    public void StartExistingFloor(int movedDir)
+    {
+        dungeonData = GameManager.Instance.saveData.GetCurrentDungeonData();
+        _ = new MapGenerator(dungeonData);
+        order = 0;
+        BuildCurrentFloor();
+
+        if (movedDir == 1) player.UnitData.coord = dungeonData.rooms[dungeonData.stairRooms.Item1].center;
+        else if (movedDir == -1) player.UnitData.coord = dungeonData.rooms[dungeonData.stairRooms.Item2].center;
+        player.SetPosition();
+
+        dungeonData.unitList.Add(player.UnitData);
+        dungeonData.unitList = dungeonData.unitList.OrderBy(x => x.TurnIndicator).ToList();
+
+        LoadUnits();
+        LoadFieldItems();
+
+        dunUI.Init();
+        maxOrder = dungeonData.unitList.Count;
+        dungeonData.unitList[order].Owner.StartTurn();
+        UpdateUnitRenderers();
+    }
+
+    public void MoveFloor(int movedDir)
+    {
+        SaveData saveData = GameManager.Instance.saveData;
+        movedDir = (int)Mathf.Sign(movedDir);
+        if ((saveData.currentFloor == 0) && (movedDir < 0)) return;
+        saveData.currentFloor += movedDir;
+        dunUI.ShowFloorCurtain(saveData.currentFloor);
+        DestroyAllObjects();
+        dungeonData.unitList.Remove(GameManager.Instance.saveData.playerData);
+
+        if(saveData.currentFloor >= saveData.Floors.Count)
+        {
+            saveData.playerData.TurnIndicator = 0;
+            StartNewFloor();
+        }
+        else
+        {
+            saveData.playerData.TurnIndicator = 1;
+            StartExistingFloor(movedDir);
+        }
     }
     void BuildCurrentFloor()
     {
@@ -68,20 +138,9 @@ public class DungeonManager : MonoBehaviour
         }
 
         //ClearAllFog();///////////////////////////////////
-        //ObserveAllFog();
+        //ObserveAllFog();////////////////////////////////
 
         Physics2D.SyncTransforms();
-
-        if (GameManager.Instance.saveData.playerData == null)
-            GenerateUnits();
-        else
-            LoadUnits();
-        LoadFieldItems();
-
-        dunUI.Init();
-        maxOrder = dungeonData.unitList.Count;
-        dungeonData.unitList[order].Owner.StartTurn();
-        UpdateUnitRenderers();
     }
     void ObserveAllFog()
     {
@@ -104,42 +163,83 @@ public class DungeonManager : MonoBehaviour
             }
         }
     }
+    GameObject LoadMonsterPrefab(string Key)
+    {
+
+        GameObject prefab = null;
+        if (monsterHandles.ContainsKey(Key))
+        {
+            prefab = monsterHandles[Key].Result;
+        }
+        else
+        {
+            monsterHandles.Add(Key, Addressables.LoadAssetAsync<GameObject>("Assets/Prefabs/Monsters/" + Key + ".prefab"));
+            monsterHandles[Key].WaitForCompletion();
+            if (monsterHandles[Key].Status == AsyncOperationStatus.Succeeded)
+                prefab = monsterHandles[Key].Result;
+        }
+        return prefab;
+    }
     void GenerateUnits()
     {
-        player = Instantiate(GameManager.Instance.warriorPrefab);
-        GameManager.Instance.saveData.playerData = player.UnitData;
-        player.Init(this, dungeonData.rooms[0].center);
-        dungeonData.unitList.Add(player.UnitData);
-        player.SetUnitListIndex(0);
-
+        SaveData saveData = GameManager.Instance.saveData;
         for (int i = 0; i < dungeonData.rooms.Count; i++)
         {
             Coordinate c = dungeonData.rooms[i].center;
-            if (map.GetElementAt(c.x, c.y).IsReachableTile())
+            List<Coordinate> genPoints = GlobalMethods.RangeByStep(c, 1);
+            for (int j = 0; j < genPoints.Count; j++)
             {
-                Monster temp = Instantiate(GameManager.Instance.testMob1Prefab);
-                temp.SetUnitListIndex(dungeonData.unitList.Count);
-                dungeonData.unitList.Add(temp.UnitData);
-                temp.Init(this, c);
+                Tile tile = map.GetElementAt(genPoints[j]);
+                if (tile.IsReachableTile())
+                {
+                    int pick = Random.Range(0, 3);
+                    GameObject prefab = LoadMonsterPrefab(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]]);
+                    if(prefab != null)
+                    {
+                        Monster temp  = Instantiate(prefab).GetComponent<Monster>();
+                        dungeonData.unitList.Add(temp.UnitData);
+                        temp.Init(this, genPoints[j]);
+                    }
+                    break;
+                }
             }
         }
+
+        Stair stairUp = Instantiate(GameManager.Instance.stairUpPrefab);
+        stairUp.Init(this, dungeonData.rooms[dungeonData.stairRooms.Item1].center);
+        dungeonData.dungeonObjectList.Add(stairUp.DungeonObjectData);
+        map.GetElementAt(stairUp.DungeonObjectData.coord).dungeonObjects.Add(stairUp);
+        Stair stairDown = Instantiate(GameManager.Instance.stairDownPrefab);
+        stairDown.Init(this, dungeonData.rooms[dungeonData.stairRooms.Item2].center);
+        dungeonData.dungeonObjectList.Add(stairDown.DungeonObjectData);
+        map.GetElementAt(stairDown.DungeonObjectData.coord).dungeonObjects.Add(stairDown);
     }
     void LoadUnits()
     {
         for(int i=0; i<dungeonData.unitList.Count; i++)
         {
-            if (dungeonData.unitList[i].team == Team.Player)
-            {
-                player = Instantiate(GameManager.Instance.warriorPrefab);
-                player.SetUnitData(this, dungeonData.unitList[i]);
-                //GameManager.Instance.saveData.playerData = dungeonData.unitList[i];
-                player.SetUnitListIndex(i);
-            }
-            else
+            if (dungeonData.unitList[i].team != Team.Player)
             {
                 Monster temp = Instantiate(GameManager.Instance.testMob1Prefab);
                 temp.SetUnitData(this, dungeonData.unitList[i]);
-                temp.SetUnitListIndex(i);
+            }
+        }
+        for(int i=0; i<dungeonData.dungeonObjectList.Count; i++)
+        {
+            if (dungeonData.dungeonObjectList[i].ClassType == typeof(Stair))
+            {
+                if (i == 0)
+                {
+                    Stair stairUp= Instantiate(GameManager.Instance.stairUpPrefab);
+                    stairUp.Load(this, dungeonData.dungeonObjectList[i]);
+                    map.GetElementAt(stairUp.DungeonObjectData.coord).dungeonObjects.Add(stairUp);
+                }
+                else if (i == 1)
+                {
+                    Stair stairDown = Instantiate(GameManager.Instance.stairDownPrefab);
+                    stairDown.Load(this, dungeonData.dungeonObjectList[i]);
+                    map.GetElementAt(stairDown.DungeonObjectData.coord).dungeonObjects.Add(stairDown);
+                }
             }
         }
     }
@@ -148,10 +248,26 @@ public class DungeonManager : MonoBehaviour
     {
         for(int i=0; i<dungeonData.fieldItemList.Count; i++)
         {
-            ItemData item = dungeonData.fieldItemList[i].GetItemData();
+            ItemData item = dungeonData.fieldItemList[i];
             ItemObject itemObj = Instantiate(GameManager.Instance.itemObjectPrefab, new Vector3(item.coord.x, item.coord.y - 0.2f, 0), Quaternion.identity);
-            itemObj.Init(this, item.coord, dungeonData.fieldItemList[i].GetItemData());
+            itemObj.Init(this, item.coord, dungeonData.fieldItemList[i]);
             map.GetElementAt(item.coord).items.Push(itemObj);
+        }
+    }
+
+    void RegenerateMobs()
+    {
+        Room room = dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)];
+        Coordinate genPoint = new(Random.Range(room.Left, room.Right), Random.Range(room.Bottom, room.Top));
+        List<Coordinate> genPoints = GlobalMethods.RangeByStep(genPoint, 1);
+        for (int i = 0; i < genPoints.Count; i++)
+        {
+            Tile tile = map.GetElementAt(genPoints[i]);
+            if (tile.IsReachableTile() && !player.TilesInSight.Contains(tile.Coord))
+            {
+
+                break;
+            }
         }
     }
 
@@ -161,7 +277,7 @@ public class DungeonManager : MonoBehaviour
         {
             if (dungeonData.unitList[i].Owner.IsDead)
             {
-                RemoveUnit(i);
+                RemoveUnit(dungeonData.unitList[i]);
             }
         }
 
@@ -183,6 +299,8 @@ public class DungeonManager : MonoBehaviour
     {
         for (int i = 0; i < dungeonData.unitList.Count; i++)
         {
+            if (dungeonData.unitList[i].team == Team.Player) continue;
+
             if (fogMap.GetElementAt(dungeonData.unitList[i].coord.x, dungeonData.unitList[i].coord.y).FogData.IsOn)
             {
                 dungeonData.unitList[i].Owner.MySpriteRenderer.enabled = false;
@@ -199,9 +317,9 @@ public class DungeonManager : MonoBehaviour
     void ManageTurn()
     {
         //units.Sort(SortByTurn);
-        dungeonData.unitList = dungeonData.unitList.OrderBy(x => x.turnIndicator).ToList();
+        dungeonData.unitList = dungeonData.unitList.OrderBy(x => x.TurnIndicator).ToList();
  
-        float min = dungeonData.unitList[0].turnIndicator;
+        float min = dungeonData.unitList[0].TurnIndicator;
 
         int trimAmount = Mathf.FloorToInt(min);
         min -= trimAmount;
@@ -209,30 +327,57 @@ public class DungeonManager : MonoBehaviour
         Debug.Log("Turn: " + curTurn.ToString());
         for (int i = 0; i < dungeonData.unitList.Count; i++)
         {
-            dungeonData.unitList[i].Owner.SetUnitListIndex(i);
             dungeonData.unitList[i].Owner.TrimTurn(trimAmount);
-            if (dungeonData.unitList[i].turnIndicator == min)
+            if (dungeonData.unitList[i].TurnIndicator == min)
                 maxOrder++;
             else break;
         }
     }
 
-    public void RemoveUnit(int listNumber)
+    public void RemoveUnit(UnitData unitData)
     {
-        Destroy(dungeonData.unitList[listNumber].Owner.gameObject);
-        dungeonData.unitList.RemoveAt(listNumber);
-        if (listNumber < maxOrder)
+        int index = dungeonData.unitList.IndexOf(unitData);
+        Destroy(unitData.Owner.gameObject);
+        dungeonData.unitList.RemoveAt(index);
+        if (index < maxOrder)
         {
             maxOrder--;
-            if (listNumber < order)
+            if (index < order)
                 order--;
         }
     }
     
+    public void DestroyAllObjects()
+    {
+        for(int i=0; i<dungeonData.unitList.Count; i++)
+        {
+            if ((dungeonData.unitList[i].Owner != null) && (dungeonData.unitList[i].team != Team.Player))
+                Destroy(dungeonData.unitList[i].Owner.gameObject);
+        }
+        for(int i=0; i<dungeonData.fieldItemList.Count; i++)
+        {
+            if (dungeonData.fieldItemList[i].owner != null)
+                Destroy(dungeonData.fieldItemList[i].owner.gameObject);
+        }
+        for (int i = 0; i < dungeonData.dungeonObjectList.Count; i++)
+        {
+            if (dungeonData.dungeonObjectList[i].Owner != null)
+                Destroy(dungeonData.dungeonObjectList[i].Owner.gameObject);
+        }
+        for(int i=0; i<dungeonData.mapData.Count; i++)
+        {
+            for(int j=0; j < dungeonData.mapData[0].Count; j++)
+            {
+                map.GetElementAt(i, j).ResetTile();
+                fogMap.GetElementAt(i, j).ResetFog();
+            }
+        }
+    }
+
     int SortByTurn(Unit a, Unit b)
     {
-        if (a.UnitData.turnIndicator < b.UnitData.turnIndicator) return -1;
-        else if (a.UnitData.turnIndicator > b.UnitData.turnIndicator) return 1;
+        if (a.UnitData.TurnIndicator < b.UnitData.TurnIndicator) return -1;
+        else if (a.UnitData.TurnIndicator > b.UnitData.TurnIndicator) return 1;
         else return 0;
     }
 

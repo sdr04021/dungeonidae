@@ -2,50 +2,49 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class GrowthValue
+{
+    public StatType statType;
+    public float amount; 
+}
+
 [CreateAssetMenu(fileName = "UnitBase", menuName = "Scriptable Object/UnitBase")]
 public class UnitBase : ScriptableObject
 {
-    public string key;
-    public Team team;
-    public int level;
-    public int[] expTable;
-    public int[] expReward;
+    [field:SerializeField] public string Key { get; private set; }
+    [field: SerializeField] public Team Team { get; private set; }
+    [field: SerializeField] public int MaxExp { get; private set; } = 10;
+    [field: SerializeField] public float ExpCoefficient { get; private set; } = 1;
+    [field: SerializeField] public int MaxHp { get; private set; } = 10;
+    [field: SerializeField] public int HpRegen { get; private set; } = 0;
+    [field: SerializeField] public int MaxMp { get; private set; } = 0;
+    [field: SerializeField] public int MpRegen { get; private set; } = 0;
+    [field: SerializeField] public int MaxHunger { get; private set; } = 100;
+    [field: SerializeField] public int Atk { get; private set; } = 0;
+    [field: SerializeField] public int MAtk { get; private set; } = 0;
+    [field: SerializeField] public int AtkRange { get; private set; } = 1;
+    [field: SerializeField] public int Pen { get; private set; } = 0;
+    [field: SerializeField] public int MPen { get; private set; } = 0;
+    [field: SerializeField] public int Acc { get; private set; } = 0;
+    [field: SerializeField] public int Aspd { get; private set; } = 100;
+    [field: SerializeField] public int Cri { get; private set; } = 0;
+    [field: SerializeField] public int CriDmg { get; private set; } = 150;
+    [field: SerializeField] public int Proficiency { get; private set; } = 0;
+    [field: SerializeField] public int LifeSteal { get; private set; } = 0;
+    [field: SerializeField] public int ManaSteal { get; private set; } = 0;
+    [field: SerializeField] public int Def { get; private set; } = 0;
+    [field: SerializeField] public int MDef { get; private set; } = 0;
+    [field: SerializeField] public int Eva { get; private set; } = 0;
+    [field: SerializeField] public int CoolSpeed { get; private set; } = 100;
+    [field: SerializeField] public int Resist { get; private set; } = 0;
+    [field: SerializeField] public int DmgIncrease { get; private set; } = 0;
+    [field: SerializeField] public int DmgReduction { get; private set; } = 0;
+    [field: SerializeField] public int Speed { get; private set; } = 100;
+    [field: SerializeField] public int Sight { get; private set; } = 5;
+    [field: SerializeField] public int Instinct { get; private set; } = 10;
+    [field: SerializeField] public int SearchRange { get; private set; } = 1;
+    [field: SerializeField] public int Stealth { get; private set; } = 0;
 
-    [Header("Stats")]
-    public int maxHp;
-    public int hpRegen;
-    public int maxMp;
-    public int mpRegen;
-    public int maxHunger;
-    public int atk;
-    public int mAtk;
-    public int atkRange;
-    public int pen;
-    public int mPen;
-    public int acc;
-    public int aspd;
-    public int cri;
-    public int criDmg;
-    public int proficiency;
-    public int lifeSteal;
-    public int manaSteal;
-    public int def;
-    public int mDef;
-    public int eva;
-    public int block;
-    public int resist;
-    public int dmgIncrease;
-    public int dmgReduction;
-    public int speed;
-    public int sight;
-    public int instinct;
-    public int searchRange;
-
-    [Header("Growth Table")]
-    public int maxHpGrowth;
-    public int maxMpGrowth;
-    public int atkGrowth;
-    public int mAtkGrowth;
-    public int defGrowth;
-    public int mDefGrowth;
+    [field: SerializeField] public List<GrowthValue> GrowthTable { get; private set; }
 }

@@ -5,13 +5,16 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Localization;
 using System;
+using DG.Tweening;
 
 public class DungeonUIManager : MonoBehaviour
 {
     [SerializeField] DungeonManager dm;
-    public Player Player { get; private set; }
 
     [SerializeField] Canvas gameCanvas;
+
+    [SerializeField] GameObject curtain;
+    [SerializeField] TMP_Text curtainFloorText;
 
     [SerializeField] TMP_Text lvText;
     [SerializeField] Image hpBar;
@@ -27,6 +30,8 @@ public class DungeonUIManager : MonoBehaviour
 
     [SerializeField] ShortcutButton[] skillShortcutButtons;
     bool shortCutPressed = false;
+
+    [SerializeField] Image interactIcon;
 
     [SerializeField] Canvas menuCanvas;
     public enum Menu { Status, Inventory, Ability, Skill, Soulstone }
@@ -60,25 +65,40 @@ public class DungeonUIManager : MonoBehaviour
     public void Init()
     {
         UpdateLevelText();
-        dm.Player.UnitData.OnLevelChanged += UpdateLevelText;
+        dm.Player.UnitData.OnLevelChange += UpdateLevelText;
         UpdateHpBar();
-        dm.Player.UnitData.OnHpValueChanged += UpdateHpBar;
+        dm.Player.UnitData.OnHpValueChange += UpdateHpBar;
         UpdateMpBar();
-        dm.Player.UnitData.OnMpValueChanged += UpdateMpBar;
+        dm.Player.UnitData.OnMpValueChange += UpdateMpBar;
         UpdateExpBar();
-        dm.Player.UnitData.OnExpValueChanged += UpdateExpBar;
+        dm.Player.UnitData.OnExpValueChange += UpdateExpBar;
         UpdateBuffIcons();
-        dm.Player.UnitData.OnBuffListChanged += UpdateBuffIcons;
+        dm.Player.UnitData.OnBuffListChange += UpdateBuffIcons;
         UpdateBuffIconDurations();
-        dm.Player.UnitData.OnBuffDurationChanged += UpdateBuffIconDurations;
+        dm.Player.UnitData.OnBuffDurationChange += UpdateBuffIconDurations;
         SetSkillIcons();
-        dm.Player.UnitData.OnSkillChanged += SetSkillIcons;
+        dm.Player.UnitData.OnSkillChange += SetSkillIcons;
         UpdateSkillIconCooldowns();
-        dm.Player.UnitData.OnSkillCurrentCooldownChanged += UpdateSkillIconCooldowns;
-        dm.Player.UnitData.OnSkillChanged += UpdateSkillIconCooldowns;
+        dm.Player.UnitData.OnSkillCurrentCooldownChange += UpdateSkillIconCooldowns;
+        dm.Player.UnitData.OnSkillChange += UpdateSkillIconCooldowns;
+
+        dm.Player.UnitData.OnTurnChange += UpdateInteractIcon;
 
         inventoryUI.Init();
         abilityUI.Init();
+    }
+
+    public void ShowFloorCurtain(int floor)
+    {
+        curtain.SetActive(true);
+        curtainFloorText.text = "B" + (floor + 1).ToString() + "F";
+        curtainFloorText.DOFade(1, 0.5f).OnComplete(HideFloorCurtain);
+    }
+    void HideFloorCurtain()
+    {
+        curtainFloorText.DOFade(0, 0.5f).OnComplete(() => {
+            Camera.main.transform.position = new Vector3(dm.Player.transform.position.x, dm.Player.transform.position.y, Camera.main.transform.position.z);
+            curtain.SetActive(false); });
     }
 
     public void UpdateLevelText()
@@ -137,7 +157,7 @@ public class DungeonUIManager : MonoBehaviour
         }
     }
 
-    public void UpdateBuffIconDurations()
+    void UpdateBuffIconDurations()
     {
         List<BuffData> buffs = dm.Player.UnitData.Buffs;
         for (int i = 0; i < buffs.Count; i++)
@@ -216,7 +236,7 @@ public class DungeonUIManager : MonoBehaviour
                 dm.Player.SkipTurn();
                 break;
             case 2:
-                dm.Player.LootItem();
+                dm.Player.Interact();
                 break;
             case 3:
                 break;
@@ -234,6 +254,26 @@ public class DungeonUIManager : MonoBehaviour
             }
         }
         shortCutPressed = false;
+    }
+    public void UpdateInteractIcon()
+    {
+        Tile tile = dm.map.GetElementAt(dm.Player.UnitData.coord);
+        if(tile.items.Count > 0)
+        {
+            interactIcon.gameObject.SetActive(true);
+            interactIcon.sprite = tile.items.Peek().data.Sprite;
+            return;
+        }
+        else if(tile.dungeonObjects.Count > 0)
+        {
+            if (tile.dungeonObjects[^1].IsInteractable)
+            {
+                interactIcon.gameObject.SetActive(true);
+                interactIcon.sprite = tile.dungeonObjects[^1].SpriteRenderer.sprite;
+                return;
+            }
+        }
+        interactIcon.gameObject.SetActive(false);
     }
 
     public void UpdateMenuUI(Menu menu)
@@ -313,7 +353,7 @@ public class DungeonUIManager : MonoBehaviour
             StatType.Def => tableStatusText.GetTable().GetEntry("DEFENSE").GetLocalizedString(),
             StatType.MDef => tableStatusText.GetTable().GetEntry("MAGIC_DEFENSE").GetLocalizedString(),
             StatType.Eva => tableStatusText.GetTable().GetEntry("EVASION").GetLocalizedString(),
-            StatType.Block => tableStatusText.GetTable().GetEntry("BLOCK").GetLocalizedString(),
+            StatType.CoolSpeed => tableStatusText.GetTable().GetEntry("COOLDOWN_SPEED").GetLocalizedString(),
             StatType.Resist => tableStatusText.GetTable().GetEntry("RESIST").GetLocalizedString(),
             StatType.DmgReduction => tableStatusText.GetTable().GetEntry("DAMAGE_REDUCTION").GetLocalizedString(),
             StatType.Sight => tableStatusText.GetTable().GetEntry("SIGHT").GetLocalizedString(),
@@ -322,6 +362,7 @@ public class DungeonUIManager : MonoBehaviour
             StatType.HpRegen => tableStatusText.GetTable().GetEntry("HEALTH_REGENERATION").GetLocalizedString(),
             StatType.MpRegen => tableStatusText.GetTable().GetEntry("MANA_REGENERATION").GetLocalizedString(),
             StatType.Speed => tableStatusText.GetTable().GetEntry("MOVE_SPEED").GetLocalizedString(),
+            StatType.Stealth => tableStatusText.GetTable().GetEntry("STEALTH").GetLocalizedString(),
             _ => null,
         };
     }

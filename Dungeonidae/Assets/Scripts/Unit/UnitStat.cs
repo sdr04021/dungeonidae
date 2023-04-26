@@ -4,7 +4,6 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[System.Serializable]
 public class UnitStat
 {
     public struct StatValue

@@ -7,31 +7,13 @@ using UnityEngine;
 public class DungeonData
 {
     public int floor;
-    [System.NonSerialized] public List<List<TileData>> mapData = new();
-    [System.NonSerialized] public List<List<FogData>> fogData = new();
-    [System.NonSerialized] public List<Room> rooms = new();
+    [System.NonSerialized] public List<List<TileData>> mapData;
+    [System.NonSerialized] public List<List<FogData>> fogData;
+    [System.NonSerialized] public List<Room> rooms;
+    [System.NonSerialized] public System.Tuple<int, int> stairRooms;
     public HashSet<Coordinate> observedFog = new();
 
     public List<UnitData> unitList = new();
-    public List<ItemDataContainer> fieldItemList = new();
-
-    [JsonIgnore]
-    public System.Random Rand { get; private set; }
-
-    public void SetRandom() 
-    {
-        Rand = new(GameManager.Instance.saveData.Seeds[floor]);
-    }
-
-    public void RemoveFieldItem(ItemData item)
-    {
-        for(int i=0; i<fieldItemList.Count; i++)
-        {
-            if (item == fieldItemList[i].GetItemData())
-            {
-                fieldItemList.RemoveAt(i);
-                break;
-            }
-        }
-    }
+    public List<ItemData> fieldItemList = new();
+    public List<DungeonObjectData> dungeonObjectList = new();
 }

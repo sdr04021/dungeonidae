@@ -10,19 +10,38 @@ public class DamageText : MonoBehaviour
     [SerializeField] RectTransform rect;
     Color healColor = new(0.5f, 1.244f, 0.5f);
     Color expColor = new(1, 0.66f, 0.11f);
+    Color blockColor = new(0.5f, 0.5f, 0.5f);
+    Color criticalColor = new(0, 0, 1);
 
     public void SetValue(int amount, DamageType damageType)
     {
+
         switch (damageType)
         {
             case DamageType.Heal:
                 tmpro.color = healColor;
                 break;
+            case DamageType.Critical:
+                tmpro.color = criticalColor;
+                break;
         }
-
         tmpro.SetText(amount.ToString());
+
         //if (localScaleX < 0)
         //    rect.localScale = new Vector3(-rect.localScale.x, rect.localScale.y, rect.localScale.z);
+        rect.DOAnchorPos(new Vector2(0, 75), 1);
+        tmpro.DOFade(0, 1.5f).OnComplete(DestroyThis);
+    }
+    public void SetMiss()
+    {
+        tmpro.SetText("Miss");
+        rect.DOAnchorPos(new Vector2(0, 75), 1);
+        tmpro.DOFade(0, 1.5f).OnComplete(DestroyThis);
+    }
+    public void SetBlock()
+    {
+        tmpro.color = blockColor;
+        tmpro.SetText("Block");
         rect.DOAnchorPos(new Vector2(0, 75), 1);
         tmpro.DOFade(0, 1.5f).OnComplete(DestroyThis);
     }

@@ -13,20 +13,33 @@ public class EquipmentData : ItemData
     public EquipmentType EquipmentType { get; private set; }
 
     [JsonProperty]
-    public Dictionary<StatType,int> Stats { get; private set; } = new Dictionary<StatType, int>();
+    public List<EquipmentStat> Stats { get; private set; } = new();
 
     [JsonProperty]
     public int Enchant { get; private set; }
+
+    [JsonProperty]
+    public List<EquipmentStat> Potentials { get; private set; } = new();
+
+    [JsonProperty]
+    public int PotentialExp { get; private set; } = 0;
 
     public EquipmentData() { }
 
     public EquipmentData(EquipmentBase data) : base (data)
     {
-        EquipmentType = data.EquipmentType;
+        EquipmentType = data.equipmentType;
 
-        for(int i=0; i < data.Stats.Length; i++)
+        for(int i=0; i < data.stats.Length; i++)
         {
-            Stats.Add(data.Stats[i].statType, (int)(data.Stats[i].val * (1 + Mathf.Pow(Random.value, 4))));
+            EquipmentStat stat = new()
+            {
+                statType = data.stats[i].statType,
+                statUnit = data.stats[i].statUnit,
+                val = (int)(data.stats[i].val * (1 + Mathf.Pow(Random.value, 4) / 4)),
+                bonus = data.stats[i].bonus
+            };
+            Stats.Add(stat);
         }
     }
 
@@ -36,5 +49,250 @@ public class EquipmentData : ItemData
         loadHandle.WaitForCompletion();
         if (loadHandle.Status == AsyncOperationStatus.Succeeded)
             Sprite = loadHandle.Result;
+    }
+
+    public void GainPotentialExp()
+    {
+        if (PotentialExp < 30)
+        {
+            PotentialExp++;
+            if (PotentialExp % 10 == 0)
+            {
+                AddNewPotential();
+            }
+        }
+    }
+    public void AddNewPotential()
+    {
+        EquipmentStat eStat = new()
+        {
+            statUnit = StatUnit.Percent
+        };
+        int pick = Random.Range(0, 1000);
+
+        switch (pick)
+        {
+            case <100:
+                eStat.val = 1;
+                break;
+            case < 300:
+                eStat.val = 2;
+                break;
+            case < 700:
+                eStat.val = 3;
+                break;
+            case < 900:
+                eStat.val = 2;
+                break;
+            case < 1000:
+                eStat.val = 1;
+                break;
+        }
+
+        pick = Random.Range(0, 1000);
+        if ((EquipmentType == EquipmentType.Weapon) || (EquipmentType == EquipmentType.Sub))
+        {
+            if (pick < 700)
+            {
+                switch (pick % 10)
+                {
+                    case 0:
+                        eStat.statType = StatType.Atk;
+                        break;
+                    case 1:
+                        eStat.statType = StatType.MAtk;
+                        break;
+                    case 2:
+                        eStat.statType = StatType.Pen;
+                        break;
+                    case 3:
+                        eStat.statType = StatType.MPen;
+                        break;
+                    case 4:
+                        eStat.statType = StatType.Proficiency;
+                        break;
+                    case 5:
+                        eStat.statType = StatType.Acc;
+                        break;
+                    case 6:
+                        eStat.statType = StatType.Cri;
+                        break;
+                    case 7:
+                        eStat.statType = StatType.Atk;
+                        break;
+                    case 8:
+                        eStat.statType = StatType.LifeSteal;
+                        break;
+                    case 9:
+                        eStat.statType = StatType.ManaSteal;
+                        break;
+                }
+            }
+            else if (pick < 990)
+            {
+                switch (pick % 10)
+                {
+                    case 0:
+                        eStat.statType = StatType.MaxHp;
+                        break;
+                    case 1:
+                        eStat.statType = StatType.MaxMp;
+                        break;
+                    case 2:
+                        eStat.statType = StatType.Def;
+                        break;
+                    case 3:
+                        eStat.statType = StatType.MDef;
+                        break;
+                    case 4:
+                        eStat.statType = StatType.Eva;
+                        break;
+                    case 5:
+                        eStat.statType = StatType.HpRegen;
+                        break;
+                    case 6:
+                        eStat.statType = StatType.MpRegen;
+                        break;
+                    case 7:
+                        eStat.statType = StatType.CriDmg;
+                        break;
+                    case 8:
+                        eStat.statType = StatType.Instinct;
+                        break;
+                    case 9:
+                        eStat.statType = StatType.MaxHunger;
+                        break;
+                }
+            }
+            else
+            {
+                switch (pick % 5)
+                {
+                    case 0:
+                        eStat.statType = StatType.DmgIncrease;
+                        break;
+                    case 1:
+                        eStat.statType = StatType.CoolSpeed;
+                        break;
+                    case 2:
+                        eStat.statType = StatType.Stealth;
+                        break;
+                    case 3:
+                        eStat.statType = StatType.Speed;
+                        break;
+                    case 4:
+                        eStat.statType = StatType.Aspd;
+                        break;
+                }
+            }
+        }
+        else
+        {
+            if (pick < 700)
+            {
+                switch (pick % 10)
+                {
+                    case 0:
+                        eStat.statType = StatType.MaxHp;
+                        break;
+                    case 1:
+                        eStat.statType = StatType.MaxMp;
+                        break;
+                    case 2:
+                        eStat.statType = StatType.Def;
+                        break;
+                    case 3:
+                        eStat.statType = StatType.MDef;
+                        break;
+                    case 4:
+                        eStat.statType = StatType.Eva;
+                        break;
+                    case 5:
+                        eStat.statType = StatType.HpRegen;
+                        break;
+                    case 6:
+                        eStat.statType = StatType.MpRegen;
+                        break;
+                    case 7:
+                        eStat.statType = StatType.Resist;
+                        break;
+                    case 8:
+                        eStat.statType = StatType.Instinct;
+                        break;
+                    case 9:
+                        eStat.statType = StatType.MaxHunger;
+                        break;
+                }
+            }
+            else if (pick < 990)
+            {
+                switch (pick % 10)
+                {
+                    case 0:
+                        eStat.statType = StatType.Atk;
+                        break;
+                    case 1:
+                        eStat.statType = StatType.MAtk;
+                        break;
+                    case 2:
+                        eStat.statType = StatType.CriDmg;
+                        break;
+                    case 3:
+                        eStat.statType = StatType.Instinct;
+                        break;
+                    case 4:
+                        eStat.statType = StatType.Proficiency;
+                        break;
+                    case 5:
+                        eStat.statType = StatType.Acc;
+                        break;
+                    case 6:
+                        eStat.statType = StatType.Cri;
+                        break;
+                    case 7:
+                        eStat.statType = StatType.Atk;
+                        break;
+                    case 8:
+                        eStat.statType = StatType.LifeSteal;
+                        break;
+                    case 9:
+                        eStat.statType = StatType.ManaSteal;
+                        break;
+                }
+            }
+            else
+            {
+                switch (pick % 5)
+                {
+                    case 0:
+                        eStat.statType = StatType.DmgReduction;
+                        break;
+                    case 1:
+                        eStat.statType = StatType.CoolSpeed;
+                        break;
+                    case 2:
+                        eStat.statType = StatType.MPen;
+                        break;
+                    case 3:
+                        eStat.statType = StatType.Pen;
+                        break;
+                    case 4:
+                        eStat.statType = StatType.Speed;
+                        break;
+                }
+            }
+        }
+
+        Potentials.Add(eStat);
+        EquipmentData[] equipped = GameManager.Instance.saveData.playerData.equipped;
+        for(int i=0; i<equipped.Length; i++)
+        {
+            if (equipped[i] == this)
+            {
+                GameManager.Instance.saveData.playerData.RemoveEquipStats(this);
+                GameManager.Instance.saveData.playerData.ApplyEquipStats(this);
+                break;
+            }
+        }
     }
 }

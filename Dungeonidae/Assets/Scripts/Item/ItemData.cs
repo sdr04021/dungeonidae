@@ -36,6 +36,9 @@ public class ItemData
 
     public Coordinate coord;
 
+    [JsonIgnore]
+    public ItemObject owner = null;
+
     public ItemData() { }
 
     public ItemData(ItemBase item)

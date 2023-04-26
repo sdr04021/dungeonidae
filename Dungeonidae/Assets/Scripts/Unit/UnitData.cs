@@ -8,44 +8,53 @@ using UnityEngine;
 public class UnitData
 {
     public delegate void EventHandler();
-    public event EventHandler OnHpValueChanged;
-    public event EventHandler OnMpValueChanged;
-    public event EventHandler OnExpValueChanged;
-    public event EventHandler OnSkillChanged;
-    public event EventHandler OnSkillCurrentCooldownChanged;
-    public event EventHandler OnLevelChanged;
-    public event EventHandler OnBuffListChanged;
-    public event EventHandler OnBuffDurationChanged;
+    public event EventHandler OnHpValueChange;
+    public event EventHandler OnMpValueChange;
+    public event EventHandler OnExpValueChange;
+    public event EventHandler OnSkillChange;
+    public event EventHandler OnSkillCurrentCooldownChange;
+    public event EventHandler OnLevelChange;
+    public event EventHandler OnBuffListChange;
+    public event EventHandler OnBuffDurationChange;
+    public event EventHandler OnTurnChange;
 
     [JsonIgnore] public Unit Owner { get; private set; }
     public Coordinate coord = new(0, 0);
-    public float turnIndicator = 0;
-    public int unitListIndex = 0;
+    [JsonProperty] private float _turnIndicator = 0;
+    [JsonIgnore]
+    public float TurnIndicator
+    {
+        get => _turnIndicator;
+        set
+        {
+            _turnIndicator = value;
+            OnTurnChange?.Invoke();
+        }
+    }
     public UnitData chaseTarget;
+    public bool isChasingTarget = false;
     public Coordinate chaseTargetRecentCoord;
 
-    public string unitName;
+    [JsonIgnore] UnitBase unitBase;
     public Team team;
-    public int level;
-    public int exp;
-    public int maxExp;
-    public int[] expTable;
-    public int[] expReward;
-    public UnitStat maxHp;
-    [JsonProperty] private int _hp;
+    public int level = 0;
+    public int exp = 0;
+    [JsonIgnore] public int maxExp;
+    [JsonIgnore] public UnitStat maxHp;
+    [JsonProperty] private int _hp = 0;
     [JsonIgnore]
     public int Hp {
         get => _hp;
         set
         {
             _hp = value >= 0 ? value <= maxHp.Total()? value : maxHp.Total() : 0;
-            OnHpValueChanged?.Invoke();
+            OnHpValueChange?.Invoke();
         }
     }
 
-    public UnitStat hpRegen;
-    public UnitStat maxMp;
-    [JsonProperty] private int _mp;
+    [JsonIgnore] public UnitStat hpRegen;
+    [JsonIgnore] public UnitStat maxMp;
+    [JsonProperty] private int _mp = 0;
     [JsonIgnore]
     public int Mp
     {
@@ -53,34 +62,34 @@ public class UnitData
         set
         {
             _mp = value >= 0 ? value <= maxMp.Total() ? value : maxMp.Total() : 0;
-            OnMpValueChanged?.Invoke();
+            OnMpValueChange?.Invoke();
         }
     }
-    public UnitStat mpRegen;
-    public UnitStat atk;
-    public UnitStat mAtk;
-    public UnitStat atkRange;
-    public UnitStat pen;
-    public UnitStat mPen;
-    public UnitStat acc;
-    public UnitStat aspd;
-    public UnitStat cri;
-    public UnitStat criDmg;
-    public UnitStat proficiency;
-    public UnitStat lifeSteal;
-    public UnitStat manaSteal;
-    public UnitStat def;
-    public UnitStat mDef;
-    public UnitStat eva;
-    public UnitStat block;
-    public UnitStat resist;
-    public UnitStat dmgIncrease;
-    public UnitStat dmgReduction;
-    public UnitStat speed;
-    public UnitStat sight;
-    public UnitStat instinct;
-    public UnitStat searchRange;
-    public UnitStat maxHunger;
+    [JsonIgnore] public UnitStat mpRegen;
+    [JsonIgnore] public UnitStat atk;
+    [JsonIgnore] public UnitStat mAtk;
+    [JsonIgnore] public UnitStat atkRange;
+    [JsonIgnore] public UnitStat pen;
+    [JsonIgnore] public UnitStat mPen;
+    [JsonIgnore] public UnitStat acc;
+    [JsonIgnore] public UnitStat aspd;
+    [JsonIgnore] public UnitStat cri;
+    [JsonIgnore] public UnitStat criDmg;
+    [JsonIgnore] public UnitStat proficiency;
+    [JsonIgnore] public UnitStat lifeSteal;
+    [JsonIgnore] public UnitStat manaSteal;
+    [JsonIgnore] public UnitStat def;
+    [JsonIgnore] public UnitStat mDef;
+    [JsonIgnore] public UnitStat eva;
+    [JsonIgnore] public UnitStat coolSpeed;
+    [JsonIgnore] public UnitStat resist;
+    [JsonIgnore] public UnitStat dmgIncrease;
+    [JsonIgnore] public UnitStat dmgReduction;
+    [JsonIgnore] public UnitStat speed;
+    [JsonIgnore] public UnitStat sight;
+    [JsonIgnore] public UnitStat instinct;
+    [JsonIgnore] public UnitStat searchRange;
+    [JsonIgnore] public UnitStat maxHunger;
     [JsonProperty] private int _hunger;
     [JsonIgnore]
     public int Hunger
@@ -91,13 +100,7 @@ public class UnitData
             _hunger = value >= 0 ? value <= maxHunger.Total() ? value : maxHunger.Total() : 0;
         }
     }
-
-    int maxHpGrowth;
-    int maxMpGrowth;
-    int atkGrowth;
-    int mAtkGrowth;
-    int defGrowth;
-    int mDefGrowth;
+    [JsonIgnore] public UnitStat stealth;
 
     public Dictionary<string,AbilityData> abilities = new();
     public int abilityPoint = 0;
@@ -114,59 +117,68 @@ public class UnitData
 
     public EquipmentData[] equipped = new EquipmentData[9];
 
-    public UnitData(UnitBase unitBase)
-    {
-        if (unitBase == null) return;
-        unitName = unitBase.key;
-        team = unitBase.team;
-        level = unitBase.level;
-        maxExp = unitBase.expTable[0];
-        exp = 0;
-        expTable = unitBase.expTable;
-        expReward = unitBase.expReward;
-
-        maxHp = new(unitBase.maxHp);
-        Hp = maxHp.original;
-        hpRegen = new(unitBase.hpRegen);
-        maxMp = new(unitBase.maxMp);
-        Mp = maxMp.original;
-        mpRegen = new(unitBase.mpRegen);
-        atk = new(unitBase.atk);
-        mAtk = new(unitBase.mAtk);
-        atkRange = new(unitBase.atkRange);
-        pen = new(unitBase.pen);
-        mPen = new(unitBase.mPen);
-        acc = new(unitBase.acc);
-        aspd = new(unitBase.aspd);
-        cri = new(unitBase.cri);
-        criDmg = new(unitBase.criDmg);
-        proficiency = new(unitBase.proficiency);
-        lifeSteal = new(unitBase.lifeSteal);
-        manaSteal  = new(unitBase.manaSteal);
-        def = new(unitBase.def);
-        mDef = new(unitBase.mDef);
-        eva = new(unitBase.eva);
-        block = new(unitBase.block);
-        resist = new(unitBase.resist);
-        dmgIncrease = new(unitBase.dmgIncrease);
-        dmgReduction = new(unitBase.dmgReduction);
-        speed = new(unitBase.speed);
-        sight = new(unitBase.sight);
-        instinct = new(unitBase.instinct);
-        searchRange = new(unitBase.searchRange);
-        maxHunger = new(unitBase.maxHunger);
-
-        maxHpGrowth = unitBase.maxHpGrowth;
-        maxMpGrowth = unitBase.maxMpGrowth;
-        atkGrowth = unitBase.atkGrowth;
-        mAtkGrowth = unitBase.mAtkGrowth;
-        defGrowth = unitBase.mDefGrowth;
-        mDefGrowth = unitBase.mDefGrowth;
-    }
-
-    public void SetOwner(Unit unit)
+    public void Init(Unit unit)
     {
         Owner = unit;
+        unitBase = unit.UnitBase;
+        team = unitBase.Team;
+        maxExp = unitBase.MaxExp;
+
+        maxHp = new(unitBase.MaxHp);
+        hpRegen = new(unitBase.HpRegen);
+        maxMp = new(unitBase.MaxMp);
+        mpRegen = new(unitBase.MpRegen);
+        atk = new(unitBase.Atk);
+        mAtk = new(unitBase.MAtk);
+        atkRange = new(unitBase.AtkRange);
+        pen = new(unitBase.Pen);
+        mPen = new(unitBase.MPen);
+        acc = new(unitBase.Acc);
+        aspd = new(unitBase.Aspd);
+        cri = new(unitBase.Cri);
+        criDmg = new(unitBase.CriDmg);
+        proficiency = new(unitBase.Proficiency);
+        lifeSteal = new(unitBase.LifeSteal);
+        manaSteal  = new(unitBase.ManaSteal);
+        def = new(unitBase.Def);
+        mDef = new(unitBase.MDef);
+        eva = new(unitBase.Eva);
+        coolSpeed = new(unitBase.CoolSpeed);
+        resist = new(unitBase.Resist);
+        dmgIncrease = new(unitBase.DmgIncrease);
+        dmgReduction = new(unitBase.DmgReduction);
+        speed = new(unitBase.Speed);
+        sight = new(unitBase.Sight);
+        instinct = new(unitBase.Instinct);
+        searchRange = new(unitBase.SearchRange);
+        maxHunger = new(unitBase.MaxHunger);
+        stealth = new(unitBase.Stealth);
+
+        if (Hp == 0)
+        {
+            Hp = maxHp.Total();
+            Mp = maxMp.Total();
+            Hunger = maxHunger.Total();
+        }
+
+        for(int i=0; i<level; i++)
+        {
+            IncreaseMaxExp(i);
+            GrowStats(i);
+        }
+        for(int i=0; i<equipped.Length; i++)
+        {
+            if (equipped[i] != null)
+                ApplyEquipStats(equipped[i]);
+        }
+        foreach(KeyValuePair<string, AbilityData> pair in abilities)
+        {
+            Owner.abilityDirector.ApplyAbility(pair.Value);
+        }
+        for(int i=0; i<Buffs.Count; i++)
+        {
+            Owner.BuffDirector.ApplyBuff(Buffs[i]);
+        }
     }
 
     public void IncreaseExpValue(int amount)
@@ -177,25 +189,30 @@ public class UnitData
             exp -= maxExp;
             IncreaseLevelValue();
         }
-        OnExpValueChanged?.Invoke();
+        OnExpValueChange?.Invoke();
     }
     public void IncreaseLevelValue()
     {
         level++;
-        GrowStats();
-        OnLevelChanged?.Invoke();
+        IncreaseMaxExp(level);
+        GrowStats(level);
+        OnLevelChange?.Invoke();
     }
-    void GrowStats()
+    void IncreaseMaxExp(int lv)
     {
-        maxHp.original += maxHpGrowth;
-        maxMp.original += maxMpGrowth;
-        atk.original += atkGrowth;
-        mAtk.original += mAtkGrowth;
-        def.original += defGrowth;
-        mDef.original += mDefGrowth;
+        maxExp += (unitBase.MaxExp + lv * 5);
+    }
+    void GrowStats(int lv)
+    {
+        List<GrowthValue> growthTable = unitBase.GrowthTable;
+        for(int i=0; i<growthTable.Count; i++)
+        {
+            int val = (int)(growthTable[i].amount * lv) - (int)(growthTable[i].amount * (lv - 1));
+            StatTypeToUnitStat(growthTable[i].statType).original += val;
+        }
     }
 
-    public void SetStatValue(string key, StatType statType, StatValueType statValueType, int amount)
+    public void SetStatValue(string key, StatType statType, StatValueType statValueType, int amount, bool overWrite)
     {
         switch (statValueType)
         {
@@ -204,7 +221,8 @@ public class UnitData
             case StatValueType.Additional:
                 if (StatTypeToUnitStat(statType).additional.ContainsKey(key))
                 {
-                    StatTypeToUnitStat(statType).additional[key] = amount;
+                    if (overWrite) StatTypeToUnitStat(statType).additional[key] = amount;
+                    else StatTypeToUnitStat(statType).additional[key] += amount;
                 }
                 else
                     StatTypeToUnitStat(statType).additional.Add(key, amount);
@@ -212,7 +230,8 @@ public class UnitData
             case StatValueType.Temporary:
                 if (StatTypeToUnitStat(statType).temporary.ContainsKey(key))
                 {
-                    StatTypeToUnitStat(statType).temporary[key] = amount;
+                    if (overWrite) StatTypeToUnitStat(statType).temporary[key] = amount;
+                    else StatTypeToUnitStat(statType).temporary[key] += amount;
                 }
                 else
                     StatTypeToUnitStat(statType).temporary.Add(key, amount);
@@ -220,7 +239,8 @@ public class UnitData
             case StatValueType.Percent:
                 if (StatTypeToUnitStat(statType).percent.ContainsKey(key))
                 {
-                    StatTypeToUnitStat(statType).percent[key] = amount;
+                    if(overWrite) StatTypeToUnitStat(statType).percent[key] = amount;
+                    else StatTypeToUnitStat(statType).percent[key] = amount;
                 }
                 else
                     StatTypeToUnitStat(statType).percent.Add(key, amount);
@@ -261,26 +281,39 @@ public class UnitData
         switch (statType)
         {
             case StatType.MaxHp:
-                OnHpValueChanged.Invoke();
+                OnHpValueChange.Invoke();
                 break;
             case StatType.MaxMp:
-                OnHpValueChanged.Invoke();
+                OnHpValueChange.Invoke();
                 break;
         }
     }
 
     public void ApplyEquipStats(EquipmentData equip)
     {
-        foreach(var pair in equip.Stats)
+        for(int i=0; i<equip.Stats.Count; i++)
         {
-            SetStatValue(equip.Key, pair.Key, StatValueType.Additional, pair.Value);
+            if (equip.Stats[i].statUnit == StatUnit.Value)
+                SetStatValue(equip.Key, equip.Stats[i].statType, StatValueType.Additional, equip.Stats[i].val, false);
+            else if (equip.Stats[i].statUnit == StatUnit.Percent)
+                SetStatValue(equip.Key, equip.Stats[i].statType, StatValueType.Percent, equip.Stats[i].val, false);
+        }
+        for (int i = 0; i < equip.Potentials.Count; i++)
+        {
+            if (equip.Potentials[i].statUnit == StatUnit.Value)
+                SetStatValue(equip.Key, equip.Potentials[i].statType, StatValueType.Additional, equip.Potentials[i].val, false);
+            else if (equip.Potentials[i].statUnit == StatUnit.Percent)
+                SetStatValue(equip.Key, equip.Potentials[i].statType, StatValueType.Percent, equip.Potentials[i].val, false);
         }
     }
     public void RemoveEquipStats(EquipmentData equip)
     {
-        foreach (var pair in equip.Stats)
+        for (int i = 0; i < equip.Stats.Count; i++)
         {
-            RemoveStatValue(equip.Key, pair.Key, StatValueType.Additional);
+            if (equip.Stats[i].statUnit == StatUnit.Value)
+                RemoveStatValue(equip.Key, equip.Stats[i].statType, StatValueType.Additional);
+            else if (equip.Stats[i].statUnit == StatUnit.Percent)
+                RemoveStatValue(equip.Key, equip.Stats[i].statType, StatValueType.Percent);
         }
     }
 
@@ -307,7 +340,7 @@ public class UnitData
             case StatType.Def: return ref def;
             case StatType.MDef: return ref mDef;
             case StatType.Eva: return ref eva;
-            case StatType.Block: return ref block;
+            case StatType.CoolSpeed: return ref coolSpeed;
             case StatType.Resist: return ref resist;
             case StatType.DmgReduction: return ref dmgReduction;
             case StatType.Sight: return ref sight;
@@ -316,6 +349,7 @@ public class UnitData
             case StatType.HpRegen: return ref hpRegen;
             case StatType.MpRegen: return ref mpRegen;
             case StatType.Speed: return ref speed;
+            case StatType.Stealth: return ref stealth;
             default: throw new System.NotImplementedException();
         }
     }
@@ -329,16 +363,16 @@ public class UnitData
     {
         Skills[index] = skill;
         learnedSkills.Add(skill);
-        OnSkillChanged?.Invoke();
+        OnSkillChange?.Invoke();
     }
     public void SwapSkillSlots(int a, int b)
     {
         (Skills[a], Skills[b]) = (Skills[b], Skills[a]);
-        OnSkillChanged?.Invoke();
+        OnSkillChange?.Invoke();
     }
     public void InvokeSkillChanged()
     {
-        OnSkillChanged?.Invoke();
+        OnSkillChange?.Invoke();
     }
     public void ReduceSkillCurrentCooldowns(int turn)
     {
@@ -349,7 +383,7 @@ public class UnitData
                 Skills[i].currentCoolDown -= turn;
             }
         }
-        OnSkillCurrentCooldownChanged?.Invoke();
+        OnSkillCurrentCooldownChange?.Invoke();
     }
 
     public void AddBuff(BuffData buff)
@@ -364,12 +398,12 @@ public class UnitData
         }
 
         Buffs.Add(buff);
-        OnBuffListChanged?.Invoke();
+        OnBuffListChange?.Invoke();
     }
     public void RemoveBuff(BuffData buff)
     {
         Buffs.Remove(buff);
-        OnBuffListChanged?.Invoke();
+        OnBuffListChange?.Invoke();
     }
     public void UpdateBuffDurations(int turnSpent)
     {
@@ -381,7 +415,7 @@ public class UnitData
                 Buffs[i].durationLeft = 0;
             }
         }
-        OnBuffDurationChanged?.Invoke();
+        OnBuffDurationChange?.Invoke();
     }
 
     public bool AddEquipment(EquipmentData equip)

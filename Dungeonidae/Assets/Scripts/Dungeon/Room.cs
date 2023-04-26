@@ -117,4 +117,10 @@ public class Room
             mapData[Entrances[i].x][Entrances[i].y].areaType = AreaType.None;
         }
     }
+    public void LeaveOnlyOneEntranceCandidate(System.Random random)
+    {
+        Coordinate left = Entrances[random.Next(0, Entrances.Count)];
+        Entrances.Clear();
+        Entrances.Add(left);
+    }
 }

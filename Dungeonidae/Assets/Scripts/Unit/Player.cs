@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using UnityEngine;
 
@@ -15,12 +16,9 @@ public class Player : Unit
     public bool IsSkillMode { get; private set; } = false;
     public bool IsBasicAttackMode { get; private set; } = false; 
 
-    AbilityDirector abilityDirector;
-
     protected override void Awake()
     {
         base.Awake();
-        abilityDirector = new AbilityDirector(this);
     }
 
     protected override void Start()
@@ -55,17 +53,17 @@ public class Player : Unit
 
     protected override void UpdateSightArea()
     {
-        for (int i = 0; i < tilesInSight.Count; i++)
+        for (int i = 0; i < TilesInSight.Count; i++)
         {
-            dm.fogMap.GetElementAt(tilesInSight[i].x, tilesInSight[i].y).Cover();
+            dm.fogMap.GetElementAt(TilesInSight[i].x, TilesInSight[i].y).Cover();
         }
 
         base.UpdateSightArea();
 
-        for (int i = 0; i < tilesInSight.Count; i++)
+        for (int i = 0; i < TilesInSight.Count; i++)
         {
             //map[clearFog[i].x, clearFog[i].y].isObserved = true;
-            dm.fogMap.GetElementAt(tilesInSight[i].x, tilesInSight[i].y).Clear();
+            dm.fogMap.GetElementAt(TilesInSight[i].x, TilesInSight[i].y).Clear();
         }
     }
 
@@ -82,6 +80,15 @@ public class Player : Unit
         base.FollowPath();
     }
 
+    public void Interact()
+    {
+        if (dm.map.GetElementAt(UnitData.coord).items.Count > 0)
+            LootItem();
+        else if ((dm.map.GetElementAt(UnitData.coord).dungeonObjects.Count > 0) && (dm.map.GetElementAt(UnitData.coord).dungeonObjects[^1].IsInteractable))
+        {
+            dm.map.GetElementAt(UnitData.coord).dungeonObjects[^1].Interact();
+        }
+    }
     public void LootItem()
     {
         Tile tile = dm.GetTileByCoordinate(UnitData.coord);
@@ -93,7 +100,7 @@ public class Player : Unit
                 if (UnitData.AddEquipment(equip))
                 {
                     tile.items.Pop();
-                    GameManager.Instance.saveData.GetCurrentDungeonData().RemoveFieldItem(itemObj.data);
+                    GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Remove(itemObj.data);
                     itemObj.Loot();
                     EndTurn(1);
                 }
@@ -108,7 +115,7 @@ public class Player : Unit
                 if (UnitData.AddMisc(misc))
                 {
                     tile.items.Pop();
-                    GameManager.Instance.saveData.GetCurrentDungeonData().RemoveFieldItem(itemObj.data);
+                    GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Remove(itemObj.data);
                     itemObj.Loot(); 
                     EndTurn(1);
                 }
@@ -142,7 +149,7 @@ public class Player : Unit
             item.Init(dm, new Coordinate((Vector2)transform.position), UnitData.equipInventory[index]);
         else if(itemSlotType == ItemSlotType.Equipped)
             item.Init(dm, new Coordinate((Vector2)transform.position), UnitData.equipped[index]);
-        GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(new ItemDataContainer(item.data));
+        GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(item.data);
         item.Bounce();
         dm.GetTileByCoordinate(item.Coord).items.Push(item);
         if (itemSlotType == ItemSlotType.Item)
@@ -158,7 +165,7 @@ public class Player : Unit
     {
         ItemObject item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
         item.Init(dm, new Coordinate((Vector2)transform.position), UnitData.miscInventory[index]);
-        GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(new ItemDataContainer(item.data));
+        GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(item.data);
         item.Bounce();
         dm.GetTileByCoordinate(item.Coord).items.Push(item);
         UnitData.miscInventory.RemoveAt(index);
@@ -171,9 +178,9 @@ public class Player : Unit
         IsThrowingMode = true;
         itemToThrow = new Tuple<ItemType, ItemSlotType, int>(type, itemSlotType, index);
 
-        for(int i=0; i<tilesInSight.Count; i++)
+        for(int i=0; i< TilesInSight.Count; i++)
         {
-            Tile tile = dm.GetTileByCoordinate(tilesInSight[i]);
+            Tile tile = dm.GetTileByCoordinate(TilesInSight[i]);
             if ((tile.Coord != UnitData.coord) && (tile.TileData.tileType == TileType.Floor))
             {
                 throwableRange.Add(tile.Coord);
@@ -190,13 +197,13 @@ public class Player : Unit
             if(itemToThrow.Item2 == ItemSlotType.Item)
             {
                 throwingItem.Init(dm, to, UnitData.equipInventory[itemToThrow.Item3]);
-                GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(new ItemDataContainer(throwingItem.data));
+                GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(throwingItem.data);
                 UnitData.equipInventory.RemoveAt(itemToThrow.Item3);
             }
             else if (itemToThrow.Item2 == ItemSlotType.Equipped)
             {
                 throwingItem.Init(dm, to, UnitData.equipped[itemToThrow.Item3]);
-                GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(new ItemDataContainer(throwingItem.data));
+                GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(throwingItem.data);
                 UnitData.RemoveEquipStats(UnitData.equipped[itemToThrow.Item3]);
                 UnitData.equipped[itemToThrow.Item3] = null;
             }
@@ -205,7 +212,7 @@ public class Player : Unit
         else if (itemToThrow.Item1 == ItemType.Misc)
         {
             throwingItem.Init(dm, to, new MiscData(GameManager.Instance.testItem, 1));
-            GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(new ItemDataContainer(throwingItem.data));
+            GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(throwingItem.data);
             UnitData.RemoveOneMisc(itemToThrow.Item3);
         }
         dm.GetTileByCoordinate(to).items.Push(throwingItem);
@@ -275,36 +282,49 @@ public class Player : Unit
             }
             return;
         }
-
         if (coord == UnitData.coord)
         {
-            if (dm.map.GetElementAt(coord).items.Count > 0)
-                LootItem();
-            else return;
+            Interact();
+            return;
         }
 
-        FlipSprite(coord);
-
-        if (dm.map.GetElementAt(coord.x, coord.y).TileData.tileType == TileType.Floor)
+        if (dm.fogMap.GetElementAt(coord).FogData.IsObserved)
         {
-            if (dm.map.GetElementAt(coord.x, coord.y).unit == null)
+            if (dm.map.GetElementAt(coord).TileData.tileType == TileType.Floor)
             {
-                if (dm.fogMap.GetElementAt(coord.x, coord.y).FogData.IsObserved)
+                if (dm.fogMap.GetElementAt(coord).FogData.IsOn)
                 {
-                    if (FindPath(coord))
-                        FollowPath();
+                    if (FindPath(coord)) FollowPath();
+                }
+                else
+                {
+                    if(dm.map.GetElementAt(coord.x, coord.y).unit != null)
+                    {
+                        BasicAttack.SetRange(false);
+                        if (BasicAttack.AvailableTilesInRange.Contains(coord))
+                        {
+                            Controllable = false;
+                            BasicAttack.StartSkill(coord);
+                        }
+                        else BasicAttack.ResetTilesInRange();
+                    }
+                    else
+                    {
+                        if (FindPath(coord)) FollowPath();
+                    }
                 }
             }
-            else
+        }
+        else
+        {
+            List<Coordinate> surroundings = GlobalMethods.RangeByStep(coord, 1);
+            for (int i = 0; i < surroundings.Count; i++)
             {
-                //StartBasicAttack(map[coord.x, coord.y].unit);
-                BasicAttack.SetRange(false);
-                if (BasicAttack.AvailableTilesInRange.Contains(coord))
+                if (dm.fogMap.GetElementAt(surroundings[i]).FogData.IsObserved)
                 {
-                    Controllable = false;
-                    BasicAttack.StartSkill(coord);
+                    if (FindPath(coord)) FollowPath();
+                    break;
                 }
-                else BasicAttack.ResetTilesInRange();
             }
         }
     }

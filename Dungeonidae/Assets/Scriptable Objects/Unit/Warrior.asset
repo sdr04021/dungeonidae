@@ -12,42 +12,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5196101a978c8b44faade1c717bc013b, type: 3}
   m_Name: Warrior
   m_EditorClassIdentifier: 
-  key: WARRIOR
-  team: 2
-  level: 0
-  expTable: 0a00000014000000190000001e00000023000000280000002d0000003200000037000000
-  expReward: 
-  maxHp: 50
-  maxHpGrowth: 10
-  hpRegen: 1
-  maxMp: 50
-  maxMpGrowth: 1
-  mpRegen: 1
-  maxHunger: 100
-  atk: 10
-  atkGrowth: 2
-  mAtk: 0
-  mAtkGrowth: 0
-  atkRange: 1
-  pen: 0
-  mpen: 0
-  acc: 0
-  aspd: 100
-  cri: 0
-  criDmg: 200
-  proficiency: 10
-  lifeSteal: 0
-  manaSteal: 0
-  def: 0
-  defGrowth: 2
-  mDef: 0
-  mDefGrowth: 1
-  eva: 0
-  block: 0
-  resist: 0
-  dmgIncrease: 0
-  dmgReduction: 0
-  speed: 100
-  sight: 5
-  instinct: 30
-  searchRange: 1
+  <Key>k__BackingField: WARRIOR
+  <Team>k__BackingField: 2
+  <MaxExp>k__BackingField: 10
+  <ExpCoefficient>k__BackingField: 1
+  <MaxHp>k__BackingField: 50
+  <HpRegen>k__BackingField: 1
+  <MaxMp>k__BackingField: 10
+  <MpRegen>k__BackingField: 1
+  <MaxHunger>k__BackingField: 100
+  <Atk>k__BackingField: 5
+  <MAtk>k__BackingField: 0
+  <AtkRange>k__BackingField: 1
+  <Pen>k__BackingField: 0
+  <MPen>k__BackingField: 0
+  <Acc>k__BackingField: 0
+  <Aspd>k__BackingField: 100
+  <Cri>k__BackingField: 0
+  <CriDmg>k__BackingField: 150
+  <Proficiency>k__BackingField: 10
+  <LifeSteal>k__BackingField: 0
+  <ManaSteal>k__BackingField: 0
+  <Def>k__BackingField: 1
+  <MDef>k__BackingField: 0
+  <Eva>k__BackingField: 0
+  <CoolSpeed>k__BackingField: 100
+  <Resist>k__BackingField: 0
+  <DmgIncrease>k__BackingField: 0
+  <DmgReduction>k__BackingField: 0
+  <Speed>k__BackingField: 100
+  <Sight>k__BackingField: 5
+  <Instinct>k__BackingField: 30
+  <SearchRange>k__BackingField: 1
+  <Stealth>k__BackingField: 0
+  <GrowthTable>k__BackingField:
+  - statType: 0
+    amount: 5
+  - statType: 1
+    amount: 2
+  - statType: 3
+    amount: 2
+  - statType: 4
+    amount: 1

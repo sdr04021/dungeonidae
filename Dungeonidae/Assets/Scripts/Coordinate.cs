@@ -158,7 +158,11 @@ public struct Coordinate
         return new Vector3(x, y, z);
     }
 
-    public Coordinate ToMovedCoordinate(Directions direction, int amount)
+    public Coordinate MovedCoordinate(int x, int y)
+    {
+        return new Coordinate(this.x + x, this.y + y);
+    }
+    public Coordinate MovedCoordinate(Directions direction, int amount)
     {
         return this + new Coordinate(direction) * amount;
     }

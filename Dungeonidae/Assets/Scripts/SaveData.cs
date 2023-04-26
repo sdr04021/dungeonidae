@@ -8,37 +8,73 @@ using UnityEngine;
 public class SaveData
 {
     [JsonProperty] public int Seed { get; private set; }
-    [JsonIgnore] public List<int> Seeds { get; private set; }
+    [JsonIgnore] public List<int> FloorSeeds { get; private set; }
+    [JsonIgnore] public System.Random Rand { get; private set; }
     [JsonProperty]
     public List<DungeonData> Floors { get; private set; } = new();
     public int currentFloor = 0;
 
-    public UnitData playerData = null;
+    [HideInInspector] public UnitData playerData = null;
+    [JsonIgnore] public List<int> MonsterLayout { get; private set; } = new();
 
     public void SetSeed()
     {
         Seed = Random.Range(int.MinValue, int.MaxValue);
-        GenerateSeedList();
     }
-
-    public void GenerateSeedList()
+    public void SetRand()
     {
-        System.Random random = new(Seed);
-        Seeds = new();
-        for (int i = 0; i < 100; i++)
+        Rand = new(Seed);
+        FloorSeeds = new();
+    }
+    public void UpdateFloorSeeds()
+    {
+        for(int i=0; i<Floors.Count; i++)
         {
-            Seeds.Add(random.Next());
+            if (i >= FloorSeeds.Count)
+            {
+                FloorSeeds.Add(Rand.Next());
+            }
         }
     }
+    public void SetMonstersLayout()
+    {
+        System.Random rand = new(Seed);
+        List<int> deck = new();
+        for (int i = 0; i < GameManager.Instance.StringData.Monsters.Count; i++)
+        {
+            deck.Add(i);
+        }
+
+        for (int i = 0; i < GameManager.Instance.StringData.Monsters.Count; i++)
+        {
+            if (i == 0)
+            {
+                MonsterLayout.Add(deck[0]);
+                deck.RemoveAt(0);
+            }
+            else
+            {
+                int pick = rand.Next(0, deck.Count);
+                MonsterLayout.Add(deck[pick]);
+                deck.RemoveAt(pick);
+            }
+        }
+    }
+    public void SetMonsterLayout()
+    {
+
+    }
+
 
     public DungeonData GetCurrentDungeonData()
     {
         return Floors[currentFloor];
     }
 
+    static JsonSerializerSettings serializerSettings = new() { TypeNameHandling = TypeNameHandling.Auto };
     public static void Save(SaveData saveData)
     {
-        string data = JsonConvert.SerializeObject(saveData, Formatting.Indented);
+        string data = JsonConvert.SerializeObject(saveData, Formatting.Indented, serializerSettings);
         File.WriteAllText(Application.dataPath + "/save.json", data);
     }
 
@@ -47,9 +83,8 @@ public class SaveData
         if (File.Exists(Application.dataPath + "/save.json"))
         {
             string data = File.ReadAllText(Application.dataPath + "/save.json");
-            return JsonConvert.DeserializeObject<SaveData>(data);
+            return JsonConvert.DeserializeObject<SaveData>(data, serializerSettings);
         }
         else return null;
     }
 }
-//https://stackoverflow.com/questions/8030538/how-to-implement-custom-jsonconverter-in-json-net

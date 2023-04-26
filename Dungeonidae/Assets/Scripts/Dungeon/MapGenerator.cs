@@ -11,15 +11,22 @@ public class MapGenerator
     int mapHeight = 50;
 
     DungeonData dungeonData;
+    System.Random rand;
+
 
     public MapGenerator(DungeonData dungeonData)
     {
         //generationArea = Mathf.Min(100, generationArea);
         //roomSeedAmount = generationArea * 6;
         this.dungeonData = dungeonData;
+        dungeonData.mapData = new();
+        dungeonData.fogData = new();
+        dungeonData.rooms = new();
+        rand = new System.Random(GameManager.Instance.saveData.FloorSeeds[dungeonData.floor]);
         GenereateBase();
         GenerateRooms();
         ConnectRooms();
+        SetRoomElements();
     }
 
     void GenereateBase()
@@ -43,7 +50,7 @@ public class MapGenerator
         for(int i=0; i<roomSeedAmount; i++)
         {
             //rooms.Add(new Room(new Coordinate(Random.Range(2, map.GetLength(0) - 2), Random.Range(2, map.GetLength(1) - 2)),10));
-            dungeonData.rooms.Add(new Room(new Coordinate(dungeonData.Rand.Next(3, mapWidth - 3), dungeonData.Rand.Next(3, mapHeight - 3)), dungeonData.Rand.Next(8, 12)));
+            dungeonData.rooms.Add(new Room(new Coordinate(rand.Next(3, mapWidth - 3), rand.Next(3, mapHeight - 3)), rand.Next(8, 12)));
         }
         
         while (true)
@@ -53,12 +60,12 @@ public class MapGenerator
             {
                 if (dungeonData.rooms[i].GrowthCount > 0)
                 {
-                    dungeonData.rooms[i].Grow(dungeonData.Rand.Next(0, 5), dungeonData.mapData);
+                    dungeonData.rooms[i].Grow(rand.Next(0, 5), dungeonData.mapData);
                     for (int j = 0; j < dungeonData.rooms.Count; j++)
                     {
                         if ((i != j) && CheckOverlap(dungeonData.rooms[i], dungeonData.rooms[j]))
                         {
-                            if (dungeonData.rooms[i].Width < 9)
+                            if ((dungeonData.rooms[i].Width < 9) && (dungeonData.rooms.Count > 3))
                             {
                                 dungeonData.rooms[j].Average(dungeonData.rooms[i]);
                                 dungeonData.rooms.RemoveAt(i);
@@ -85,6 +92,7 @@ public class MapGenerator
             if ((dungeonData.rooms[i].Width < 5) || (dungeonData.rooms[i].Height<5))
                 dungeonData.rooms.RemoveAt(i);
             else dungeonData.rooms[i].SetCenter();
+            if (dungeonData.rooms.Count == 3) break;
         }
 
         for (int i = 0; i < dungeonData.rooms.Count; i++) 
@@ -106,7 +114,8 @@ public class MapGenerator
                     dungeonData.mapData[j][k].areaType = AreaType.Room;
                 }
             }
-            dungeonData.rooms[i].SetEntranceCandidates(dungeonData.mapData, dungeonData.Rand);
+            dungeonData.rooms[i].SetEntranceCandidates(dungeonData.mapData, rand);
+            if (i == 0) dungeonData.rooms[i].LeaveOnlyOneEntranceCandidate(rand);
         }
 
         /*
@@ -217,10 +226,10 @@ public class MapGenerator
                     additional.Add(new Coordinate(i, j));
             }
         }
-        int pickAmount = hallways.Count / 4;
+        int pickAmount = 1 + (hallways.Count / 4);
         for (int i = 0; i < pickAmount; i++)
         {
-            int pick = dungeonData.Rand.Next(0, additional.Count);
+            int pick = rand.Next(0, additional.Count);
             hallways.Add(additional[pick]);
             additional.RemoveAt(pick);
         }
@@ -260,13 +269,19 @@ public class MapGenerator
         }
     }
 
-    void SetRoomType()
+    void SetRoomElements()
     {
+        List<int> deck = new();
         for(int i=0; i<dungeonData.rooms.Count; i++)
         {
-            if (dungeonData.Rand.Next(0, 2) == 1)
-                SetComplicatedRoom(dungeonData.rooms[i]);
+            deck.Add(i);
         }
+        int pick = rand.Next(0, deck.Count);
+        int first = deck[pick];
+        deck.RemoveAt(pick);
+        pick = rand.Next(0, deck.Count);
+        int second = deck[pick];
+        dungeonData.stairRooms = new(first, second);
     }
 
     bool CheckOverlap (Room a, Room b)

@@ -5,10 +5,12 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public SaveData saveData;
+    [field:SerializeField] public StringData StringData { get; private set; }
 
     public DungeonManager dungeonManager;
     public Player warriorPrefab;
     public Monster testMob1Prefab;
+    public Monster giantRatPrefab;
     public Fog fogPrefab;
     public Tile tilePrefab;
     public List<Sprite> tileSprites;
@@ -16,6 +18,8 @@ public class GameManager : MonoBehaviour
     public Sprite[] fogSprites;
     public DamageText damageTextPrefab;
     public ItemObject itemObjectPrefab;
+    public Stair stairDownPrefab;
+    public Stair stairUpPrefab;
     public MiscBase testItem;
     public EquipmentBase testEquip;
     public AbilityBase[] testAbility;
@@ -63,14 +67,18 @@ public class GameManager : MonoBehaviour
         saveData = SaveData.Load();
         if (saveData != null)
         {
-            saveData.GenerateSeedList();
+            saveData.SetRand();
+            saveData.UpdateFloorSeeds();
+            saveData.SetMonstersLayout();
             dungeonManager.LoadFloor();
         }
         else
         {
             saveData = new SaveData();
             saveData.SetSeed();
-            dungeonManager.StartNewFloor();
+            saveData.SetRand();
+            saveData.SetMonstersLayout();
+            dungeonManager.StartFirstFloor();
         }
     }
 }

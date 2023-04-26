@@ -121,11 +121,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isAnimationFinished: 0
-  unitBase: {fileID: 11400000, guid: 461ba6ed3983a394199a17736f11e70f, type: 2}
+  <UnitBase>k__BackingField: {fileID: 11400000, guid: 461ba6ed3983a394199a17736f11e70f, type: 2}
   <EffectAnimator>k__BackingField: {fileID: 0}
   canvas: {fileID: 8863694669425357271}
   hpBarBg: {fileID: 5345523644967427601}
   hpBar: {fileID: 7690976371466471541}
+  <IsAggressive>k__BackingField: 0
+  <IsForgetting>k__BackingField: 1
+  <IsRunAway>k__BackingField: 0
 --- !u!1 &6521402247050397273
 GameObject:
   m_ObjectHideFlags: 0
@@ -287,7 +290,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &5190554689282247842
 MonoBehaviour:
   m_ObjectHideFlags: 0

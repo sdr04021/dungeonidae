@@ -50,6 +50,12 @@ public class Fog : MonoBehaviour
         spriteRenderer.enabled = true;
     }
 
+    public void ResetFog()
+    {
+        isNeighborOn = new bool[4] { true, true, true, true };
+        spriteRenderer.color = Color.black;
+    }
+
     void SendNeighborSignal()
     {
         if (y + 1 < dm.fogMap.arrSize.y)

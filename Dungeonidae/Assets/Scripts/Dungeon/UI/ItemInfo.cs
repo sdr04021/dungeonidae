@@ -13,11 +13,15 @@ public class ItemInfo : MonoBehaviour
     [SerializeField] RectTransform content;
     [SerializeField] TMP_Text title;
     [SerializeField] TMP_Text mainText;
+    [SerializeField] TMP_Text potentialText;
     [SerializeField] TMP_Text additionalText;
     [SerializeField] GameObject EquipButton;
     [SerializeField] GameObject UseButton;
 
     [SerializeField] ItemSlotType itemSlotType;
+
+    HashSet<StatType> percentPointStats = new() { StatType.Pen, StatType.MPen, StatType.Proficiency,StatType.Cri,StatType.CriDmg,
+            StatType.Aspd,StatType.LifeSteal,StatType.ManaSteal,StatType.Resist,StatType.CoolSpeed,StatType.Speed,StatType.DmgIncrease,StatType.DmgReduction };
 
     public int Index { get; private set; } = -1;
 
@@ -42,19 +46,43 @@ public class ItemInfo : MonoBehaviour
         icon.sprite = item.Sprite;
         Index = index;
         StringBuilder equipStatusString = new();
-        if (item is EquipmentData equip)
+        if (item.GetType() == typeof(EquipmentData))
         {
+            EquipmentData equip = (EquipmentData)item;
             title.text = inventoryUI.DunUI.GetEquipmentName(equip.Key);
-            foreach (var pair in equip.Stats)
+            for(int i=0; i<equip.Stats.Count; i++)
             {
-                equipStatusString.Append(inventoryUI.DunUI.StatTypeToString(pair.Key));
-                equipStatusString.Append(" : +");
-                equipStatusString.Append(pair.Value);
+                equipStatusString.Append(inventoryUI.DunUI.StatTypeToString(equip.Stats[i].statType));
+                equipStatusString.Append(" : ");
+                if (equip.Stats[i].val < 0) equipStatusString.Append("-");
+                else equipStatusString.Append("+");
+                equipStatusString.Append(equip.Stats[i].val);
+                if (equip.Stats[i].statUnit == StatUnit.Percent) equipStatusString.Append("%");
+                else if (percentPointStats.Contains(equip.Stats[i].statType)) equipStatusString.Append("%P");
                 equipStatusString.AppendLine();
             }
+            StringBuilder equipPotentialString = new();
+            for (int i = 0; i < equip.Potentials.Count; i++)
+            {
+                equipPotentialString.Append(inventoryUI.DunUI.StatTypeToString(equip.Potentials[i].statType));
+                equipPotentialString.Append(" : ");
+                if (equip.Potentials[i].val < 0) equipPotentialString.Append("-");
+                else equipPotentialString.Append("+");
+                equipPotentialString.Append(equip.Potentials[i].val);
+                if (equip.Potentials[i].statUnit == StatUnit.Percent) equipPotentialString.Append("%");
+                else if (percentPointStats.Contains(equip.Potentials[i].statType)) equipPotentialString.Append("%P");
+                equipPotentialString.AppendLine();
+            }
+            for (int i = 0; i < 3 - equip.PotentialExp / 10; i++)
+            {
+                equipPotentialString.Append("???");
+                equipPotentialString.AppendLine();
+            }
+            potentialText.text = equipPotentialString.ToString();
         }
-        else if(item is MiscData misc)
+        else if(item.GetType() == typeof(MiscData))
         {
+            MiscData misc = (MiscData)item;
             title.text = inventoryUI.DunUI.GetItemName(misc.Key);
             equipStatusString.Append(inventoryUI.DunUI.GetItemDescription(misc.Key, misc.EffectValues));
         }
@@ -65,6 +93,7 @@ public class ItemInfo : MonoBehaviour
 
     public void Close()
     {
+        potentialText.text = "";
         gameObject.SetActive(false);
         if(background != null)
             background.SetActive(false);
