@@ -62,18 +62,18 @@ public class BasicAttack : Skill
     protected override IEnumerator SkillEffect(Coordinate coord)
     {
         Unit target = dm.GetTileByCoordinate(coord).unit;
+        owner.isAnimationFinished = false;
         float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
         yield return new WaitForSeconds(animationLength * 0.4f);
         target.GetDamage(MakeAttackData(target));
-        while (!owner.isAnimationFinished || !target.isAnimationFinished)
+        owner.UnitData.equipped[1]?.GainPotentialExp();
+        owner.EndSkill(100m / owner.UnitData.aspd.Total());
+        while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) || !target.isHitFinished)
         {
             yield return Constants.ZeroPointOne;
         }
-        owner.isAnimationFinished = false;
-        target.isAnimationFinished = false;
-        if (owner.UnitData.equipped[1] != null)
-            owner.UnitData.equipped[1].GainPotentialExp();
-        owner.EndSkill(100f / owner.UnitData.aspd.Total());
+        owner.MyAnimator.SetBool("Attack", false);
+        owner.isAnimationFinished = true;
     }
 
     public override void ShowTargetArea(Coordinate coord)

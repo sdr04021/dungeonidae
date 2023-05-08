@@ -34,16 +34,18 @@ public class Skill_Buff : Skill
 
     protected override IEnumerator SkillEffect(Coordinate coord)
     {
+        owner.isAnimationFinished = false;
         float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
         yield return new WaitForSeconds(animationLength * 0.5f);
         owner.BuffDirector.ApplyBuff(new BuffData(GameManager.Instance.buffBaseDict[SkillData.Key], SkillData));
-        while (!owner.isAnimationFinished)
+        SkillData.currentCoolDown = SkillData.EffectValues[^1] + 1;
+        owner.EndSkill(1);
+        while (owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
         {
             yield return Constants.ZeroPointOne;
         }
-        owner.isAnimationFinished = false;
-        SkillData.currentCoolDown = SkillData.EffectValues[^1] + 1;
-        owner.EndSkill(1);
+        owner.MyAnimator.SetBool("Attack", false);
+        owner.isAnimationFinished = true;
     }
 
     public override void ShowTargetArea(Coordinate coord)

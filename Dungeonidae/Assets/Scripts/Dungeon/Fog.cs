@@ -39,15 +39,19 @@ public class Fog : MonoBehaviour
             GameManager.Instance.saveData.GetCurrentDungeonData().observedFog.Add(new Coordinate(x, y));
         }
         FogData.IsOn = false;
-        spriteRenderer.enabled = false;
-        SendNeighborSignal();
+        gameObject.SetActive(false);
+        //spriteRenderer.sortingOrder = 0;
+        //spriteRenderer.enabled = false;
+        //SendNeighborSignal();
     }
     public void Cover()
     {
         FogData.IsOn = true;
-        SendNeighborSignal();
-        SetSprite();
-        spriteRenderer.enabled = true;
+        gameObject.SetActive(true);
+        //spriteRenderer.sortingOrder = 10;
+        //SendNeighborSignal();
+        //SetSprite();
+        //spriteRenderer.enabled = true;
     }
 
     public void ResetFog()
@@ -110,9 +114,22 @@ public class Fog : MonoBehaviour
         */
     }
 
+    void GetNeighborState()
+    {
+        if (y + 1 < dm.fogMap.arrSize.y)
+            isNeighborOn[0] = dm.fogMap.GetElementAt(x, y + 1).FogData.IsOn;
+        if (x + 1 < dm.fogMap.arrSize.x)
+            isNeighborOn[1] = dm.fogMap.GetElementAt(x + 1, y).FogData.IsOn;
+        if (y - 1 >= 0)
+            isNeighborOn[2] = dm.fogMap.GetElementAt(x, y - 1).FogData.IsOn;
+        if (x - 1 >= 0)
+            isNeighborOn[3] = dm.fogMap.GetElementAt(x - 1, y).FogData.IsOn;
+    }
+
     public void SetSprite()
     {
-        UpdateNeighborState();
+        //UpdateNeighborState();
+        GetNeighborState();
 
         int identifier = 0;
         if (isNeighborOn[0]) identifier += 1;

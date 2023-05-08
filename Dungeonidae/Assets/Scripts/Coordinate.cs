@@ -192,9 +192,17 @@ public struct Coordinate
         else return false;
     }
 
+    public float Magnitude()
+    {
+        return Mathf.Sqrt(x*x + y*y);
+    }
     public static float Distance(Coordinate startPoint, Coordinate endPoint)
     {
-        return Mathf.Sqrt(Mathf.Pow(startPoint.x - endPoint.x, 2) + Mathf.Pow(startPoint.y - endPoint.y, 2));
+        return Mathf.Sqrt((startPoint.x - endPoint.x)* (startPoint.x - endPoint.x) + (startPoint.y - endPoint.y)* (startPoint.y - endPoint.y));
+    }
+    public static bool InRange(Coordinate startPoint, Coordinate endPoint, int range)
+    {
+        return (((startPoint.x - endPoint.x) * (startPoint.x - endPoint.x) + (startPoint.y - endPoint.y) * (startPoint.y - endPoint.y)) < (range * range));
     }
 
     public static Coordinate operator +(Coordinate a, Coordinate b)

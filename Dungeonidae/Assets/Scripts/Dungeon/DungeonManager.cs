@@ -1,15 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class DungeonManager : MonoBehaviour
 {
-    AsyncOperationHandle<GameObject> unitLoadHandle;
     Dictionary<string, AsyncOperationHandle<GameObject>> monsterHandles = new();
+    Dictionary<string, AsyncOperationHandle<EquipmentBase>> equipmentHandles = new();
 
     public Sprite[] FirstTile;
 
@@ -31,7 +30,7 @@ public class DungeonManager : MonoBehaviour
     {
         player = Instantiate(GameManager.Instance.warriorPrefab);
         GameManager.Instance.saveData.playerData = player.UnitData;
-        player.Init(this, new Coordinate(0, 0));
+        player.Init(this, new Coordinate(0, 0), 0);
         StartNewFloor();
     }
     public void LoadFloor()
@@ -63,6 +62,8 @@ public class DungeonManager : MonoBehaviour
         dunUI.Init();
         maxOrder = dungeonData.unitList.Count;
         Camera.main.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, Camera.main.transform.position.z);
+        for(int i=0; i<dungeonData.unitList.Count; i++)
+            dungeonData.unitList[i].Owner.UpdateSightArea();
         dungeonData.unitList[order].Owner.StartTurn();
         UpdateUnitRenderers();
     }
@@ -85,6 +86,8 @@ public class DungeonManager : MonoBehaviour
 
         dunUI.Init();
         maxOrder = dungeonData.unitList.Count;
+        for (int i = 0; i < dungeonData.unitList.Count; i++)
+            dungeonData.unitList[i].Owner.UpdateSightArea();
         dungeonData.unitList[order].Owner.StartTurn();
         UpdateUnitRenderers();
     }
@@ -163,48 +166,37 @@ public class DungeonManager : MonoBehaviour
             }
         }
     }
-    GameObject LoadMonsterPrefab(string Key)
-    {
-
-        GameObject prefab = null;
-        if (monsterHandles.ContainsKey(Key))
-        {
-            prefab = monsterHandles[Key].Result;
-        }
-        else
-        {
-            monsterHandles.Add(Key, Addressables.LoadAssetAsync<GameObject>("Assets/Prefabs/Monsters/" + Key + ".prefab"));
-            monsterHandles[Key].WaitForCompletion();
-            if (monsterHandles[Key].Status == AsyncOperationStatus.Succeeded)
-                prefab = monsterHandles[Key].Result;
-        }
-        return prefab;
-    }
     void GenerateUnits()
     {
         SaveData saveData = GameManager.Instance.saveData;
+        
         for (int i = 0; i < dungeonData.rooms.Count; i++)
         {
-            Coordinate c = dungeonData.rooms[i].center;
-            List<Coordinate> genPoints = GlobalMethods.RangeByStep(c, 1);
-            for (int j = 0; j < genPoints.Count; j++)
+            Room room = dungeonData.rooms[i];
+            int amount = 1 + (int)((room.Area / 16) * Random.value);
+            for (int j = 0; j < amount; j++)
             {
-                Tile tile = map.GetElementAt(genPoints[j]);
-                if (tile.IsReachableTile())
+                Coordinate c = new(Random.Range(room.Left, room.Right), Random.Range(room.Top, room.Bottom));
+                List<Coordinate> genPoints = GlobalMethods.RangeByStep(c, 1);
+                for (int k = 0; k < genPoints.Count; k++)
                 {
-                    int pick = Random.Range(0, 3);
-                    GameObject prefab = LoadMonsterPrefab(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]]);
-                    if(prefab != null)
+                    Tile tile = map.GetElementAt(genPoints[k]);
+                    if (tile.IsReachableTile())
                     {
-                        Monster temp  = Instantiate(prefab).GetComponent<Monster>();
-                        dungeonData.unitList.Add(temp.UnitData);
-                        temp.Init(this, genPoints[j]);
+                        int pick = Random.Range(0, 3);
+                        GameObject prefab = GetMonsterPrefab(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]]);
+                        if (prefab != null)
+                        {
+                            Monster temp = Instantiate(prefab).GetComponent<Monster>();
+                            dungeonData.unitList.Add(temp.UnitData);
+                            temp.Init(this, genPoints[k], saveData.currentFloor + pick);
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
-
+        
         Stair stairUp = Instantiate(GameManager.Instance.stairUpPrefab);
         stairUp.Init(this, dungeonData.rooms[dungeonData.stairRooms.Item1].center);
         dungeonData.dungeonObjectList.Add(stairUp.DungeonObjectData);
@@ -220,8 +212,12 @@ public class DungeonManager : MonoBehaviour
         {
             if (dungeonData.unitList[i].team != Team.Player)
             {
-                Monster temp = Instantiate(GameManager.Instance.testMob1Prefab);
-                temp.SetUnitData(this, dungeonData.unitList[i]);
+                GameObject prefab = GetMonsterPrefab(dungeonData.unitList[i].Key);
+                if(prefab != null)
+                {
+                    Monster temp = Instantiate(prefab).GetComponent<Monster>();
+                    temp.SetUnitData(this, dungeonData.unitList[i]);
+                }
             }
         }
         for(int i=0; i<dungeonData.dungeonObjectList.Count; i++)
@@ -230,7 +226,7 @@ public class DungeonManager : MonoBehaviour
             {
                 if (i == 0)
                 {
-                    Stair stairUp= Instantiate(GameManager.Instance.stairUpPrefab);
+                    Stair stairUp = Instantiate(GameManager.Instance.stairUpPrefab);
                     stairUp.Load(this, dungeonData.dungeonObjectList[i]);
                     map.GetElementAt(stairUp.DungeonObjectData.coord).dungeonObjects.Add(stairUp);
                 }
@@ -257,6 +253,7 @@ public class DungeonManager : MonoBehaviour
 
     void RegenerateMobs()
     {
+        SaveData saveData = GameManager.Instance.saveData;
         Room room = dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)];
         Coordinate genPoint = new(Random.Range(room.Left, room.Right), Random.Range(room.Bottom, room.Top));
         List<Coordinate> genPoints = GlobalMethods.RangeByStep(genPoint, 1);
@@ -265,7 +262,16 @@ public class DungeonManager : MonoBehaviour
             Tile tile = map.GetElementAt(genPoints[i]);
             if (tile.IsReachableTile() && !player.TilesInSight.Contains(tile.Coord))
             {
-
+                int pick = Random.Range(0, 3);
+                GameObject prefab = GetMonsterPrefab(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]]);
+                if (prefab != null)
+                {
+                    Monster temp = Instantiate(prefab).GetComponent<Monster>();
+                    dungeonData.unitList.Add(temp.UnitData);
+                    temp.Init(this, genPoints[i], saveData.currentFloor + pick);
+                    temp.MySpriteRenderer.enabled = false;
+                    temp.canvas.enabled = false;
+                }
                 break;
             }
         }
@@ -288,10 +294,10 @@ public class DungeonManager : MonoBehaviour
         }
         else
         {
-            order = 0;
-            maxOrder = 0;
-            ManageTurn();
-            dungeonData.unitList[order].Owner.StartTurn();
+            //order = 0;
+            //maxOrder = 0;
+            StartCoroutine(ManageTurn());
+            //dungeonData.unitList[order].Owner.StartTurn();
         }
     }
 
@@ -314,30 +320,75 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
-    void ManageTurn()
+    IEnumerator ManageTurn()
     {
-        //units.Sort(SortByTurn);
-        dungeonData.unitList = dungeonData.unitList.OrderBy(x => x.TurnIndicator).ToList();
- 
-        float min = dungeonData.unitList[0].TurnIndicator;
+        while (true)
+        {
+            int finished = 0;
+            for(int i=0; i<maxOrder; i++)
+            {
+                if (dungeonData.unitList[i].Owner.isAnimationFinished)
+                    finished++;
+            }
+            if (finished == maxOrder) break;
+            yield return Constants.ZeroPointOne;
+        }
 
-        int trimAmount = Mathf.FloorToInt(min);
+        order = 0;
+        maxOrder = 0;
+
+        dungeonData.unitList = dungeonData.unitList.OrderBy(x => x.TurnIndicator).ToList();
+
+        decimal min = dungeonData.unitList[0].TurnIndicator;
+
+        int trimAmount = decimal.ToInt32(decimal.Floor(min));
         min -= trimAmount;
         curTurn += trimAmount;
         Debug.Log("Turn: " + curTurn.ToString());
         for (int i = 0; i < dungeonData.unitList.Count; i++)
         {
             dungeonData.unitList[i].Owner.TrimTurn(trimAmount);
+            dungeonData.unitList[i].hpRegenCounter += trimAmount;
+            dungeonData.unitList[i].mpRegenCounter += trimAmount;
             if (dungeonData.unitList[i].TurnIndicator == min)
                 maxOrder++;
-            else break;
+        }
+        for (int i = 0; i < trimAmount; i++)
+        {
+            if (Random.value <= 0.05f) RegenerateMobs();
+        }
+
+        dungeonData.unitList[order].Owner.StartTurn();
+    }
+
+    void ManageTurnOld()
+    {
+        //units.Sort(SortByTurn);
+        dungeonData.unitList = dungeonData.unitList.OrderBy(x => x.TurnIndicator).ToList();
+ 
+        decimal min = dungeonData.unitList[0].TurnIndicator;
+
+        int trimAmount = decimal.ToInt32(decimal.Floor(min));
+        min -= trimAmount;
+        curTurn += trimAmount;
+        Debug.Log("Turn: " + curTurn.ToString());
+        for (int i = 0; i < dungeonData.unitList.Count; i++)
+        {
+            dungeonData.unitList[i].Owner.TrimTurn(trimAmount);
+            dungeonData.unitList[i].hpRegenCounter += trimAmount;
+            dungeonData.unitList[i].mpRegenCounter += trimAmount;
+            if (dungeonData.unitList[i].TurnIndicator == min)
+                maxOrder++;
+        }
+        for(int i=0; i<trimAmount; i++)
+        {
+            if (Random.value <= 0.00f) RegenerateMobs();
         }
     }
 
     public void RemoveUnit(UnitData unitData)
     {
         int index = dungeonData.unitList.IndexOf(unitData);
-        Destroy(unitData.Owner.gameObject);
         dungeonData.unitList.RemoveAt(index);
         if (index < maxOrder)
         {
@@ -427,8 +478,52 @@ public class DungeonManager : MonoBehaviour
         else return false;
     }
 
+    GameObject GetMonsterPrefab(string Key)
+    {
+
+        GameObject prefab = null;
+        if (monsterHandles.ContainsKey(Key))
+        {
+            prefab = monsterHandles[Key].Result;
+        }
+        else
+        {
+            monsterHandles.Add(Key, Addressables.LoadAssetAsync<GameObject>("Assets/Prefabs/Monsters/" + Key + ".prefab"));
+            monsterHandles[Key].WaitForCompletion();
+            if (monsterHandles[Key].Status == AsyncOperationStatus.Succeeded)
+                prefab = monsterHandles[Key].Result;
+        }
+        return prefab;
+    }
+    public EquipmentBase GetEquipmentBase(string key)
+    {
+        EquipmentBase equipment = null;
+        if (equipmentHandles.ContainsKey(key))
+            equipment = equipmentHandles[key].Result;
+        else
+        {
+            equipmentHandles.Add(key, Addressables.LoadAssetAsync<EquipmentBase>("Assets/Scriptable Objects/Equip/" + key + ".asset"));
+            equipmentHandles[key].WaitForCompletion();
+            if (equipmentHandles[key].Status == AsyncOperationStatus.Succeeded)
+                equipment = equipmentHandles[key].Result;
+        }
+        return equipment;
+    }
+
     public void TestOut()
     {
         Debug.Log("On");
+    }
+
+    private void OnDestroy()
+    {
+        foreach(KeyValuePair<string,AsyncOperationHandle<GameObject>> pair in monsterHandles)
+        {
+            Addressables.Release(pair.Value);
+        }
+        foreach(KeyValuePair<string, AsyncOperationHandle<EquipmentBase>> pair in equipmentHandles)
+        {
+            Addressables.Release(pair.Value);
+        }
     }
 }

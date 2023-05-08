@@ -21,10 +21,6 @@ MonoBehaviour:
     m_Address: Assets/Localization/Status Text Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
-  - m_GUID: 3905663668a1b6f45aaf29a38d84be3e
-    m_Address: Assets/Localization/Equipment/Equipment Name Shared Data.asset
-    m_ReadOnly: 1
-    m_SerializedLabels: []
   - m_GUID: 5ba38e32629b9f94c9dd2512edc5a163
     m_Address: Assets/Localization/Item/Item Name Shared Data.asset
     m_ReadOnly: 1
@@ -39,6 +35,10 @@ MonoBehaviour:
     m_SerializedLabels: []
   - m_GUID: 11118e47b3f479548ac1372a36a00fb0
     m_Address: Assets/Localization/Skill/Skill Text Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+  - m_GUID: 7549b02683cb6f241883a8ce6bc05078
+    m_Address: Assets/Localization/Equipment/EQUIPMENT TEXT Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
   m_ReadOnly: 1

@@ -19,10 +19,11 @@ public class UnitData
     public event EventHandler OnTurnChange;
 
     [JsonIgnore] public Unit Owner { get; private set; }
+    [JsonProperty] public string Key { get; private set; } 
     public Coordinate coord = new(0, 0);
-    [JsonProperty] private float _turnIndicator = 0;
+    [JsonProperty] private decimal _turnIndicator = 0;
     [JsonIgnore]
-    public float TurnIndicator
+    public decimal TurnIndicator
     {
         get => _turnIndicator;
         set
@@ -31,6 +32,7 @@ public class UnitData
             OnTurnChange?.Invoke();
         }
     }
+    [JsonProperty][System.NonSerialized] public List<UnitData> hostileTargets;
     public UnitData chaseTarget;
     public bool isChasingTarget = false;
     public Coordinate chaseTargetRecentCoord;
@@ -53,6 +55,7 @@ public class UnitData
     }
 
     [JsonIgnore] public UnitStat hpRegen;
+    public int hpRegenCounter = 0;
     [JsonIgnore] public UnitStat maxMp;
     [JsonProperty] private int _mp = 0;
     [JsonIgnore]
@@ -66,6 +69,7 @@ public class UnitData
         }
     }
     [JsonIgnore] public UnitStat mpRegen;
+    public int mpRegenCounter = 0;
     [JsonIgnore] public UnitStat atk;
     [JsonIgnore] public UnitStat mAtk;
     [JsonIgnore] public UnitStat atkRange;
@@ -121,6 +125,10 @@ public class UnitData
     {
         Owner = unit;
         unitBase = unit.UnitBase;
+        Key = unitBase.Key;
+
+        hostileTargets = new();
+
         team = unitBase.Team;
         maxExp = unitBase.MaxExp;
 
@@ -196,20 +204,52 @@ public class UnitData
         level++;
         IncreaseMaxExp(level);
         GrowStats(level);
+        Hp = maxHp.Total();
+        Mp = maxMp.Total();
         OnLevelChange?.Invoke();
     }
     void IncreaseMaxExp(int lv)
     {
         maxExp += (unitBase.MaxExp + lv * 5);
     }
+    public void SetStartLevel(int lv)
+    {
+        for(int i=0; i < lv; i++)
+        {
+            IncreaseLevelValue();
+        }
+    }
     void GrowStats(int lv)
     {
+        /*
         List<GrowthValue> growthTable = unitBase.GrowthTable;
         for(int i=0; i<growthTable.Count; i++)
         {
             int val = (int)(growthTable[i].amount * lv) - (int)(growthTable[i].amount * (lv - 1));
             StatTypeToUnitStat(growthTable[i].statType).original += val;
         }
+        */
+        float _maxHp = unitBase.MaxHp;
+        float _maxMp = unitBase.MaxMp;
+        float _atk = unitBase.Atk;
+        float _def = unitBase.Def;
+        float _mAtk = unitBase.MAtk;
+        float _mDef = unitBase.MDef;
+        for (int i=0; i<lv; i++)
+        {
+            _maxHp *= unitBase.GrowthRate;
+            _maxMp *= unitBase.GrowthRate;
+            _atk *= unitBase.GrowthRate;
+            _def *= unitBase.GrowthRate;
+            _mAtk *= unitBase.GrowthRate;
+            _mDef *= unitBase.GrowthRate;
+        }
+        maxHp.original = (int)_maxHp;
+        maxMp.original = (int)_maxMp;
+        atk.original = (int)_atk;
+        def.original = (int)_def;
+        mAtk.original = (int)_mAtk;
+        mDef.original = (int)_mDef;
     }
 
     public void SetStatValue(string key, StatType statType, StatValueType statValueType, int amount, bool overWrite)
@@ -314,6 +354,13 @@ public class UnitData
                 RemoveStatValue(equip.Key, equip.Stats[i].statType, StatValueType.Additional);
             else if (equip.Stats[i].statUnit == StatUnit.Percent)
                 RemoveStatValue(equip.Key, equip.Stats[i].statType, StatValueType.Percent);
+        }
+        for (int i = 0; i < equip.Potentials.Count; i++)
+        {
+            if (equip.Potentials[i].statUnit == StatUnit.Value)
+                RemoveStatValue(equip.Key, equip.Potentials[i].statType, StatValueType.Additional);
+            else if (equip.Potentials[i].statUnit == StatUnit.Percent)
+                RemoveStatValue(equip.Key, equip.Potentials[i].statType, StatValueType.Percent);
         }
     }
 

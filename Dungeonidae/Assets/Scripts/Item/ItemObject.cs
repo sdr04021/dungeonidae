@@ -20,9 +20,8 @@ public class ItemObject : MonoBehaviour
         data.owner = this;
         item.coord = Coord;
         spriteRenderer.sprite = data.Sprite;
-        //Vector2 spriteSize = new Vector2(myItem.MySprite.texture.width, myItem.MySprite.texture.height);
-        Vector2 spriteSize = new Vector2(data.Sprite.textureRect.size.x, data.Sprite.textureRect.size.y);
-        transform.localScale = new Vector2(60 / spriteSize.x, 60 / spriteSize.y);
+        //Vector2 spriteSize = new Vector2(data.Sprite.textureRect.size.x, data.Sprite.textureRect.size.y);
+        //transform.localScale = new Vector2(60 / spriteSize.x, 60 / spriteSize.y);
     }
 
     public void Bounce()

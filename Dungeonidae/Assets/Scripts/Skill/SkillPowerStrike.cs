@@ -65,17 +65,18 @@ public class SkillPowerStrike : Skill
     protected override IEnumerator SkillEffect(Coordinate coord)
     {
         Unit target = dm.GetTileByCoordinate(coord).unit;
+        owner.isAnimationFinished = false;
         float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
         yield return new WaitForSeconds(animationLength * 0.5f);
         target.GetDamage(MakeAttackData(target));
-        while (!owner.isAnimationFinished || !target.isAnimationFinished)
+        SkillData.currentCoolDown = SkillData.EffectValues[2] + 1;
+        owner.EndSkill(1);
+        while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) || !target.isHitFinished)
         {
             yield return Constants.ZeroPointOne;
         }
-        owner.isAnimationFinished = false;
-        target.isAnimationFinished = false;
-        SkillData.currentCoolDown = SkillData.EffectValues[2] + 1;
-        owner.EndSkill(1);
+        owner.MyAnimator.SetBool("Attack", false);
+        owner.isAnimationFinished = true;
     }
 
     public override void ShowTargetArea(Coordinate coord)

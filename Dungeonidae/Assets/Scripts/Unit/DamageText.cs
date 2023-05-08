@@ -9,9 +9,9 @@ public class DamageText : MonoBehaviour
     [SerializeField] TMP_Text tmpro;
     [SerializeField] RectTransform rect;
     Color healColor = new(0.5f, 1.244f, 0.5f);
-    Color expColor = new(1, 0.66f, 0.11f);
+    Color expColor = new(0.8745f, 1, 0);
     Color blockColor = new(0.5f, 0.5f, 0.5f);
-    Color criticalColor = new(0, 0, 1);
+    Color criticalColor = new(1, 0, 0);
 
     public void SetValue(int amount, DamageType damageType)
     {
@@ -29,35 +29,35 @@ public class DamageText : MonoBehaviour
 
         //if (localScaleX < 0)
         //    rect.localScale = new Vector3(-rect.localScale.x, rect.localScale.y, rect.localScale.z);
-        rect.DOAnchorPos(new Vector2(0, 75), 1);
-        tmpro.DOFade(0, 1.5f).OnComplete(DestroyThis);
+        rect.DOAnchorPos(new Vector2(0, 75), 0.75f);
+        tmpro.DOFade(0, 1).OnComplete(DestroyThis);
     }
     public void SetMiss()
     {
         tmpro.SetText("Miss");
-        rect.DOAnchorPos(new Vector2(0, 75), 1);
-        tmpro.DOFade(0, 1.5f).OnComplete(DestroyThis);
+        rect.DOAnchorPos(new Vector2(0, 75), 0.75f);
+        tmpro.DOFade(0, 1).OnComplete(DestroyThis);
     }
     public void SetBlock()
     {
         tmpro.color = blockColor;
         tmpro.SetText("Block");
-        rect.DOAnchorPos(new Vector2(0, 75), 1);
-        tmpro.DOFade(0, 1.5f).OnComplete(DestroyThis);
+        rect.DOAnchorPos(new Vector2(0, 75), 0.75f);
+        tmpro.DOFade(0, 1).OnComplete(DestroyThis);
     }
     public void SetExpValue(int amount)
     {
         tmpro.color = expColor;
         tmpro.SetText("+" + amount.ToString());
-        rect.DOAnchorPos(new Vector2(0, 75), 1);
-        tmpro.DOFade(0, 1.5f).OnComplete(DestroyThis);
+        rect.DOAnchorPos(new Vector2(0, 75), 0.75f);
+        tmpro.DOFade(0, 1).OnComplete(DestroyThis);
     }
     public void SetLevelUp()
     {
         tmpro.color = expColor;
         tmpro.SetText("Level Up");
         rect.DOAnchorPos(new Vector2(0, 75), 1);
-        tmpro.DOFade(0, 1.5f).OnComplete(DestroyThis);
+        tmpro.DOFade(0, 1.33f).OnComplete(DestroyThis);
     }
 
     void DestroyThis()

@@ -47,7 +47,7 @@ public class DungeonUIManager : MonoBehaviour
     [SerializeField] SkillUI skillUI;
 
     readonly LocalizedStringTable tableStatusText = new("Status Text");
-    readonly LocalizedStringTable tableEquipmentName = new("Equipment Name");
+    readonly LocalizedStringTable tableEquipment = new("Equipment Text");
     readonly LocalizedStringTable tableItemName = new("Item Name");
     readonly LocalizedStringTable tableItemDescription = new("Item Description");
     readonly LocalizedStringTable tableAbility = new("Ability");
@@ -369,7 +369,7 @@ public class DungeonUIManager : MonoBehaviour
 
     public string GetEquipmentName(string key)
     {
-        return tableEquipmentName.GetTable().GetEntry(key).GetLocalizedString();
+        return tableEquipment.GetTable().GetEntry(key + "_NAME").GetLocalizedString();
     }
 
     public string GetItemName(string key)

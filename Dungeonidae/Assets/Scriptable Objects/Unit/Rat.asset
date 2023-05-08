@@ -21,7 +21,7 @@ MonoBehaviour:
   <MaxMp>k__BackingField: 0
   <MpRegen>k__BackingField: 0
   <MaxHunger>k__BackingField: 100
-  <Atk>k__BackingField: 0
+  <Atk>k__BackingField: 10
   <MAtk>k__BackingField: 0
   <AtkRange>k__BackingField: 1
   <Pen>k__BackingField: 0
@@ -48,5 +48,6 @@ MonoBehaviour:
   <GrowthTable>k__BackingField:
   - statType: 0
     amount: 5
-  - statType: 0
-    amount: 0.5
+  - statType: 3
+    amount: 1
+  <GrowthRate>k__BackingField: 1.04

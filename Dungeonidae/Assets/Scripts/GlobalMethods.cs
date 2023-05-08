@@ -33,7 +33,7 @@ public class GlobalMethods
             }
             for (int j = 0; j < (2 * i); j++)
             {
-                x -= 1;
+                x += 1;
                 list.Add(startPoint.MovedCoordinate(x, y));
             }
         }

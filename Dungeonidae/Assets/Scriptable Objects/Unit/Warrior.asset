@@ -21,7 +21,7 @@ MonoBehaviour:
   <MaxMp>k__BackingField: 10
   <MpRegen>k__BackingField: 1
   <MaxHunger>k__BackingField: 100
-  <Atk>k__BackingField: 5
+  <Atk>k__BackingField: 10
   <MAtk>k__BackingField: 0
   <AtkRange>k__BackingField: 1
   <Pen>k__BackingField: 0
@@ -33,7 +33,7 @@ MonoBehaviour:
   <Proficiency>k__BackingField: 10
   <LifeSteal>k__BackingField: 0
   <ManaSteal>k__BackingField: 0
-  <Def>k__BackingField: 1
+  <Def>k__BackingField: 2
   <MDef>k__BackingField: 0
   <Eva>k__BackingField: 0
   <CoolSpeed>k__BackingField: 100
@@ -54,3 +54,4 @@ MonoBehaviour:
     amount: 2
   - statType: 4
     amount: 1
+  <GrowthRate>k__BackingField: 1.03

@@ -14,6 +14,7 @@ public class PlayerCamera : MonoBehaviour
     Vector3 lastMousePostion = new();
     bool found = false;
     bool dragging = false;
+    bool follow = true;
 
     Vector3 currentVelocity;
 
@@ -29,12 +30,44 @@ public class PlayerCamera : MonoBehaviour
         if (target != null)
         {
             targetPosition.Set(target.transform.position.x, target.transform.position.y, transform.position.z);
+
+            if (EventSystem.current.IsPointerOverGameObject()) return;
+            if(!target.Controllable&&!follow&&!dragging) follow = true;
+            cameraPostion = transform.position;
+            if (Input.GetMouseButton(2))
+            {
+                Vector3 diff = lastMousePostion - Input.mousePosition;
+                if (!dragging && (diff.magnitude > 16f))
+                {
+                    dragging = true;
+                    follow = false;
+                }
+                if (dragging)
+                    cameraPostion += (cam.ScreenToWorldPoint(lastMousePostion) - cam.ScreenToWorldPoint(Input.mousePosition));
+                cameraPostion.x = (cameraPostion.x < 0) ? 0 : cameraPostion.x;
+                cameraPostion.x = (cameraPostion.x > 100) ? 100 : cameraPostion.x;
+                cameraPostion.y = (cameraPostion.y < 0) ? 0 : cameraPostion.y;
+                cameraPostion.y = (cameraPostion.y > 100) ? 100 : cameraPostion.y;
+                transform.position = cameraPostion;
+            }
+            if (follow)
+            {
+                if (Vector2.Distance((Vector2)transform.position, (Vector2)targetPosition) > 1.5f)
+                {
+                    transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, Time.deltaTime * 30);
+                }
+                //transform.position = targetPosition;
+                //transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, Time.deltaTime*50);
+                //transform.DOMove(targetPosition, Time.deltaTime * 20);
+            }
+
+            /*
             if (found && target.Controllable)
             {
                 if (EventSystem.current.IsPointerOverGameObject()) return;
 
                 cameraPostion = transform.position;
-                if (Input.GetMouseButton(0))
+                if (Input.GetMouseButton(2))
                 {
                     Vector3 diff = lastMousePostion - Input.mousePosition;
                     if (diff.magnitude > 16f)
@@ -50,10 +83,15 @@ public class PlayerCamera : MonoBehaviour
             }
             else
             {
-                transform.position = targetPosition;
+                if (Vector2.Distance((Vector2)transform.position, (Vector2)targetPosition) > 2)
+                {
+                    transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, Time.deltaTime * 50);
+                }
+                //transform.position = targetPosition;
                 //transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, Time.deltaTime*50);
                 //transform.DOMove(targetPosition, Time.deltaTime * 20);
             }
+            */
 
             if (!EventSystem.current.IsPointerOverGameObject())
             {
@@ -65,7 +103,7 @@ public class PlayerCamera : MonoBehaviour
                     cam.orthographicSize = 40;
             }
 
-            if (Input.GetMouseButtonUp(0))
+            if (Input.GetMouseButtonUp(2))
                 dragging = false;
 
             if (!found)

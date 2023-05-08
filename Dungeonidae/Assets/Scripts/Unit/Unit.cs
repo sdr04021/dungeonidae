@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
-using Unity.VisualScripting;
+using Priority_Queue;
+using TMPro;
 
 [System.Serializable]
 abstract public class Unit : MonoBehaviour
@@ -13,12 +14,14 @@ abstract public class Unit : MonoBehaviour
     public bool Controllable { get; protected set; } = false;
     public bool IsDead { get; private set; } = false;
 
+    float walkDelay = 0.2f;
     public List<Coordinate> TilesInSight { get; protected set; } = new();
     protected bool isFollowingPath = false;
     protected Stack<Directions> path;
-    public List<Unit> UnitsInSight { get; private set; } = new();
+    [field:SerializeField] public List<Unit> UnitsInSight { get; private set; } = new();
     protected bool foundSomething = false;
-    [HideInInspector] public bool isAnimationFinished;
+    [System.NonSerialized] public bool isAnimationFinished = true;
+    [System.NonSerialized] public bool isHitFinished = true;
 
     [field: SerializeField] public  UnitBase UnitBase { get; private set; }
     public UnitData UnitData { get; private set; }
@@ -27,7 +30,13 @@ abstract public class Unit : MonoBehaviour
     [field: SerializeField] public Animator EffectAnimator { get; private set; }
     public Canvas canvas;
     [SerializeField] Image hpBarBg;
-    public Image hpBar;
+    [SerializeField] Image hpBar;
+    [SerializeField] Image mpBarBg;
+    [SerializeField] Image mpBar;
+    [SerializeField] Image lvBg;
+    [SerializeField] TMP_Text lvText;
+    [SerializeField] Image bubble;
+    [SerializeField] TMP_Text bubbleText;
     public BasicAttack BasicAttack { get; private set; }
 
     protected ItemEffectDirector itemEffectDirector;
@@ -36,6 +45,9 @@ abstract public class Unit : MonoBehaviour
 
     public Skill skill { get; protected set; }
 
+    Tweener moveTween;
+
+    RaycastHit2D[] raycastResult = new RaycastHit2D[50];
     protected virtual void Awake()
     {
         MySpriteRenderer = GetComponent<SpriteRenderer>();
@@ -51,6 +63,8 @@ abstract public class Unit : MonoBehaviour
     {
         UpdateHpBar();
         UnitData.OnHpValueChange += new UnitData.EventHandler(UpdateHpBar);
+        UpdateMpBar();
+        UnitData.OnMpValueChange += new UnitData.EventHandler(UpdateMpBar);
     }
 
     public void SetUnitData(DungeonManager dungeonManager, UnitData unitData)
@@ -60,17 +74,20 @@ abstract public class Unit : MonoBehaviour
         dm = dungeonManager;
         BasicAttack = new BasicAttack(this, dm, null);
         SetPosition();
+        UnitData.SetStartLevel(UnitData.level);
+        lvText.text = (UnitData.level + 1).ToString();
         UnitData.OnLevelChange += LevelUp;
     }
 
-    public virtual void Init(DungeonManager dungeonManager, Coordinate c)
+    public virtual void Init(DungeonManager dungeonManager, Coordinate c, int level)
     {
         dm = dungeonManager;
         BasicAttack = new BasicAttack(this, dm, null);
         UnitData.coord = c;
         SetPosition();
         UnitData.Init(this);
-        //UpdateSightArea();
+        UnitData.SetStartLevel(level);
+        if (lvText != null) lvText.text = (UnitData.level + 1).ToString();
         UnitData.OnLevelChange += LevelUp;
     }
 
@@ -80,18 +97,36 @@ abstract public class Unit : MonoBehaviour
         dm.map.GetElementAt(UnitData.coord).unit = this;
     }
 
-    public virtual void StartTurn()
+    public void StartTurn()
     {
-        UpdateSightArea();
         CheckNewInSight();
+        if (bubble.gameObject.activeSelf)
+        {
+            if (dm.Player.TilesInSight.Contains(UnitData.coord))
+                EndBubble();
+        }
+        if (UnitData.hpRegenCounter >= 10)
+        {
+            RecoverHp(UnitData.hpRegen.Total() * UnitData.hpRegenCounter / 10);
+            UnitData.hpRegenCounter = UnitData.hpRegenCounter % 10;
+        }
+        if(UnitData.mpRegenCounter >= 10)
+        {
+            RecoverMp(UnitData.mpRegen.Total() * UnitData.mpRegenCounter / 10);
+            UnitData.mpRegenCounter -= UnitData.mpRegenCounter % 10;
+        }
         if (isFollowingPath)
         {
             FollowPath();
         }
         else
         {
-            Controllable = true;
+           DecideBehavior();
         }
+    }
+    protected virtual void DecideBehavior()
+    {
+        Controllable = true;
     }
 
     public void TrimTurn(int amount)
@@ -131,12 +166,22 @@ abstract public class Unit : MonoBehaviour
 
                 if (MySpriteRenderer.enabled)
                 {
-                    float walkDelay = 0.15f;
+                    isAnimationFinished = false;
 
                     MyAnimator.SetBool("Walk", true);
-                    transform.DOMove(dest.ToVector2(), walkDelay)
-                    .SetEase(Ease.Linear)
-                    .OnComplete(EndMove);
+
+                    if (moveTween == null)
+                    {
+                        moveTween = transform.DOMove(dest.ToVector2(), walkDelay).SetRecyclable(true)
+                        .SetEase(Ease.Linear)
+                        .OnComplete(MoveAnimationEnd)
+                        .SetAutoKill(false);
+                    }
+                    else
+                    {
+                        moveTween.ChangeValues(transform.position, dest.ToVector3(0), walkDelay).Restart();
+                    }
+                    EndMove();
                 }
                 else
                 {
@@ -148,19 +193,26 @@ abstract public class Unit : MonoBehaviour
         }
         return false;
     }
-    protected virtual void EndMove()
+
+    void MoveAnimationEnd()
     {
-        UpdateSightArea();
-        if (isFollowingPath)
+        if (!isFollowingPath || (path.Count <= 0))
             MyAnimator.SetBool("Walk", false);
         if (dm.fogMap.GetElementAt(UnitData.coord.x, UnitData.coord.y).FogData.IsOn)
         {
             MySpriteRenderer.enabled = false;
             if (canvas != null) canvas.enabled = false;
         }
-        dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y).unit = this;
-        EndTurn(100f / UnitData.speed.Total());
+        isAnimationFinished = true;
     }
+    protected virtual void EndMove()
+    {
+        UpdateSightArea();
+        CheckNewInSight();
+        dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y).unit = this;
+        EndTurn(100m / UnitData.speed.Total());
+    }
+
 
     public void UpdateCoordinateFromTransform()
     {
@@ -201,15 +253,9 @@ abstract public class Unit : MonoBehaviour
         }
     }
 
-    public void EndBasicAttack()
-    {
-        MyAnimator.SetBool("Attack", false);
-        isAnimationFinished = true;
-    }
-
     public virtual void GetDamage(AttackData attackData)
     {
-        int hitChance = Mathf.Min((70 + 5 * (attackData.Attacker.UnitData.level - UnitData.level) + (attackData.Attacker.UnitData.acc.Total() - UnitData.eva.Total())));
+        int hitChance = Mathf.Min((75 + 5 * (attackData.Attacker.UnitData.level - UnitData.level) + (attackData.Attacker.UnitData.acc.Total() - UnitData.eva.Total())));
         if ((Random.Range(0, 100) + 1) > hitChance)
         {
             DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
@@ -237,30 +283,27 @@ abstract public class Unit : MonoBehaviour
                     dt.SetValue(damage, DamageType.Critical);
                 else dt.SetValue(damage, DamageType.Normal);
             }
-            MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(ToDefaultColor);
+            isHitFinished = false;
+            MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(() => { MySpriteRenderer.DOColor(Color.white, 0.2f); });
         }
 
         if (UnitData.Hp <= 0)
         {
             StartDie();
         }
-        else isAnimationFinished = true;
+        else isHitFinished = true;
     }
     protected virtual void StartDie()
     {
-        MySpriteRenderer.DOFade(0, 0.5f).OnComplete(Die);
+        MySpriteRenderer.DOFade(0, 0.5f).OnComplete(() => { Destroy(gameObject); });
+        IsDead = true;
         dm.GetTileByCoordinate(UnitData.coord).unit = null;
         if (hpBarBg != null) { hpBarBg.DOFade(0, 0.4f); }
-    }
-    void Die()
-    {
-        isAnimationFinished = true;
-        IsDead = true;
-        gameObject.SetActive(false);
-    }
-    void ToDefaultColor()
-    {
-        MySpriteRenderer.DOColor(Color.white, 0.2f);
+        if (mpBar != null) { mpBar.DOFade(0, 0.4f); }
+        if (mpBarBg != null) { mpBarBg.DOFade(0, 0.4f); }
+        if (lvBg!=null) { lvBg.DOFade(0, 0.4f); }
+        if(lvText!=null) { lvText.DOFade(0, 0.4f); }
+        isHitFinished = true;
     }
 
     public void IncreaseExp(int amount)
@@ -279,16 +322,20 @@ abstract public class Unit : MonoBehaviour
             DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
             dt.SetLevelUp();
         }
+        if (lvText != null) lvText.text = (UnitData.level + 1).ToString();
     }
 
     public void RecoverHp(int amount)
     {
-        amount = Mathf.Min(amount, UnitData.maxHp.Total() - UnitData.Hp);
-        UnitData.Hp += amount;
-        if (canvas != null)
+        if (Mathf.Min(amount, UnitData.maxHp.Total() - UnitData.Hp) >= 1)
         {
-            DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
-            dt.SetValue(amount, DamageType.Heal);
+            amount = Mathf.Min(amount, UnitData.maxHp.Total() - UnitData.Hp);
+            UnitData.Hp += amount;
+            if (canvas != null)
+            {
+                DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
+                dt.SetValue(amount, DamageType.Heal);
+            }
         }
     }
 
@@ -297,6 +344,11 @@ abstract public class Unit : MonoBehaviour
     {
         if (hpBar != null)
             hpBar.fillAmount = UnitData.Hp / (float)UnitData.maxHp.Total();
+    }
+    public void UpdateMpBar()
+    {
+        if (mpBar != null)
+            mpBar.fillAmount = UnitData.Mp / (float)UnitData.maxMp.Total();
     }
 
     public void RecoverMp(int amount)
@@ -344,7 +396,8 @@ abstract public class Unit : MonoBehaviour
                 return;
         }
         isFollowingPath = false;
-        StartTurn();
+        MyAnimator.SetBool("Walk", false);
+        DecideBehavior();
     }
     protected Directions FollowTarget(Coordinate targetCoord)
     {
@@ -355,8 +408,9 @@ abstract public class Unit : MonoBehaviour
             return aStar.Path.Pop();
     }
 
-    protected virtual void UpdateSightArea()
+    public virtual void UpdateSightArea()
     {
+        /*
         int northBound = Mathf.Min(UnitData.coord.y + UnitData.sight.Total(), dm.map.arrSize.x - 1);
         int southBound = Mathf.Max(UnitData.coord.y - UnitData.sight.Total(), 0);
         int eastBound = Mathf.Min(UnitData.coord.x + UnitData.sight.Total(), dm.map.arrSize.y - 1);
@@ -364,64 +418,156 @@ abstract public class Unit : MonoBehaviour
 
         TilesInSight.Clear();
 
-        RaycastHit2D[] hit;
-
         float rangePow = Mathf.Pow(UnitData.sight.Total() + 0.5f, 2);
         for (int i=westBound; i<=eastBound; i++)
         {
             for(int j=southBound; j<=northBound; j++)
             {
+                Vector2 dir = new Vector2(i, j) - (Vector2)transform.position;
+                RaycastHit2D hit =  Physics2D.Raycast(transform.position, dir, dir.magnitude, LayerMask.GetMask("SightBlocker"));
+                if (hit.collider == null)
+                    TilesInSight.Add(new Coordinate(i, j));
+                else if ((hit.collider.transform.position.x == i) && (hit.collider.transform.position.y == j))
+                    TilesInSight.Add(new Coordinate(i, j));
+                
                 if (Mathf.Pow((i - UnitData.coord.x), 2) + Mathf.Pow(j - UnitData.coord.y, 2) <= rangePow)
                 {
                     Vector2 dir = new Vector2(i, j) - (Vector2)transform.position;
-                    hit = Physics2D.RaycastAll(transform.position, dir, dir.magnitude, LayerMask.GetMask("Tile"));
-                    for (int k = 0; k < hit.Length; k++)
+
+                    int hits = Physics2D.RaycastNonAlloc(transform.position, dir, raycastResult, dir.magnitude, LayerMask.GetMask("Tile"));
+                    for (int k = 0; k < hits; k++)
                     {
-                        if (k == hit.Length - 1)
+                        if (k == hits - 1)
                         {
-                            Coordinate c = new(hit[k].transform.position);
+                            Coordinate c = new(raycastResult[k].transform.position);
                             TilesInSight.Add(c);
                         }
-                        else if (dm.map.GetElementAt((int)hit[k].transform.position.x, (int)hit[k].transform.position.y).IsBlockingSight())
+                        else if (dm.map.GetElementAt((int)raycastResult[k].transform.position.x, (int)raycastResult[k].transform.position.y).IsBlockingSight())
                             break;
                     }
                 }
-            }
-        }
-        /*
-        List<Coordinate> inRange = RangeByStep(UnitData.coord, UnitData.sight.Total());
-        for(int i=0; i< inRange.Count; i++)
-        {
-            if (dm.map.GetElementAt(inRange[i]).IsBlockingSight())
-            {
-                Ray2D ray = new(UnitData.coord.ToVector2(), (inRange[i] - UnitData.coord).ToVector2());
-
-                SimplePriorityQueue<Vector2> corners = new();
-                Vector2 corner = inRange[i].ToVector2() + new Vector2(0.5f, 0.5f);
-                corners.Enqueue(corner, -Vector3.Cross(ray.direction, corner - ray.origin).magnitude);
-                corner = inRange[i].ToVector2() + new Vector2(0.5f, -0.5f);
-                corners.Enqueue(corner, -Vector3.Cross(ray.direction, corner - ray.origin).magnitude);
-                corner = inRange[i].ToVector2() + new Vector2(-0.5f, -0.5f);
-                corners.Enqueue(corner, -Vector3.Cross(ray.direction, corner - ray.origin).magnitude);
-                corner = inRange[i].ToVector2() + new Vector2(-0.5f, 0.5f);
-                corners.Enqueue(corner, -Vector3.Cross(ray.direction, corner - ray.origin).magnitude);
-
-            }
-            else
-            {
-                tilesInSight.Add(inRange[i]);
+                
             }
         }
         */
-    }
 
-    void CheckNewInSight()
+        TilesInSight.Clear();
+        int sightBlockLayer = LayerMask.GetMask("SightBlocker");
+        HashSet<Coordinate> doneDir = new();
+        int sight = UnitData.sight.Total();
+        List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, sight);
+        for (int i = 0; i < inRange.Count; i++)
+        {
+            if (Coordinate.InRange(UnitData.coord, inRange[i], sight))
+            {
+                Coordinate dir = new(inRange[i].x - UnitData.coord.x, inRange[i].y - UnitData.coord.y);
+                Coordinate norm = new(dir);
+                for (int j = 50; j > 1; j--)
+                {
+                    if ((norm.x % j == 0) && (norm.y % j == 0))
+                    {
+                        norm /= j;
+                        break;
+                    }
+                }
+                if (doneDir.Contains(norm)) continue;
+                RaycastHit2D hit = Physics2D.Raycast(UnitData.coord.ToVector2(), dir.ToVector2(), dir.Magnitude(), sightBlockLayer);
+                if (hit.collider == null)
+                {
+                    TilesInSight.Add(inRange[i]);
+                }
+                else if (hit.collider.transform.position.x == inRange[i].x && hit.collider.transform.position.y == inRange[i].y)
+                {
+                    TilesInSight.Add(inRange[i]);
+                    doneDir.Add(norm);
+                }
+            }
+        }
+
+        /*
+        TilesInSight.Clear();
+        HashSet<Coordinate> doneDir = new();
+        List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, UnitData.sight.Total());
+        int tileLayer = LayerMask.GetMask("Tile");
+        for(int i=0; i<inRange.Count; i++)
+        {
+            Coordinate dir = new(inRange[i].x - UnitData.coord.x, inRange[i].y - UnitData.coord.y);
+            Coordinate norm = new(dir);
+            for (int j = 50; j > 1; j--)
+            {
+                if ((norm.x % j == 0) && (norm.y % j == 0))
+                    norm /= j;
+            }
+            if (doneDir.Contains(norm)) continue;
+
+            int hits = Physics2D.RaycastNonAlloc(transform.position, dir.ToVector2(), raycastResult, UnitData.sight.Total(), tileLayer);
+            for (int k = 0; k < hits; k++)
+            {
+                TilesInSight.Add(new(raycastResult[k].transform.position));
+                if ((k == hits - 1) || dm.map.GetElementAt((int)raycastResult[k].transform.position.x, (int)raycastResult[k].transform.position.y).IsBlockingSight())
+                {
+                    doneDir.Add(norm);
+                    break;
+                }
+            }
+        }
+        */
+
+            /*
+            TilesInSight.Clear();
+
+            float rangePow = Mathf.Pow(UnitData.sight.Total() + 0.5f, 2);
+            List<System.Tuple<Vector2, Vector2>> blockedArea = new();
+            List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, UnitData.sight.Total());
+            //Color c = Random.ColorHSV();
+            for (int i=0; i<inRange.Count; i++)
+            {
+                if (inRange[i].IsValidCoordForMap(dm.map) && ((Mathf.Pow(inRange[i].x - UnitData.coord.x, 2) + Mathf.Pow(inRange[i].y - UnitData.coord.y, 2) <= rangePow)))
+                {
+                    Vector2 point = inRange[i].ToVector2() - (Vector2)transform.position;
+
+                    bool isBlocked = false;
+                    for (int j = 0; j < blockedArea.Count; j++)
+                    {
+
+                        //if (UnitData.team == Team.Player)
+                        //{
+                            //Debug.DrawRay(transform.position, blockedArea[j].Item1, c, 10);
+                            //Debug.DrawRay(transform.position, blockedArea[j].Item2, c, 10);
+                        //}x`
+
+                        float angle1 = Vector2.SignedAngle(blockedArea[j].Item1, point);
+                        float angle2 = Vector2.SignedAngle(blockedArea[j].Item1, blockedArea[j].Item2);
+                        if ((angle1 != 0 && angle2 != 0) && (Mathf.Sign(angle1) == Mathf.Sign(angle2)) && (Mathf.Abs(angle2) > Mathf.Abs(angle1)))
+                        {
+                            isBlocked = true;
+                            break;
+                        }
+                    }
+                    if (!isBlocked)
+                        TilesInSight.Add(inRange[i]);
+                    if (dm.map.GetElementAt(inRange[i]).IsBlockingSight())
+                    {
+                        SimplePriorityQueue<Vector2> corners = new();
+                        corners.Enqueue(point + new Vector2(0.5f, 0.5f), -Vector2.Angle(point, point + new Vector2(0.5f, 0.5f)));
+                        corners.Enqueue(point + new Vector2(0.5f, -0.5f), -Vector2.Angle(point, point + new Vector2(0.5f, -0.5f)));
+                        corners.Enqueue(point + new Vector2(-0.5f, -0.5f), -Vector2.Angle(point, point + new Vector2(-0.5f, -0.5f)));
+                        corners.Enqueue(point + new Vector2(-0.5f, 0.5f), -Vector2.Angle(point, point + new Vector2(-0.5f, 0.5f)));
+
+                        blockedArea.Add(new(corners.Dequeue(), corners.Dequeue()));
+                    }
+                }
+            }
+            */
+    }
+    
+    protected void CheckNewInSight()
     {
         List<Unit> detectedUnits = new();
         for (int i = 0; i < TilesInSight.Count; i++)
         {
             Tile tile = dm.GetTileByCoordinate(TilesInSight[i]);
-            if (tile.unit != null)
+            if ((tile.unit != null) && (tile.unit != this))
                 detectedUnits.Add(tile.unit);
         }
         if (UnitsInSight.Count > 0)
@@ -435,13 +581,13 @@ abstract public class Unit : MonoBehaviour
         UnitsInSight = detectedUnits;
     }
 
-    public void EndSkill(float turnSpent)
+    public void EndSkill(decimal turnSpent)
     {
         skill = null;
         EndTurn(turnSpent);
     }
 
-    protected void EndTurn(float turnSpent)
+    protected void EndTurn(decimal turnSpent)
     {
         UnitData.TurnIndicator += turnSpent;
         Controllable = false;
@@ -452,6 +598,7 @@ abstract public class Unit : MonoBehaviour
     {
         UnitData.TurnIndicator += 1;
         Controllable = false;
+        ShowBubble("¡¤¡¤¡¤");
         dm.EndTurn();
     }
 
@@ -500,9 +647,36 @@ abstract public class Unit : MonoBehaviour
         }
     }
 
+    protected void ShowBubble(string s)
+    {
+        bubbleText.text = s;
+        if (bubble.gameObject.activeSelf)
+        {
+            bubble.DOKill();
+            bubbleText.DOKill();
+            bubble.color = Color.white;
+            bubbleText.color = Color.black;
+        }
+        else
+        {
+            bubble.gameObject.SetActive(true);
+        }
+    }
+    protected void EndBubble()
+    {
+        if (bubble.gameObject.activeSelf)
+        {
+            bubble.DOFade(0, 1).SetEase(Ease.Linear).OnComplete(() => { bubble.gameObject.SetActive(false); bubble.color = Color.white; });
+            bubbleText.DOFade(0, 1).SetEase(Ease.Linear).OnComplete(() => { bubbleText.color = Color.black; });
+        }
+    }
+
     private void OnDestroy()
     {
         MySpriteRenderer.DOKill();
         transform.DOKill();
+        moveTween.Kill();
+        bubble.DOKill();
+        bubbleText.DOKill();
     }
 }

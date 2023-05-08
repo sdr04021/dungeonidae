@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using DelaunatorSharp;
 using Priority_Queue;
+using Gists;
 
 public class MapGenerator
 {
-    int roomSeedAmount = 300;
-    int mapWidth = 50;
-    int mapHeight = 50;
+    int mapWidth = 40;
+    int mapHeight = 40;
 
     DungeonData dungeonData;
     System.Random rand;
@@ -47,55 +47,39 @@ public class MapGenerator
 
     void GenerateRooms()
     {
-        for(int i=0; i<roomSeedAmount; i++)
+        List<Vector2> poissonPoints = FastPoissonDiskSampling.Sampling(new Vector2(5, 5), new Vector2(mapWidth - 5, mapHeight - 5), 8, rand);
+        for (int i = 0; i < poissonPoints.Count; i++)
         {
-            //rooms.Add(new Room(new Coordinate(Random.Range(2, map.GetLength(0) - 2), Random.Range(2, map.GetLength(1) - 2)),10));
-            dungeonData.rooms.Add(new Room(new Coordinate(rand.Next(3, mapWidth - 3), rand.Next(3, mapHeight - 3)), rand.Next(8, 12)));
+            dungeonData.rooms.Add(new Room(new Coordinate(poissonPoints[i])));
         }
-        
-        while (true)
-        {
-            int finished = 0;
-            for (int i = dungeonData.rooms.Count - 1; i >= 0; i--)
-            {
-                if (dungeonData.rooms[i].GrowthCount > 0)
-                {
-                    dungeonData.rooms[i].Grow(rand.Next(0, 5), dungeonData.mapData);
-                    for (int j = 0; j < dungeonData.rooms.Count; j++)
-                    {
-                        if ((i != j) && CheckOverlap(dungeonData.rooms[i], dungeonData.rooms[j]))
-                        {
-                            if ((dungeonData.rooms[i].Width < 9) && (dungeonData.rooms.Count > 3))
-                            {
-                                dungeonData.rooms[j].Average(dungeonData.rooms[i]);
-                                dungeonData.rooms.RemoveAt(i);
-                            }
-                            else
-                            {
-                                dungeonData.rooms[i].ExcludeBorder();
-                                dungeonData.rooms[i].FinishGrowth();
-                                dungeonData.rooms[j].ExcludeBorder();
-                                dungeonData.rooms[j].FinishGrowth();
-                            }
-                            break;
-                        }
-                    }
-                }
-                else finished++;
-            }
-            if (finished == dungeonData.rooms.Count)
-                break;
-        }
+
 
         for (int i = dungeonData.rooms.Count - 1; i >= 0; i--)
         {
-            if ((dungeonData.rooms[i].Width < 5) || (dungeonData.rooms[i].Height<5))
+            dungeonData.rooms[i].SetSquare(2, dungeonData.mapData);
+            dungeonData.rooms[i].SetCenter();
+            if ((dungeonData.rooms[i].Width < 3) || (dungeonData.rooms[i].Height < 3))
                 dungeonData.rooms.RemoveAt(i);
-            else dungeonData.rooms[i].SetCenter();
-            if (dungeonData.rooms.Count == 3) break;
+        }
+        int count = 0;
+        while (true)
+        {
+            int finished = 0;
+            for (int i = 0; i < dungeonData.rooms.Count; i++)
+            {
+                if (dungeonData.rooms[i].FinishedGrowth)
+                    finished++;
+                else
+                    dungeonData.rooms[i].Grow(rand, dungeonData.mapData);
+            }
+            if (finished == dungeonData.rooms.Count)
+                break;
+            count++;
+            if (count >= 10000000) break;
         }
 
-        for (int i = 0; i < dungeonData.rooms.Count; i++) 
+
+        for (int i = 0; i < dungeonData.rooms.Count; i++)
         {
             for (int j = dungeonData.rooms[i].Left; j <= dungeonData.rooms[i].Right; j++)
             {
@@ -106,16 +90,42 @@ public class MapGenerator
                 }
             }
             dungeonData.rooms[i].ExcludeBorder();
-            for (int j = dungeonData.rooms[i].Left; j <= dungeonData.rooms[i].Right; j++) 
+            for (int j = dungeonData.rooms[i].Left; j <= dungeonData.rooms[i].Right; j++)
             {
-                for(int k = dungeonData.rooms[i].Bottom; k <= dungeonData.rooms[i].Top; k++)
+                for (int k = dungeonData.rooms[i].Bottom; k <= dungeonData.rooms[i].Top; k++)
                 {
                     dungeonData.mapData[j][k].tileType = TileType.Floor;
                     dungeonData.mapData[j][k].areaType = AreaType.Room;
                 }
             }
             dungeonData.rooms[i].SetEntranceCandidates(dungeonData.mapData, rand);
-            if (i == 0) dungeonData.rooms[i].LeaveOnlyOneEntranceCandidate(rand);
+            //if (i == 0) dungeonData.rooms[i].LeaveOnlyOneEntranceCandidate(rand);
+        }
+
+        for (int i = 0; i < dungeonData.rooms.Count; i++)
+        {
+            dungeonData.rooms[i].SetCenter();
+        }
+
+
+        Vector2 meanCenter = Vector2.zero;
+        for (int i = 0; i < dungeonData.rooms.Count; i++)
+        {
+            meanCenter += dungeonData.rooms[i].center.ToVector2();
+        }
+        meanCenter /= dungeonData.rooms.Count;
+        SimplePriorityQueue<Room> roomsByDist = new();
+        for (int i = 0; i < dungeonData.rooms.Count; i++)
+        {
+            roomsByDist.Enqueue(dungeonData.rooms[i], -Vector2.Distance(meanCenter, dungeonData.rooms[i].center.ToVector2()));
+        }
+
+        int amountToRemove = rand.Next(Mathf.Max(0, dungeonData.rooms.Count - 12), Mathf.Max(1, dungeonData.rooms.Count - 8));
+        while (amountToRemove > 0)
+        {
+            if (dungeonData.rooms.Count <= 3) break;
+            dungeonData.rooms.Remove(roomsByDist.Dequeue());
+            amountToRemove--;
         }
 
         /*
@@ -128,7 +138,7 @@ public class MapGenerator
                 SetPillarRoom(rooms[i]);
         }
         */
-        
+
         /*
         for(int i=0; i<rooms.Count; i++)
         {

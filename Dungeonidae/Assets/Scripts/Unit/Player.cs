@@ -2,7 +2,6 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using UnityEngine;
 
@@ -26,9 +25,9 @@ public class Player : Unit
         base.Start();
     }
 
-    public override void Init(DungeonManager dungeonManager, Coordinate c)
+    public override void Init(DungeonManager dungeonManager, Coordinate c, int level)
     {
-        base.Init(dungeonManager, c);
+        base.Init(dungeonManager, c, level);
 
         UnitData.abilityPoint += 9;
         for (int i = 0; i < GameManager.Instance.testAbility.Length; i++)
@@ -38,11 +37,8 @@ public class Player : Unit
         UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[0]), 0);
         UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[1]), 3);
         UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[2]), 4);
-    }
-
-    public override void StartTurn()
-    {
-        base.StartTurn();
+        UnitData.equipped[1] = new EquipmentData(dm.GetEquipmentBase("SHORTSWORD"));
+        UnitData.ApplyEquipStats(UnitData.equipped[1]);
     }
 
     protected override void EndMove()
@@ -51,18 +47,17 @@ public class Player : Unit
         dm.UpdateUnitRenderers();
     }
 
-    protected override void UpdateSightArea()
+    public override void UpdateSightArea()
     {
         for (int i = 0; i < TilesInSight.Count; i++)
         {
             dm.fogMap.GetElementAt(TilesInSight[i].x, TilesInSight[i].y).Cover();
         }
-
+        
         base.UpdateSightArea();
 
         for (int i = 0; i < TilesInSight.Count; i++)
         {
-            //map[clearFog[i].x, clearFog[i].y].isObserved = true;
             dm.fogMap.GetElementAt(TilesInSight[i].x, TilesInSight[i].y).Clear();
         }
     }
@@ -73,8 +68,9 @@ public class Player : Unit
         {
             foundSomething = false;
             isFollowingPath = false;
+            MyAnimator.SetBool("Walk", false);
             path.Clear();
-            StartTurn();
+            DecideBehavior();
             return;
         }
         base.FollowPath();

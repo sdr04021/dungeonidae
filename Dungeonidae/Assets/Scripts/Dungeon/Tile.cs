@@ -22,6 +22,7 @@ public class Tile : MonoBehaviour
     readonly Color transparentRed = new(1, 0, 0, 0.33f);
     readonly Color transparentBlue = new(0, 0, 1, 0.33f);
     public GameObject targetMark;
+    public GameObject sightBlocker;
 
     public void Init(DungeonManager dm, TileData tileData, int x, int y)
     {
@@ -42,7 +43,13 @@ public class Tile : MonoBehaviour
     {
         if ((TileData.tileType == TileType.Wall))
             return true;
-        else return false;
+        for(int i=0; i<dungeonObjects.Count; i++)
+        {
+            if (dungeonObjects[i].IsBlockSight)
+                return true;
+        }
+
+        return false;
     }
 
     public bool ContainsTargetableDungeonObject()
@@ -78,11 +85,14 @@ public class Tile : MonoBehaviour
         fourWays[2] = dm.map.GetElementAt(coord.x, coord.y - 1).TileData.tileType;
         fourWays[3] = dm.map.GetElementAt(coord.x - 1, coord.y).TileData.tileType;
 
-
         if (TileData.tileType == TileType.Floor)
+        {
             spriteRenderer.sprite = sprites[26];
+            sightBlocker.SetActive(false);
+        }
         else if (TileData.tileType == TileType.Wall)
         {
+            sightBlocker.SetActive(true);
             if (fourWays[0] == TileType.Wall)
             {
                 upSprite.gameObject.SetActive(false);

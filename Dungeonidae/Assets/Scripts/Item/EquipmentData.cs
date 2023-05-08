@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -36,10 +37,20 @@ public class EquipmentData : ItemData
             {
                 statType = data.stats[i].statType,
                 statUnit = data.stats[i].statUnit,
-                val = (int)(data.stats[i].val * (1 + Mathf.Pow(Random.value, 4) / 4)),
+                val = data.stats[i].val,
                 bonus = data.stats[i].bonus
             };
-            Stats.Add(stat);
+            if (i == 0)
+            {
+                stat.val = (int)(stat.val * (1 + Mathf.Pow(Random.value, 4) / 2));
+            }
+            else if(stat.val == 0)
+            {
+                stat.val = (int)(Mathf.Pow(Random.value, 4) * 5);
+            }
+
+            if (stat.val != 0)
+                Stats.Add(stat);
         }
     }
 
@@ -64,12 +75,9 @@ public class EquipmentData : ItemData
     }
     public void AddNewPotential()
     {
-        EquipmentStat eStat = new()
-        {
-            statUnit = StatUnit.Percent
-        };
+        EquipmentStat eStat = new();
+      
         int pick = Random.Range(0, 1000);
-
         switch (pick)
         {
             case <100:
@@ -282,6 +290,10 @@ public class EquipmentData : ItemData
                 }
             }
         }
+
+        if (Constants.PercentPointStats.Contains(eStat.statType))
+            eStat.statUnit = StatUnit.Value;
+        else eStat.statUnit = StatUnit.Percent;
 
         Potentials.Add(eStat);
         EquipmentData[] equipped = GameManager.Instance.saveData.playerData.equipped;

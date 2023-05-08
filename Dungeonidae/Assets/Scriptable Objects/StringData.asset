@@ -15,3 +15,12 @@ MonoBehaviour:
   <Monsters>k__BackingField:
   - JELLYLING
   - RAT
+  - BEDBUG
+  - COCKROACH
+  <EquipTier>k__BackingField:
+  - forClass:
+    - list:
+      - SWORD
+      - LONGSWORD
+      - GREATSWORD
+      - KATANA

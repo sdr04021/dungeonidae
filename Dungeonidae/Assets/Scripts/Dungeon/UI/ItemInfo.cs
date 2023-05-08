@@ -13,15 +13,10 @@ public class ItemInfo : MonoBehaviour
     [SerializeField] RectTransform content;
     [SerializeField] TMP_Text title;
     [SerializeField] TMP_Text mainText;
-    [SerializeField] TMP_Text potentialText;
-    [SerializeField] TMP_Text additionalText;
     [SerializeField] GameObject EquipButton;
     [SerializeField] GameObject UseButton;
 
     [SerializeField] ItemSlotType itemSlotType;
-
-    HashSet<StatType> percentPointStats = new() { StatType.Pen, StatType.MPen, StatType.Proficiency,StatType.Cri,StatType.CriDmg,
-            StatType.Aspd,StatType.LifeSteal,StatType.ManaSteal,StatType.Resist,StatType.CoolSpeed,StatType.Speed,StatType.DmgIncrease,StatType.DmgReduction };
 
     public int Index { get; private set; } = -1;
 
@@ -43,57 +38,55 @@ public class ItemInfo : MonoBehaviour
 
     public void ShowItemInfo(ItemData item, int index)
     {
+        mainText.text = "";
         icon.sprite = item.Sprite;
         Index = index;
-        StringBuilder equipStatusString = new();
+        StringBuilder itemString = new();
         if (item.GetType() == typeof(EquipmentData))
         {
             EquipmentData equip = (EquipmentData)item;
             title.text = inventoryUI.DunUI.GetEquipmentName(equip.Key);
             for(int i=0; i<equip.Stats.Count; i++)
             {
-                equipStatusString.Append(inventoryUI.DunUI.StatTypeToString(equip.Stats[i].statType));
-                equipStatusString.Append(" : ");
-                if (equip.Stats[i].val < 0) equipStatusString.Append("-");
-                else equipStatusString.Append("+");
-                equipStatusString.Append(equip.Stats[i].val);
-                if (equip.Stats[i].statUnit == StatUnit.Percent) equipStatusString.Append("%");
-                else if (percentPointStats.Contains(equip.Stats[i].statType)) equipStatusString.Append("%P");
-                equipStatusString.AppendLine();
+                itemString.Append(inventoryUI.DunUI.StatTypeToString(equip.Stats[i].statType));
+                itemString.Append(" : ");
+                if (equip.Stats[i].val > 0) itemString.Append("+");
+                itemString.Append(equip.Stats[i].val);
+                if (equip.Stats[i].statUnit == StatUnit.Percent) itemString.Append("%");
+                else if (Constants.PercentPointStats.Contains(equip.Stats[i].statType)) itemString.Append("%P");
+                itemString.AppendLine();
             }
-            StringBuilder equipPotentialString = new();
+            itemString.AppendLine();
+            itemString.Append("<color=#87CEEB>");
             for (int i = 0; i < equip.Potentials.Count; i++)
             {
-                equipPotentialString.Append(inventoryUI.DunUI.StatTypeToString(equip.Potentials[i].statType));
-                equipPotentialString.Append(" : ");
-                if (equip.Potentials[i].val < 0) equipPotentialString.Append("-");
-                else equipPotentialString.Append("+");
-                equipPotentialString.Append(equip.Potentials[i].val);
-                if (equip.Potentials[i].statUnit == StatUnit.Percent) equipPotentialString.Append("%");
-                else if (percentPointStats.Contains(equip.Potentials[i].statType)) equipPotentialString.Append("%P");
-                equipPotentialString.AppendLine();
+                itemString.Append(inventoryUI.DunUI.StatTypeToString(equip.Potentials[i].statType));
+                itemString.Append(" : ");
+                if (equip.Potentials[i].val > 0) itemString.Append("+");
+                itemString.Append(equip.Potentials[i].val);
+                if (equip.Potentials[i].statUnit == StatUnit.Percent) itemString.Append("%");
+                else if (Constants.PercentPointStats.Contains(equip.Potentials[i].statType)) itemString.Append("%P");
+                itemString.AppendLine();
             }
             for (int i = 0; i < 3 - equip.PotentialExp / 10; i++)
             {
-                equipPotentialString.Append("???");
-                equipPotentialString.AppendLine();
+                itemString.Append("???");
+                itemString.AppendLine();
             }
-            potentialText.text = equipPotentialString.ToString();
         }
         else if(item.GetType() == typeof(MiscData))
         {
             MiscData misc = (MiscData)item;
             title.text = inventoryUI.DunUI.GetItemName(misc.Key);
-            equipStatusString.Append(inventoryUI.DunUI.GetItemDescription(misc.Key, misc.EffectValues));
+            itemString.Append(inventoryUI.DunUI.GetItemDescription(misc.Key, misc.EffectValues));
         }
-        mainText.text = equipStatusString.ToString();
+        mainText.text = itemString.ToString();
 
         gameObject.SetActive(true);
     }
 
     public void Close()
     {
-        potentialText.text = "";
         gameObject.SetActive(false);
         if(background != null)
             background.SetActive(false);

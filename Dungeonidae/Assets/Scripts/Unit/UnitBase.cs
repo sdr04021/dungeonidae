@@ -21,7 +21,7 @@ public class UnitBase : ScriptableObject
     [field: SerializeField] public int MaxMp { get; private set; } = 0;
     [field: SerializeField] public int MpRegen { get; private set; } = 0;
     [field: SerializeField] public int MaxHunger { get; private set; } = 100;
-    [field: SerializeField] public int Atk { get; private set; } = 0;
+    [field: SerializeField] public int Atk { get; private set; } = 3;
     [field: SerializeField] public int MAtk { get; private set; } = 0;
     [field: SerializeField] public int AtkRange { get; private set; } = 1;
     [field: SerializeField] public int Pen { get; private set; } = 0;
@@ -33,7 +33,7 @@ public class UnitBase : ScriptableObject
     [field: SerializeField] public int Proficiency { get; private set; } = 0;
     [field: SerializeField] public int LifeSteal { get; private set; } = 0;
     [field: SerializeField] public int ManaSteal { get; private set; } = 0;
-    [field: SerializeField] public int Def { get; private set; } = 0;
+    [field: SerializeField] public int Def { get; private set; } = 1;
     [field: SerializeField] public int MDef { get; private set; } = 0;
     [field: SerializeField] public int Eva { get; private set; } = 0;
     [field: SerializeField] public int CoolSpeed { get; private set; } = 100;
@@ -47,4 +47,6 @@ public class UnitBase : ScriptableObject
     [field: SerializeField] public int Stealth { get; private set; } = 0;
 
     [field: SerializeField] public List<GrowthValue> GrowthTable { get; private set; }
+
+    [field: SerializeField] public float GrowthRate { get; private set; } = 1.04f;
 }

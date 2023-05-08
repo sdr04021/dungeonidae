@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Cockroach
+  m_Controller: {fileID: 9100000, guid: a6b86be3c9ed96e48b64ade10c5ee701, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: e70c4ba90ecb5814999666f2ff5abee0, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 1a0be6fda2e18c54bbd084e27e5a7d26, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 7ec0fcf8af51f6247b28b7a9066e771e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 2d76cbdfe20fcf14988838c1b0d320ac, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 0ce9fccfaa5f9ea4ca9b53b94330ff2d, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 4f5d47801833e8b468670834759e38e6, type: 2}

@@ -23,12 +23,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ko
     - Preload
-  - m_GUID: 9820b1c45e6461441ae8fd0932a3f302
-    m_Address: Equipment Name_ko
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-ko
-    - Preload
   - m_GUID: 51dde6011cc3e19428fb1d72e3be905d
     m_Address: Item Name_ko
     m_ReadOnly: 1
@@ -49,6 +43,12 @@ MonoBehaviour:
     - Preload
   - m_GUID: 9e0e92dcb1f78ff4b89045a235061c4d
     m_Address: Skill Text_ko
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko
+    - Preload
+  - m_GUID: 65eee668316e1a9499a8366043d6d078
+    m_Address: Equipment Text_ko
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ko

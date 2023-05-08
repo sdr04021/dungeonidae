@@ -8,6 +8,8 @@ public class DungeonObject : MonoBehaviour
     [field: SerializeField] public bool IsPassable { get; private set; } = false;
     [field: SerializeField] public bool IsTargetable { get; private set; } = false;
 
+    [field: SerializeField] public bool IsBlockSight { get; private set; } = false;
+
     [field: SerializeField] public bool IsAttackable { get; private set; } = false;
     [field: SerializeField] public bool IsInteractable { get; private set; } = false;
 

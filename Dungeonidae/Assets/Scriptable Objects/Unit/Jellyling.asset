@@ -16,12 +16,12 @@ MonoBehaviour:
   <Team>k__BackingField: 4
   <MaxExp>k__BackingField: 10
   <ExpCoefficient>k__BackingField: 1
-  <MaxHp>k__BackingField: 10
+  <MaxHp>k__BackingField: 30
   <HpRegen>k__BackingField: 0
   <MaxMp>k__BackingField: 0
   <MpRegen>k__BackingField: 0
   <MaxHunger>k__BackingField: 100
-  <Atk>k__BackingField: 0
+  <Atk>k__BackingField: 10
   <MAtk>k__BackingField: 0
   <AtkRange>k__BackingField: 1
   <Pen>k__BackingField: 0
@@ -30,19 +30,20 @@ MonoBehaviour:
   <Aspd>k__BackingField: 100
   <Cri>k__BackingField: 0
   <CriDmg>k__BackingField: 150
-  <Proficiency>k__BackingField: 0
+  <Proficiency>k__BackingField: 10
   <LifeSteal>k__BackingField: 0
   <ManaSteal>k__BackingField: 0
-  <Def>k__BackingField: 0
+  <Def>k__BackingField: 1
   <MDef>k__BackingField: 0
   <Eva>k__BackingField: 0
   <CoolSpeed>k__BackingField: 100
   <Resist>k__BackingField: 0
   <DmgIncrease>k__BackingField: 0
   <DmgReduction>k__BackingField: 0
-  <Speed>k__BackingField: 100
+  <Speed>k__BackingField: 50
   <Sight>k__BackingField: 5
   <Instinct>k__BackingField: 10
   <SearchRange>k__BackingField: 1
   <Stealth>k__BackingField: 0
   <GrowthTable>k__BackingField: []
+  <GrowthRate>k__BackingField: 1.04

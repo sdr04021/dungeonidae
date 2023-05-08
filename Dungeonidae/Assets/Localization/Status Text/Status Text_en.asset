@@ -122,6 +122,10 @@ MonoBehaviour:
     m_Localized: Stealth
     m_Metadata:
       m_Items: []
+  - m_Id: 13910524929814528
+    m_Localized: Hunger
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

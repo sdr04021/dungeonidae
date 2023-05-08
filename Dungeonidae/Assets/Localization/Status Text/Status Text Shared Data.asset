@@ -119,6 +119,10 @@ MonoBehaviour:
     m_Key: STEALTH
     m_Metadata:
       m_Items: []
+  - m_Id: 13910524929814528
+    m_Key: HUNGER
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
