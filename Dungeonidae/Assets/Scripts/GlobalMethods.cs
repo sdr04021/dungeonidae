@@ -39,4 +39,39 @@ public class GlobalMethods
         }
         return list;
     }
+
+    public static IEnumerable<int> AddArrays(IEnumerable<int> original, IEnumerable<int> additional)
+    {
+        var e1 = original.GetEnumerator();
+        var e2 = additional.GetEnumerator();
+
+        while (e1.MoveNext() && e2.MoveNext())
+            yield return e1.Current + e2.Current;
+    }
+    public static IEnumerable<int> AddArrays(IEnumerable<int> original, IEnumerable<int> additional, IEnumerable<int> bonus)
+    {
+        var e1 = original.GetEnumerator();
+        var e2 = additional.GetEnumerator();
+        var e3 = bonus.GetEnumerator();
+
+        while (e1.MoveNext() && e2.MoveNext() && e3.MoveNext())
+            yield return e1.Current + e2.Current + e3.Current;
+    }
+    public static IEnumerable<int> SubstractArrays(IEnumerable<int> a1, IEnumerable<int> a2)
+    {
+        var e1 = a1.GetEnumerator();
+        var e2 = a2.GetEnumerator();
+
+        while (e1.MoveNext() && e2.MoveNext())
+            yield return e1.Current - e2.Current;
+    }
+    public static IEnumerable<int> SubstractArrays(IEnumerable<int> original, IEnumerable<int> additional, IEnumerable<int> bonus)
+    {
+        var e1 = original.GetEnumerator();
+        var e2 = additional.GetEnumerator();
+        var e3 = bonus.GetEnumerator();
+
+        while (e1.MoveNext() && e2.MoveNext() && e3.MoveNext())
+            yield return e1.Current - e2.Current - e3.Current;
+    }
 }

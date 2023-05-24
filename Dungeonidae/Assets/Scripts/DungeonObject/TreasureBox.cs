@@ -4,15 +4,10 @@ using UnityEngine;
 
 public class TreasureBox : DungeonObject
 {
-    SpriteRenderer spriteRenderer;
     [SerializeField] Sprite openedSprite;
     [SerializeField] ItemType itemType;
+    [SerializeField] string KeyKey;
     int seed;
-
-    private void Awake()
-    {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-    }
 
     public void SetSeed(int seed)
     {
@@ -22,12 +17,21 @@ public class TreasureBox : DungeonObject
     public override void Interact()
     {
         UnitData playerData = GameManager.Instance.saveData.playerData;
-        for(int i=0; i<playerData.miscInventory.Count; i++)
+        if (playerData.RemoveOneMisc(KeyKey))
         {
-            if (playerData.miscInventory[i].Key=="BOX_KEY")
+            SpriteRenderer.sprite = openedSprite;
+            List<string> list = GameManager.Instance.StringData.EquipTier[0].forClass[0].list;
+            string tempKey = list[Random.Range(0, list.Count)];
+            EquipmentBase tempBase = dm.GetEquipmentBase(tempKey);
+            if (tempBase != null)
             {
-                spriteRenderer.sprite = openedSprite;
+                ItemObject itemTemp = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
+                itemTemp.Init(dm, new Coordinate((Vector2)transform.position), new EquipmentData(tempBase));
+                GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(itemTemp.Data);
+                itemTemp.Bounce();
+                dm.GetTileByCoordinate(itemTemp.Coord).items.Push(itemTemp);
             }
+            IsInteractable = false;
         }
     }
 }

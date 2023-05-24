@@ -41,7 +41,7 @@ public class SkillUI : MonoBehaviour
             {
                 SkillData skill = dm.Player.UnitData.Skills[i];
                 skillSlotIcons[i].gameObject.SetActive(true);
-                skillSlotIcons[i].sprite = skill.Sprite;
+                skillSlotIcons[i].sprite = skill.GetSprite();
                 skillSlotNames[i].gameObject.SetActive(true);
                 skillSlotNames[i].text = dunUI.GetSkillName(skill.Key);
                 skillSlotNames[i].gameObject.SetActive(true);
@@ -84,7 +84,7 @@ public class SkillUI : MonoBehaviour
         {
             SkillData skill = dm.Player.UnitData.Skills[index];
             skillIcon.gameObject.SetActive(true);
-            skillIcon.sprite = skill.Sprite;
+            skillIcon.sprite = skill.GetSprite();
             skillTitle.text = dunUI.GetSkillName(skill.Key);
             skillDescription.text = dunUI.GetSkillDescription(skill.Key);
             skillEffect.text = dunUI.GetSkillEffect(skill.Key, skill.EffectValues);

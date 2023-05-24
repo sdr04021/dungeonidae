@@ -48,7 +48,7 @@ public class BuffData
         Key = buff.key;
         Type = buff.buffType;
         Sprite = buff.sprite;
-        EffectValues = misc.EffectValues.ToList();
+        EffectValues = GameManager.Instance.GetMiscBase(misc.Key).EffectValues.ToList();
         MaxDuration = EffectValues[0];
     }
 }

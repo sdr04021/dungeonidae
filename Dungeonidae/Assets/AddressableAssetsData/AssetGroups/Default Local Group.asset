@@ -18,12 +18,12 @@ MonoBehaviour:
   m_GUID: fd16fdb4c4725124d907e0d9047a5e94
   m_SerializeEntries:
   - m_GUID: 30e3b94296de36441af983276a880c15
-    m_Address: Assets/Sprites/Skill Icons
+    m_Address: Assets/Sprites/Skill Sprites
     m_ReadOnly: 0
     m_SerializedLabels:
     - Skill Icon
   - m_GUID: bcadf9147988f034a8a48bb66a827019
-    m_Address: Assets/Sprites/Ability Icons
+    m_Address: Assets/Sprites/Ability Sprites
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: bc6aaca6c5ed5dd4088897595c8cae66
@@ -35,11 +35,19 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 8eef72de6bef06d47bff7e3f7621d6d2
-    m_Address: Assets/Prefabs/Monsters
+    m_Address: Assets/Prefabs/Monster
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: 926aaa4645a7b59409d0ada8decf92fc
     m_Address: Assets/Scriptable Objects/Equip
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 01099c2b4e08f2043806b6ed2839f76f
+    m_Address: Assets/Scriptable Objects/Misc
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: baf0911b1cdb80c4d9c6d19de1d8c475
+    m_Address: Assets/Prefabs/DungeonObject
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0

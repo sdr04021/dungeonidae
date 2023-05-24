@@ -21,7 +21,7 @@ public class Tile : MonoBehaviour
     [SerializeField] SpriteRenderer rangeIndicator;
     readonly Color transparentRed = new(1, 0, 0, 0.33f);
     readonly Color transparentBlue = new(0, 0, 1, 0.33f);
-    public GameObject targetMark;
+    public SpriteRenderer targetMark;
     public GameObject sightBlocker;
 
     public void Init(DungeonManager dm, TileData tileData, int x, int y)
@@ -34,9 +34,40 @@ public class Tile : MonoBehaviour
 
     public bool IsReachableTile()
     {
-        if ((TileData.tileType != TileType.Wall) && (unit == null))
+        if ((TileData.tileType == TileType.Wall) || unit != null)
+            return false;
+        for (int i = 0; i < dungeonObjects.Count; i++)
+        {
+            if (!dungeonObjects[i].IsPassable)
+                return false;
+        }
+        return true;
+    }
+
+    public bool IsEmptyTile()
+    {
+        if ((TileData.tileType != TileType.Wall) && (unit == null) && (dungeonObjects.Count == 0))
             return true;
         else return false;
+    }
+
+    public bool HasTargetable()
+    {
+        for (int i = 0; i < dungeonObjects.Count; i++)
+        {
+            if (dungeonObjects[i].IsTargetable())
+                return true;
+        }
+        return false;
+    }
+    public DungeonObject GetTargetable()
+    {
+        for(int i=0; i<dungeonObjects.Count; i++)
+        {
+            if (dungeonObjects[i].IsTargetable())
+                return dungeonObjects[i];
+        }
+        return null;
     }
 
     public bool IsBlockingSight()
@@ -58,7 +89,7 @@ public class Tile : MonoBehaviour
         {
             for(int i=0; i<dungeonObjects.Count; i++)
             {
-                if (dungeonObjects[i].IsTargetable)
+                if (dungeonObjects[i].IsTargetable())
                     return true;
             }
         }
@@ -80,6 +111,15 @@ public class Tile : MonoBehaviour
         Sprite[] sprites = dm.FirstTile;
         TileType[] fourWays = new TileType[4];
 
+        spriteRenderer.sortingOrder = 1000 - (10 * coord.y);
+        if (TileData.tileType == TileType.Wall)
+        {
+            spriteRenderer.sortingOrder += (int)LayerOrder.TopWall;
+            upSprite.sortingOrder = spriteRenderer.sortingOrder;
+            downSprite.sortingOrder = 1000 - (10 * (coord.y - 1)) + (int)LayerOrder.BottomWall;
+        }
+        else spriteRenderer.sortingOrder = (int)LayerOrder.Floor;
+
         fourWays[0] = dm.map.GetElementAt(coord.x, coord.y + 1).TileData.tileType;
         fourWays[1] = dm.map.GetElementAt(coord.x + 1, coord.y).TileData.tileType;
         fourWays[2] = dm.map.GetElementAt(coord.x, coord.y - 1).TileData.tileType;
@@ -87,7 +127,23 @@ public class Tile : MonoBehaviour
 
         if (TileData.tileType == TileType.Floor)
         {
-            spriteRenderer.sprite = sprites[26];
+            //if (TileData.seed % 3 == 1)
+            //    spriteRenderer.sprite = dm.FirstFloor[0];
+            //else spriteRenderer.sprite = dm.FirstFloor[1];
+
+            if ((coord.x + coord.y) % 2 == 0)
+            {
+                if (TileData.seed % 10 <= 8)
+                    spriteRenderer.sprite = dm.FirstFloor[0];
+                else spriteRenderer.sprite = dm.FirstFloor[2];
+            }
+            else
+            {
+                if (TileData.seed % 10 <= 8)
+                    spriteRenderer.sprite = dm.FirstFloor[1];
+                else spriteRenderer.sprite = dm.FirstFloor[3];
+            }
+
             sightBlocker.SetActive(false);
         }
         else if (TileData.tileType == TileType.Wall)
@@ -183,6 +239,8 @@ public class Tile : MonoBehaviour
             }
 
         }
+        rangeIndicator.sortingOrder = 1000 - (10 * coord.y) + 10 + (int)LayerOrder.Fog;
+        targetMark.sortingOrder = 1000 - (10 * coord.y) + 10 + (int)LayerOrder.Fog;
     }
 
     /*
@@ -286,6 +344,6 @@ public class Tile : MonoBehaviour
     public void TurnOffRangeIndicator()
     {
         rangeIndicator.gameObject.SetActive(false);
-        targetMark.SetActive(false);
+        targetMark.gameObject.SetActive(false);
     }
 }

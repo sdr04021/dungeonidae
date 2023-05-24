@@ -23,14 +23,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ko
     - Preload
-  - m_GUID: 51dde6011cc3e19428fb1d72e3be905d
-    m_Address: Item Name_ko
-    m_ReadOnly: 1
-    m_SerializedLabels:
-    - Locale-ko
-    - Preload
   - m_GUID: e71c078907e4c5248a5f2ca9d8e77482
-    m_Address: Item Description_ko
+    m_Address: Misc Item Text_ko
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ko

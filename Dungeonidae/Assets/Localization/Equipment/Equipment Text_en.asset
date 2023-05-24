@@ -16,10 +16,11 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: 7549b02683cb6f241883a8ce6bc05078, type: 2}
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 8956448524568100866
   m_TableData:
   - m_Id: 43963637760
-    m_Localized: Shortsword
+    m_Localized: Wooden Sword
     m_Metadata:
       m_Items: []
   - m_Id: 83943743488
@@ -38,6 +39,39 @@ MonoBehaviour:
     m_Localized: Katana
     m_Metadata:
       m_Items: []
+  - m_Id: 6103569576673280
+    m_Localized: Rapier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9037594649870336
+    m_Localized: Worn wooden shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9044639440617472
+    m_Localized: '{0.0}% chance to block an enemy attack.'
+    m_Metadata:
+      m_Items:
+      - rid: 8956448524568100866
+  - m_Id: 9092750011711488
+    m_Localized: Wooden Shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9100916069941248
+    m_Localized: Leather Helmet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9103478844211200
+    m_Localized: Leather Shoes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9106396557262848
+    m_Localized: Leather Armor
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 8956448524568100866
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 00c0fa380d222000

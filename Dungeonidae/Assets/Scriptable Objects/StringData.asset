@@ -23,4 +23,13 @@ MonoBehaviour:
       - SWORD
       - LONGSWORD
       - GREATSWORD
-      - KATANA
+      - RAPIER
+      - WOODEN_SHIELD
+      - LEATHER_HELMET
+      - LEATHER_SHOES
+      - LEATHER_ARMOR
+  <MiscItems>k__BackingField:
+  - POTION_HEAL
+  - SCROLL_TELEPORT
+  - SCROLL_EQUIPMENT_ENCHANT
+  - SCROLL_ARTIFACT_ENCHANT

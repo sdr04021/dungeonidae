@@ -37,7 +37,7 @@ public class MapGenerator
             List<FogData> tempFog = new();
             for (int j = 0; j < mapHeight; j++)
             {
-                temp.Add(new TileData());
+                temp.Add(new TileData(rand.Next()));
                 tempFog.Add(new FogData());
             }
             dungeonData.mapData.Add(temp);

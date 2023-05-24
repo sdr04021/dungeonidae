@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Misc Item Text Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: Misc Item Text
+  m_TableCollectionNameGuidString: fa3b565c563690b4d8c79c0baa30fd64
+  m_Entries:
+  - m_Id: 37136023552
+    m_Key: POTION_HEAL_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15846458405863424
+    m_Key: POTION_HEAL_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15847361686978560
+    m_Key: SCROLL_TELEPORT_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15847393337196544
+    m_Key: SCROLL_TELEPORT_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15879408111501312
+    m_Key: SCROLL_EQUIPMENT_ENCHANT_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15879455188369408
+    m_Key: SCROLL_EQUIPMENT_ENCHANT_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15887928240291840
+    m_Key: SCROLL_ARTIFACT_ENCHANT_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15887929184010240
+    m_Key: SCROLL_ARTIFACT_ENCHANT_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16107848676851712
+    m_Key: KEY_BOX_RED_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16108073403465728
+    m_Key: KEY_BOX_RED_DESC
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 3135477887864143874
+  references:
+    version: 2
+    RefIds:
+    - rid: 3135477887864143874
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1679751186249

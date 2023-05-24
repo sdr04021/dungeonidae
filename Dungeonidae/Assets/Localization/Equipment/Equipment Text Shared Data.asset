@@ -16,7 +16,7 @@ MonoBehaviour:
   m_TableCollectionNameGuidString: 7549b02683cb6f241883a8ce6bc05078
   m_Entries:
   - m_Id: 43963637760
-    m_Key: SHORTSWORD_NAME
+    m_Key: WOODEN_SWORD_NAME
     m_Metadata:
       m_Items: []
   - m_Id: 83943743488
@@ -33,6 +33,34 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 133348450304
     m_Key: KATANA_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6103569576673280
+    m_Key: RAPIER_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9037594649870336
+    m_Key: WORN_WOODEN_SHIELD_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9044639440617472
+    m_Key: ABILITY_BLOCK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9092750011711488
+    m_Key: WOODEN_SHIELD_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9100916069941248
+    m_Key: LEATHER_HELMET_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9103478844211200
+    m_Key: LEATHER_SHOES_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9106396557262848
+    m_Key: LEATHER_ARMOR_NAME
     m_Metadata:
       m_Items: []
   m_Metadata:

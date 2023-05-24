@@ -240,4 +240,9 @@ public class Room
         Entrances.Clear();
         Entrances.Add(left);
     }
+
+    public Coordinate PickRandomCordinate()
+    {
+        return new Coordinate(Random.Range(Left, Right + 1), Random.Range(Bottom, Top + 1));
+    }
 }

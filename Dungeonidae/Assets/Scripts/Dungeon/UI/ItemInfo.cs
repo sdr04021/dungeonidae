@@ -15,6 +15,9 @@ public class ItemInfo : MonoBehaviour
     [SerializeField] TMP_Text mainText;
     [SerializeField] GameObject EquipButton;
     [SerializeField] GameObject UseButton;
+    [SerializeField] GameObject enchantButton;
+    [SerializeField] TMP_Text enchantButtonText;
+
 
     [SerializeField] ItemSlotType itemSlotType;
 
@@ -39,19 +42,38 @@ public class ItemInfo : MonoBehaviour
     public void ShowItemInfo(ItemData item, int index)
     {
         mainText.text = "";
-        icon.sprite = item.Sprite;
         Index = index;
         StringBuilder itemString = new();
         if (item.GetType() == typeof(EquipmentData))
         {
             EquipmentData equip = (EquipmentData)item;
-            title.text = inventoryUI.DunUI.GetEquipmentName(equip.Key);
+            StringBuilder titleString = new();
+            if (equip.Enchant > 0)
+            {
+                titleString.Append("(+");
+                titleString.Append(equip.Enchant);
+                titleString.Append(") ");
+            }
+            titleString.Append(inventoryUI.DunUI.GetEquipmentName(equip.Key));
+            title.text = titleString.ToString();
+            icon.sprite = GameManager.Instance.GetSprite(SpriteAssetType.Equipment, equip.Key);
             for(int i=0; i<equip.Stats.Count; i++)
             {
                 itemString.Append(inventoryUI.DunUI.StatTypeToString(equip.Stats[i].statType));
                 itemString.Append(" : ");
                 if (equip.Stats[i].val > 0) itemString.Append("+");
-                itemString.Append(equip.Stats[i].val);
+                if (equip.Stats[i].bonus > 0)
+                    itemString.Append("<color=#FFEA00>");
+                itemString.Append(equip.Stats[i].val + equip.Stats[i].bonus);
+                if (equip.Stats[i].bonus > 0)
+                {
+                    itemString.Append("<color=#FFFFFF>");
+                    itemString.Append("(");
+                    itemString.Append(equip.Stats[i].val);
+                    itemString.Append("+");
+                    itemString.Append(equip.Stats[i].bonus);
+                    itemString.Append(")");
+                }
                 if (equip.Stats[i].statUnit == StatUnit.Percent) itemString.Append("%");
                 else if (Constants.PercentPointStats.Contains(equip.Stats[i].statType)) itemString.Append("%P");
                 itemString.AppendLine();
@@ -73,14 +95,51 @@ public class ItemInfo : MonoBehaviour
                 itemString.Append("???");
                 itemString.AppendLine();
             }
+            EquipmentBase equipBase = GameManager.Instance.GetEquipmentBase(equip.Key);
+            if (equipBase.abilities?.Length > 0)
+            {
+                itemString.AppendLine();
+                itemString.Append("<color=#00BFFF>");
+                for (int i = 0; i < equipBase.abilities.Length; i++)
+                {
+                    itemString.Append("¡¤ ");
+                    if (equipBase.abilities[i].vals?.Count > 0)
+                    {
+                        if (i == 0)
+                        {
+                            List<int> temp = new();
+                            for (int j = 0; j < equipBase.abilities[i].vals.Count; j++)
+                            {
+                                temp.Add(equipBase.abilities[i].vals[j] + equip.EquipmentAblitiyBonus[j]);
+                            }
+                            itemString.Append(inventoryUI.DunUI.GetEquipmentAbilitiy(equipBase.abilities[i].key, temp));
+                        }
+                        else
+                            itemString.Append(inventoryUI.DunUI.GetEquipmentAbilitiy(equipBase.abilities[i].key, equipBase.abilities[i].vals));
+                    }
+                    else
+                    {
+                        itemString.Append(inventoryUI.DunUI.GetEquipmentAbilitiy(equipBase.abilities[i].key));
+                    }
+                    itemString.AppendLine();
+                }
+                itemString.Append("<color=#FFFFFF>");
+            }
         }
         else if(item.GetType() == typeof(MiscData))
         {
             MiscData misc = (MiscData)item;
             title.text = inventoryUI.DunUI.GetItemName(misc.Key);
-            itemString.Append(inventoryUI.DunUI.GetItemDescription(misc.Key, misc.EffectValues));
+            icon.sprite = GameManager.Instance.GetSprite(SpriteAssetType.Misc, misc.Key);
+            itemString.Append(inventoryUI.DunUI.GetItemDescription(misc.Key, GameManager.Instance.GetMiscBase(misc.Key).EffectValues));
         }
         mainText.text = itemString.ToString();
+
+        if(inventoryUI.IsArtifactEnchantMode || inventoryUI.IsEquipmentEnchantMode)
+        {
+            enchantButton.SetActive(true);
+        }
+        else enchantButton.SetActive(false);
 
         gameObject.SetActive(true);
     }
@@ -111,5 +170,22 @@ public class ItemInfo : MonoBehaviour
     public void Btn_ThrowClick()
     {
         inventoryUI.ThrowItem(Index, itemSlotType);
+    }
+    public void Btn_EnchantClick()
+    {
+        if (itemSlotType == ItemSlotType.Equipped)
+        {
+            GameManager.Instance.saveData.playerData.equipped[Index].EnchantEquipment();
+        }
+        else if(itemSlotType == ItemSlotType.Item)
+        {
+            GameManager.Instance.saveData.playerData.equipInventory[Index].EnchantEquipment();
+        }
+        if(inventoryUI.IsEquipmentEnchantMode)
+            GameManager.Instance.saveData.playerData.RemoveOneMisc("SCROLL_EQUIPMENT_ENCHANT");
+        else if(inventoryUI.IsArtifactEnchantMode)
+            GameManager.Instance.saveData.playerData.RemoveOneMisc("SCROLL_ARTIFACT_ENCHANT");
+        inventoryUI.CancelEnchantMode();
+        inventoryUI.Refresh();
     }
 }

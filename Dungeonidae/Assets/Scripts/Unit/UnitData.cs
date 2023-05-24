@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
@@ -105,6 +106,7 @@ public class UnitData
         }
     }
     [JsonIgnore] public UnitStat stealth;
+    [JsonIgnore] public Dictionary<string, int[]> EquipAbilities { get; private set; } = new();
 
     public Dictionary<string,AbilityData> abilities = new();
     public int abilityPoint = 0;
@@ -334,9 +336,9 @@ public class UnitData
         for(int i=0; i<equip.Stats.Count; i++)
         {
             if (equip.Stats[i].statUnit == StatUnit.Value)
-                SetStatValue(equip.Key, equip.Stats[i].statType, StatValueType.Additional, equip.Stats[i].val, false);
+                SetStatValue(equip.Key, equip.Stats[i].statType, StatValueType.Additional, equip.Stats[i].val + equip.Stats[i].bonus, false);
             else if (equip.Stats[i].statUnit == StatUnit.Percent)
-                SetStatValue(equip.Key, equip.Stats[i].statType, StatValueType.Percent, equip.Stats[i].val, false);
+                SetStatValue(equip.Key, equip.Stats[i].statType, StatValueType.Percent, equip.Stats[i].val + equip.Stats[i].bonus, false);
         }
         for (int i = 0; i < equip.Potentials.Count; i++)
         {
@@ -344,6 +346,25 @@ public class UnitData
                 SetStatValue(equip.Key, equip.Potentials[i].statType, StatValueType.Additional, equip.Potentials[i].val, false);
             else if (equip.Potentials[i].statUnit == StatUnit.Percent)
                 SetStatValue(equip.Key, equip.Potentials[i].statType, StatValueType.Percent, equip.Potentials[i].val, false);
+        }
+        EquipmentBase equipBase = GameManager.Instance.GetEquipmentBase(equip.Key);
+        if (equipBase.abilities?.Length > 0)
+        {
+            for(int i=0; i<equipBase.abilities.Length; i++)
+            {
+                if (equipBase.abilities[i].vals?.Count > 0)
+                {
+                    if (EquipAbilities.ContainsKey(equipBase.abilities[i].key))
+                        EquipAbilities[equipBase.abilities[i].key] = GlobalMethods.AddArrays(EquipAbilities[equipBase.abilities[i].key], equipBase.abilities[i].vals, equip.EquipmentAblitiyBonus).ToArray();
+                    else EquipAbilities.Add(equipBase.abilities[i].key, equipBase.abilities[i].vals.ToArray());
+                }
+                else
+                {
+                    if (EquipAbilities.ContainsKey(equipBase.abilities[i].key))
+                        EquipAbilities[equipBase.abilities[i].key][0]++;
+                    else EquipAbilities.Add(equipBase.abilities[i].key, new int[] {1});
+                }
+            }
         }
     }
     public void RemoveEquipStats(EquipmentData equip)
@@ -361,6 +382,19 @@ public class UnitData
                 RemoveStatValue(equip.Key, equip.Potentials[i].statType, StatValueType.Additional);
             else if (equip.Potentials[i].statUnit == StatUnit.Percent)
                 RemoveStatValue(equip.Key, equip.Potentials[i].statType, StatValueType.Percent);
+        }
+        EquipmentBase equipBase = GameManager.Instance.GetEquipmentBase(equip.Key);
+        if (equipBase.abilities?.Length > 0)
+        {
+            for (int i = 0; i < equipBase.abilities.Length; i++)
+            {
+                if (equipBase.abilities[i].vals?.Count > 0)
+                    EquipAbilities[equipBase.abilities[i].key] = GlobalMethods.SubstractArrays(EquipAbilities[equipBase.abilities[i].key], equipBase.abilities[i].vals, equip.EquipmentAblitiyBonus).ToArray();
+                else
+                    EquipAbilities[equipBase.abilities[i].key][0]--;
+                if (EquipAbilities[equipBase.abilities[i].key][0] == 0)
+                    EquipAbilities.Remove(equipBase.abilities[i].key);
+            }
         }
     }
 
@@ -480,7 +514,7 @@ public class UnitData
     {
         for (int i = miscInventory.Count - 1; i >= 0; i--)
         {
-            if ((miscInventory[i].Key == misc.Key) && (misc.Amount < misc.MaxStack))
+            if ((miscInventory[i].Key == misc.Key) && (misc.Amount < GameManager.Instance.GetMiscBase(misc.Key).MaxStack))
             {
                 if (misc.Amount <= (miscInventory[i].AmountLeft))
                 {
@@ -510,5 +544,19 @@ public class UnitData
         miscInventory[index].AddAmount(-1);
         if (miscInventory[index].Amount <= 0)
             miscInventory.RemoveAt(index);
+    }
+    public bool RemoveOneMisc(string key)
+    {
+        int index;
+        for (int i = miscInventory.Count - 1; i >= 0; i--)
+        {
+            if (miscInventory[i].Key == key)
+            {
+                index = i;
+                RemoveOneMisc(index);
+                return true;
+            }
+        }
+        return false;
     }
 }

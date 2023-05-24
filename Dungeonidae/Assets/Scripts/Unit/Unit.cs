@@ -19,7 +19,7 @@ abstract public class Unit : MonoBehaviour
     protected bool isFollowingPath = false;
     protected Stack<Directions> path;
     [field:SerializeField] public List<Unit> UnitsInSight { get; private set; } = new();
-    protected bool foundSomething = false;
+    public bool FoundSomething { get; protected set; } = false;
     [System.NonSerialized] public bool isAnimationFinished = true;
     [System.NonSerialized] public bool isHitFinished = true;
 
@@ -28,6 +28,7 @@ abstract public class Unit : MonoBehaviour
     public SpriteRenderer MySpriteRenderer { get; private set; }
     public Animator MyAnimator { get; private set; }
     [field: SerializeField] public Animator EffectAnimator { get; private set; }
+    SpriteRenderer effectRenderer;
     public Canvas canvas;
     [SerializeField] Image hpBarBg;
     [SerializeField] Image hpBar;
@@ -37,6 +38,8 @@ abstract public class Unit : MonoBehaviour
     [SerializeField] TMP_Text lvText;
     [SerializeField] Image bubble;
     [SerializeField] TMP_Text bubbleText;
+
+    [SerializeField] SpriteRenderer shadow;
     public BasicAttack BasicAttack { get; private set; }
 
     protected ItemEffectDirector itemEffectDirector;
@@ -52,6 +55,7 @@ abstract public class Unit : MonoBehaviour
     {
         MySpriteRenderer = GetComponent<SpriteRenderer>();
         MyAnimator = GetComponent<Animator>();
+        effectRenderer = EffectAnimator.GetComponent<SpriteRenderer>();
         //map = GameManager.Instance.dungeonManager.map;
         UnitData = new();
         itemEffectDirector = new ItemEffectDirector(this);
@@ -65,6 +69,11 @@ abstract public class Unit : MonoBehaviour
         UnitData.OnHpValueChange += new UnitData.EventHandler(UpdateHpBar);
         UpdateMpBar();
         UnitData.OnMpValueChange += new UnitData.EventHandler(UpdateMpBar);
+        if (MySpriteRenderer.enabled)
+        {
+            MySpriteRenderer.color = Constants.Transparent;
+            MySpriteRenderer.DOFade(1.0f, 1);
+        }
     }
 
     public void SetUnitData(DungeonManager dungeonManager, UnitData unitData)
@@ -95,6 +104,48 @@ abstract public class Unit : MonoBehaviour
     {
         transform.position = dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y).transform.position;
         dm.map.GetElementAt(UnitData.coord).unit = this;
+        SetSortingOrder();
+    }
+
+    void SetSortingOrder(bool complete = true)
+    {
+        int baseOrder = 1000 - (10 * UnitData.coord.y);
+        if (complete)
+        {
+            MySpriteRenderer.sortingOrder = baseOrder + (int)LayerOrder.Unit;
+            if (shadow != null) shadow.sortingOrder = baseOrder;
+            canvas.sortingOrder = baseOrder + 10 + (int)LayerOrder.Canvas;
+            effectRenderer.sortingOrder = baseOrder + 10 + (int)LayerOrder.Canvas;
+            
+        }
+        else
+        {
+            MySpriteRenderer.sortingOrder = baseOrder + (int)LayerOrder.DungeonObject;
+            if (shadow != null) shadow.sortingOrder = baseOrder;
+            canvas.sortingOrder = baseOrder + 10 + (int)LayerOrder.Canvas;
+            effectRenderer.sortingOrder = baseOrder + 10 + (int)LayerOrder.Canvas;
+        }
+    }
+
+    public void Teleportation()
+    {
+        List<Coordinate> coords = new();
+        for(int i=1; i<dm.map.arrSize.x - 1; i++)
+        {
+            for(int j=1; j<dm.map.arrSize.y - 1; j++)
+            {
+                if (dm.map.GetElementAt(i, j).IsReachableTile())
+                {
+                    coords.Add(new Coordinate(i, j));
+                }
+            }
+        }
+        if (coords.Count <= 0) return;
+        dm.map.GetElementAt(UnitData.coord).unit = null;
+        UnitData.coord = coords[Random.Range(0, coords.Count)];
+        SetPosition();
+        UpdateSightArea();
+        CheckNewInSight();
     }
 
     public void StartTurn()
@@ -155,17 +206,20 @@ abstract public class Unit : MonoBehaviour
             {
                 Controllable = false;
 
-                if (!dm.fogMap.GetElementAt(dest.x, dest.y).FogData.IsOn)
+                if (!dm.fogMap.GetElementAt(dest.x, dest.y).IsOn)
                 {
                     MySpriteRenderer.enabled = true;
                     if (canvas != null) canvas.enabled = true;
                 }
 
                 dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y).unit = null;
-                UnitData.coord = dest;
+                UnitData.coord = dest;                   
 
                 if (MySpriteRenderer.enabled)
                 {
+                    if ((direction == Directions.SE) || (direction == Directions.S) || (direction == Directions.SW))
+                        SetSortingOrder(false);
+
                     isAnimationFinished = false;
 
                     MyAnimator.SetBool("Walk", true);
@@ -186,6 +240,7 @@ abstract public class Unit : MonoBehaviour
                 else
                 {
                     transform.position = dm.map.GetElementAt(dest.x, dest.y).transform.position;
+                    SetSortingOrder();
                     EndMove();
                 }
                 return true;
@@ -198,18 +253,22 @@ abstract public class Unit : MonoBehaviour
     {
         if (!isFollowingPath || (path.Count <= 0))
             MyAnimator.SetBool("Walk", false);
-        if (dm.fogMap.GetElementAt(UnitData.coord.x, UnitData.coord.y).FogData.IsOn)
+        /*
+        if (dm.fogMap.GetElementAt(UnitData.coord.x, UnitData.coord.y).IsOn)
         {
             MySpriteRenderer.enabled = false;
             if (canvas != null) canvas.enabled = false;
         }
+        */
         isAnimationFinished = true;
+        SetSortingOrder();
     }
     protected virtual void EndMove()
     {
         UpdateSightArea();
         CheckNewInSight();
-        dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y).unit = this;
+        Tile tile = dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y);
+        tile.unit = this;
         EndTurn(100m / UnitData.speed.Total());
     }
 
@@ -255,11 +314,21 @@ abstract public class Unit : MonoBehaviour
 
     public virtual void GetDamage(AttackData attackData)
     {
-        int hitChance = Mathf.Min((75 + 5 * (attackData.Attacker.UnitData.level - UnitData.level) + (attackData.Attacker.UnitData.acc.Total() - UnitData.eva.Total())));
+        int hitChance = Mathf.Min((85 + 5 * (attackData.Attacker.UnitData.level - UnitData.level) + (attackData.Attacker.UnitData.acc.Total() - UnitData.eva.Total())));
         if ((Random.Range(0, 100) + 1) > hitChance)
         {
-            DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
-            dt.SetMiss();
+            if (MySpriteRenderer.enabled) {
+                DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
+                dt.SetMiss();
+            }
+        }
+        else if (UnitData.EquipAbilities.ContainsKey("BLOCK") && (Random.Range(0, 100) < UnitData.EquipAbilities["BLOCK"][0]))
+        {
+            if (MySpriteRenderer.enabled)
+            {
+                DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
+                dt.SetBlock();
+            }
         }
         else
         {
@@ -276,15 +345,19 @@ abstract public class Unit : MonoBehaviour
             if (stolenHp > 0) attackData.Attacker.RecoverHp(stolenHp);
             if (stolenMp > 0) attackData.Attacker.RecoverMp(stolenMp);
 
-            if (canvas != null)
+            if (MySpriteRenderer.enabled)
             {
-                DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
-                if (attackData.IsCritical)
-                    dt.SetValue(damage, DamageType.Critical);
-                else dt.SetValue(damage, DamageType.Normal);
+                if (canvas != null)
+                {
+                    DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
+                    if (attackData.IsCritical)
+                        dt.SetValue(damage, DamageType.Critical);
+                    else dt.SetValue(damage, DamageType.Normal);
+                }
+                MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(() => { MySpriteRenderer.DOColor(Color.white, 0.2f); });
+                hpBar.DOFade(0.5f, 0.2f).SetEase(Ease.OutCirc).OnComplete(() => { hpBar.DOFade(1, 0.2f).SetEase(Ease.OutCirc); });
             }
             isHitFinished = false;
-            MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(() => { MySpriteRenderer.DOColor(Color.white, 0.2f); });
         }
 
         if (UnitData.Hp <= 0)
@@ -308,7 +381,7 @@ abstract public class Unit : MonoBehaviour
 
     public void IncreaseExp(int amount)
     {
-        if (canvas != null)
+        if (canvas != null && MySpriteRenderer.enabled)
         {
             DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
             dt.SetExpValue(amount);
@@ -317,7 +390,7 @@ abstract public class Unit : MonoBehaviour
     }
     public void LevelUp()
     {
-        if (canvas != null)
+        if (canvas != null && MySpriteRenderer.enabled)
         {
             DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
             dt.SetLevelUp();
@@ -331,7 +404,7 @@ abstract public class Unit : MonoBehaviour
         {
             amount = Mathf.Min(amount, UnitData.maxHp.Total() - UnitData.Hp);
             UnitData.Hp += amount;
-            if (canvas != null)
+            if (canvas != null && MySpriteRenderer.enabled)
             {
                 DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
                 dt.SetValue(amount, DamageType.Heal);
@@ -401,7 +474,7 @@ abstract public class Unit : MonoBehaviour
     }
     protected Directions FollowTarget(Coordinate targetCoord)
     {
-        AStar aStar = new(dm.map, UnitData.coord, targetCoord, dm.fogMap);
+        AStar aStar = (UnitData.team == Team.Player) ? new(dm.map, UnitData.coord, targetCoord, dm.fogMap) : new(dm.map, UnitData.coord, targetCoord, null);
         if (aStar.Path.Count == 0)
             return Directions.NONE;
         else
@@ -575,7 +648,7 @@ abstract public class Unit : MonoBehaviour
             for (int i = 0; i < detectedUnits.Count; i++)
             {
                 if (!UnitsInSight.Contains(detectedUnits[i]))
-                    foundSomething = true;
+                    FoundSomething = true;
             }
         }
         UnitsInSight = detectedUnits;
@@ -589,6 +662,7 @@ abstract public class Unit : MonoBehaviour
 
     protected void EndTurn(decimal turnSpent)
     {
+        FoundSomething = false;
         UnitData.TurnIndicator += turnSpent;
         Controllable = false;
         dm.EndTurn();
@@ -678,5 +752,6 @@ abstract public class Unit : MonoBehaviour
         moveTween.Kill();
         bubble.DOKill();
         bubbleText.DOKill();
+        hpBar.DOKill();
     }
 }

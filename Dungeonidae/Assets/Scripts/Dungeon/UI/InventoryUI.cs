@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using System.Linq;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -25,6 +27,10 @@ public class InventoryUI : MonoBehaviour
     int accPlanToEquipIndex = -1;
     [SerializeField] GameObject itemInfoBg;
     [SerializeField] ItemInfo itemInfo;
+    public bool IsEquipmentEnchantMode { get; private set; } = false;
+    public bool IsArtifactEnchantMode { get; private set; } = false;
+    [SerializeField] GameObject InventoryNotice;
+    [SerializeField] TMP_Text InventoryNoticeText;
 
     Color halfTransparentWhite = new(1, 1, 1, 0.5f);
 
@@ -61,6 +67,7 @@ public class InventoryUI : MonoBehaviour
     public void Btn_EquipmentTabClicked()
     {
         CloseInfoBox();
+        CloseEquippedINfo();
         UpdateEquipInventory();
         itemInfo.SetEquipmentMode();
         equipmentTabButton.color = Color.white;
@@ -72,6 +79,7 @@ public class InventoryUI : MonoBehaviour
     {
         CloseInfoBox();
         CloseEquippedINfo();
+        if (IsEquipmentEnchantMode || IsArtifactEnchantMode) CancelEnchantMode();
         UpdateMiscInventory();
         itemInfo.SetItemMode();
         miscTabButton.color = Color.white;
@@ -164,7 +172,7 @@ public class InventoryUI : MonoBehaviour
 
         EquipmentData equip = dm.Player.UnitData.equipInventory[index];
 
-        if (equip.EquipmentType != EquipmentType.Accessory)
+        if (equip.EquipmentType != EquipmentType.Artifact)
         {
             if (dm.Player.UnitData.equipped[(int)equip.EquipmentType] == null)
                 dm.Player.EquipEquipment(index, (int)equip.EquipmentType);
@@ -207,8 +215,17 @@ public class InventoryUI : MonoBehaviour
     public void UseItem(int index)
     {
         CloseInfoBox();
-        dm.Player.UseItem(index);
-        dunUI.CloseMenuCanvas();
+        CloseEquippedINfo();
+        string key = GameManager.Instance.saveData.playerData.miscInventory[index].Key;
+        if (key == "SCROLL_EQUIPMENT_ENCHANT")
+            SetEnchantMode(false);
+        else if (key == "SCROLL_ARTIFACT_ENCHANT")
+            SetEnchantMode(true);
+        else
+        {
+            dm.Player.UseItem(index);
+            dunUI.CloseMenuCanvas();
+        }
     }
     public void DropItem(int index, ItemSlotType itemSlotType)
     {
@@ -238,4 +255,92 @@ public class InventoryUI : MonoBehaviour
 
         dunUI.CloseMenuCanvas();
     }
+    public void SetEnchantMode(bool isArtifact)
+    {
+        InventoryNotice.SetActive(true);
+        Btn_EquipmentTabClicked();
+        if (isArtifact)
+        {
+            IsArtifactEnchantMode = true;
+            for(int i=0; i<equipmentSlots.Count; i++)
+            {
+                if (i < GameManager.Instance.saveData.playerData.equipInventory.Count)
+                {
+                    if (GameManager.Instance.saveData.playerData.equipInventory[i].EquipmentType != EquipmentType.Artifact)
+                    {
+                        equipmentSlots[i].SetCurtain();
+                    }
+                }
+                else equipmentSlots[i].SetCurtain();
+            }
+            for(int i=0; i<5; i++)
+            {
+                equippedSlots[i].SetCurtain();
+            }
+        }
+        else
+        {
+            IsEquipmentEnchantMode = true;
+            for (int i = 0; i < equipmentSlots.Count; i++)
+            {
+                if (i < GameManager.Instance.saveData.playerData.equipInventory.Count)
+                {
+                    if (GameManager.Instance.saveData.playerData.equipInventory[i].EquipmentType == EquipmentType.Artifact)
+                    {
+                        equipmentSlots[i].SetCurtain();
+                    }
+                }
+                else equipmentSlots[i].SetCurtain();
+            }
+            for (int i = 5; i < 9; i++)
+            {
+                equippedSlots[i].SetCurtain();
+            }
+        }
+    }
+    public void CancelEnchantMode()
+    {
+        InventoryNotice.SetActive(false);
+        CloseInfoBox();
+        CloseEquippedINfo();
+        if (IsArtifactEnchantMode)
+        {
+            IsArtifactEnchantMode = false;
+            for (int i = 0; i < equipmentSlots.Count; i++)
+            {
+                if (i < GameManager.Instance.saveData.playerData.equipInventory.Count)
+                {
+                    if (GameManager.Instance.saveData.playerData.equipInventory[i].EquipmentType != EquipmentType.Artifact)
+                    {
+                        equipmentSlots[i].RemoveCurtain();
+                    }
+                }
+                else equipmentSlots[i].RemoveCurtain();
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                equippedSlots[i].RemoveCurtain();
+            }
+        }
+        else if (IsEquipmentEnchantMode)
+        {
+            IsEquipmentEnchantMode = false;
+            for (int i = 0; i < equipmentSlots.Count; i++)
+            {
+                if (i < GameManager.Instance.saveData.playerData.equipInventory.Count)
+                {
+                    if (GameManager.Instance.saveData.playerData.equipInventory[i].EquipmentType == EquipmentType.Artifact)
+                    {
+                        equipmentSlots[i].RemoveCurtain();
+                    }
+                }
+                else equipmentSlots[i].RemoveCurtain();
+            }
+            for (int i = 5; i < 9; i++)
+            {
+                equippedSlots[i].RemoveCurtain();
+            }
+        }
+    }
+    
 }

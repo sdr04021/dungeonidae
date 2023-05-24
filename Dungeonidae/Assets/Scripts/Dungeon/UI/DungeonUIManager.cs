@@ -48,8 +48,7 @@ public class DungeonUIManager : MonoBehaviour
 
     readonly LocalizedStringTable tableStatusText = new("Status Text");
     readonly LocalizedStringTable tableEquipment = new("Equipment Text");
-    readonly LocalizedStringTable tableItemName = new("Item Name");
-    readonly LocalizedStringTable tableItemDescription = new("Item Description");
+    readonly LocalizedStringTable tableMiscItem = new("Misc Item Text");
     readonly LocalizedStringTable tableAbility = new("Ability");
     readonly LocalizedStringTable tableSkill = new("Skill Text");
 
@@ -174,7 +173,7 @@ public class DungeonUIManager : MonoBehaviour
                 skillShortcutButtons[i].icon.gameObject.SetActive(false);
             else
             {
-                skillShortcutButtons[i].icon.sprite = dm.Player.UnitData.Skills[i].Sprite;
+                skillShortcutButtons[i].icon.sprite = dm.Player.UnitData.Skills[i].GetSprite();
                 skillShortcutButtons[i].icon.gameObject.SetActive(true);
             }
         }
@@ -261,7 +260,9 @@ public class DungeonUIManager : MonoBehaviour
         if(tile.items.Count > 0)
         {
             interactIcon.gameObject.SetActive(true);
-            interactIcon.sprite = tile.items.Peek().data.Sprite;
+            //interactIcon.sprite = tile.items.Peek().data.Sprite;
+            ItemObject topItem = tile.items.Peek();
+            interactIcon.sprite = topItem.DataType == typeof(MiscData) ? GameManager.Instance.GetSprite(SpriteAssetType.Misc, topItem.Data.Key) : GameManager.Instance.GetSprite(SpriteAssetType.Equipment, topItem.Data.Key);
             return;
         }
         else if(tile.dungeonObjects.Count > 0)
@@ -371,18 +372,25 @@ public class DungeonUIManager : MonoBehaviour
     {
         return tableEquipment.GetTable().GetEntry(key + "_NAME").GetLocalizedString();
     }
-
+    public string GetEquipmentAbilitiy(string key)
+    {
+        return tableEquipment.GetTable().GetEntry("ABILITY_" + key).GetLocalizedString();
+    }
+    public string GetEquipmentAbilitiy(string key, List<int> values)
+    {
+        return tableEquipment.GetTable().GetEntry("ABILITY_" + key).GetLocalizedString(values);
+    }
     public string GetItemName(string key)
     {
-        return tableItemName.GetTable().GetEntry(key).GetLocalizedString();
+        return tableMiscItem.GetTable().GetEntry(key + "_NAME").GetLocalizedString();
     }
 
     public string GetItemDescription(string key, int[] values)
     {
         if (values.Length > 0)
-            return tableItemDescription.GetTable().GetEntry(key).GetLocalizedString(values);
+            return tableMiscItem.GetTable().GetEntry(key + "_DESC").GetLocalizedString(values);
         else
-            return tableItemDescription.GetTable().GetEntry(key).GetLocalizedString();
+            return tableMiscItem.GetTable().GetEntry(key + "_DESC").GetLocalizedString();
     }
 
     public string GetAbilityName(string key)

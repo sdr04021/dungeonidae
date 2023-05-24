@@ -30,7 +30,7 @@ public class SkillPowerStrike : Skill
         {
             for (int j = owner.UnitData.coord.y - 1; j <= owner.UnitData.coord.y + 1; j++)
             {
-                if (dm.IsValidIndexForMap(i, j) && (!dm.fogMap.GetElementAt(i, j).FogData.IsOn))
+                if (dm.IsValidIndexForMap(i, j) && (!dm.fogMap.GetElementAt(i, j).IsOn))
                 {
                     Tile tile = dm.map.GetElementAt(i, j);
                     if ((tile.TileData.tileType == TileType.Floor) && (tile.Coord != owner.UnitData.coord))
@@ -83,12 +83,12 @@ public class SkillPowerStrike : Skill
     {
         for(int i = 0; i<targetArea.Count; i++)
         {
-            dm.GetTileByCoordinate(targetArea[i]).targetMark.SetActive(false);
+            dm.GetTileByCoordinate(targetArea[i]).targetMark.gameObject.SetActive(false);
         }
         targetArea = SetTargetArea(coord);
         for (int i = 0; i < targetArea.Count; i++)
         {
-            dm.GetTileByCoordinate(targetArea[i]).targetMark.SetActive(true);
+            dm.GetTileByCoordinate(targetArea[i]).targetMark.gameObject.SetActive(true);
         }
     }
 

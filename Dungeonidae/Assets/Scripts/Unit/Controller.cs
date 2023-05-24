@@ -9,6 +9,7 @@ public class Controller : MonoBehaviour
 
     Vector3 lastMousePostion = new();
     bool mouseDragged = false;
+    float SPressedTime = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -102,18 +103,30 @@ public class Controller : MonoBehaviour
                 player.CancelBasicAttack();
             }
         }
-        else if (Input.GetKeyDown(KeyCode.S))
+        else if (Input.GetKey(KeyCode.S))
         {
             if (player.Controllable)
             {
-                player.SkipTurn();
+                if ((SPressedTime > 2)&&(!player.FoundSomething))
+                {
+                    player.SkipTurn();
+                }
+                else
+                {
+                    if (Input.GetKeyDown(KeyCode.S))
+                        player.SkipTurn();
+                    SPressedTime += Time.deltaTime;
+                }
+
             }
         }
+        else if (Input.GetKeyUp(KeyCode.S))
+            SPressedTime = 0;
         else if (Input.GetKeyUp(KeyCode.D))
         {
             if (player.Controllable)
             {
-                player.LootItem();
+                player.Interact();
             }
         }
         else if (Input.GetKeyDown(KeyCode.Q))

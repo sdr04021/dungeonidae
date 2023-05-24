@@ -9,23 +9,15 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 public class MiscData : ItemData
 {
     [JsonProperty]
-    public int[] EffectValues { get; private set; }
-
-    [JsonProperty]
-    public int MaxStack { get; private set; }
-
-    [JsonProperty]
     public int Amount { get; private set; }
 
     [JsonIgnore]
-    public int AmountLeft { get => (MaxStack - Amount); }
+    public int AmountLeft { get => (GameManager.Instance.GetMiscBase(Key).MaxStack - Amount); }
 
     public MiscData() { }
 
     public MiscData(MiscBase misc, int amount) : base(misc)
     {
-        EffectValues = misc.EffectValues;
-        MaxStack = misc.MaxStack;
         Amount = amount;
     }
 
@@ -34,11 +26,8 @@ public class MiscData : ItemData
         Amount += amount;
     }
 
-    protected override void LoadItemIcon()
+    public override Sprite GetSprite()
     {
-        loadHandle = Addressables.LoadAssetAsync<Sprite>("Assets/Sprites/Misc Sprites/" + Key + ".png");
-        loadHandle.WaitForCompletion();
-        if (loadHandle.Status == AsyncOperationStatus.Succeeded)
-            Sprite = loadHandle.Result;
+        return GameManager.Instance.GetSprite(SpriteAssetType.Misc, Key);
     }
 }

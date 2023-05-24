@@ -11,24 +11,6 @@ public class AbilityData
     [JsonProperty]
     public string Key { get; private set; }
 
-    Sprite _sprite;
-    [JsonIgnore]
-    public Sprite Sprite
-    {
-        get
-        {
-            if (_sprite == null)
-            {
-                LoadAbilityIcon();
-            }
-            return _sprite;
-        }
-        private set
-        {
-            _sprite = value;
-        }
-    }
-
     [JsonProperty]
     public int[] EffectValues { get; private set; }
 
@@ -49,12 +31,9 @@ public class AbilityData
         if (Level < 3) Level++;
     }
 
-    void LoadAbilityIcon()
+    public Sprite GetSprite()
     {
-        loadHandle = Addressables.LoadAssetAsync<Sprite>("Assets/Sprites/Ability Icons/" + Key + ".png");
-        loadHandle.WaitForCompletion();
-        if (loadHandle.Status == AsyncOperationStatus.Succeeded)
-            Sprite = loadHandle.Result;
+       return GameManager.Instance.GetSprite(SpriteAssetType.Ability, Key);
     }
 
     ~AbilityData()

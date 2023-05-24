@@ -109,7 +109,9 @@ public class AStar
         Coordinate neighbor = now + new Coordinate(direction);
         if ((neighbor.IsValidCoordForMap(map)) && (map.GetElementAt(neighbor.x, neighbor.y).TileData.areaType != AreaType.Border)) 
         {
-            if (!map.GetElementAt(neighbor.x, neighbor.y).IsReachableTile() || !fogMap.GetElementAt(neighbor.x, neighbor.y).FogData.IsObserved)
+            if (!map.GetElementAt(neighbor.x, neighbor.y).IsReachableTile())
+                return;
+            if ((fogMap != null) && !fogMap.GetElementAt(neighbor.x, neighbor.y).IsObserved)
                 return;
 
             int G = gTable[now] + 1;

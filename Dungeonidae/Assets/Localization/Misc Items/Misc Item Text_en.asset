@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Misc Item Text_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: fa3b565c563690b4d8c79c0baa30fd64, type: 2}
+  m_Metadata:
+    m_Items:
+    - rid: 3135477887864143875
+  m_TableData:
+  - m_Id: 37136023552
+    m_Localized: Potion of Healing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15846458405863424
+    m_Localized: Restores {0.0} HP
+    m_Metadata:
+      m_Items:
+      - rid: 3135477887864143875
+  - m_Id: 15847361686978560
+    m_Localized: Scroll of Teleportation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15847393337196544
+    m_Localized: Teleports to a random location in the floor.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15879408111501312
+    m_Localized: Scroll of Enchant Equipment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15879455188369408
+    m_Localized: This scroll will enchant your equipment.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15887928240291840
+    m_Localized: Scroll of Enchant Artifact
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15887929184010240
+    m_Localized: This scroll will enchant your artifact.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16107848676851712
+    m_Localized: Red Box Key
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16108073403465728
+    m_Localized: The key needed to open the locked red box.
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 3135477887864143875
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 00c03a1c454c3800

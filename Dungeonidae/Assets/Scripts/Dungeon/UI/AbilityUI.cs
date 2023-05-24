@@ -61,7 +61,7 @@ public class AbilityUI : MonoBehaviour
             abilityIcon.gameObject.SetActive(true);
             AbilityData ability = abilities[index];
             abilityTitle.text = DunUI.GetAbilityName(ability.Key);
-            abilityIcon.sprite = ability.Sprite;
+            abilityIcon.sprite = ability.GetSprite();
             abilityDescription.text = DunUI.GetAbilityDescription(ability.Key);
             abilityEffect.text = DunUI.GetAbilityEffect(ability.Key, ability.EffectValues);
             SetCurrentLevel(ability);

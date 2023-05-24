@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Misc Item Text_ko
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: ko
+  m_SharedData: {fileID: 11400000, guid: fa3b565c563690b4d8c79c0baa30fd64, type: 2}
+  m_Metadata:
+    m_Items:
+    - rid: 3135477887864143876
+  m_TableData:
+  - m_Id: 37136023552
+    m_Localized: "\uD68C\uBCF5 \uD3EC\uC158"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15846458405863424
+    m_Localized: "HP\uB97C {0.0} \uD68C\uBCF5\uD55C\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 3135477887864143876
+  - m_Id: 15847361686978560
+    m_Localized: "\uACF5\uAC04\uC774\uB3D9 \uC8FC\uBB38\uC11C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15847393337196544
+    m_Localized: "\uCE35 \uC548\uC758 \uB79C\uB364\uD55C \uC704\uCE58\uB85C \uC21C\uAC04\uC774\uB3D9\uD55C\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15879408111501312
+    m_Localized: "\uC7A5\uBE44 \uAC15\uD654 \uC8FC\uBB38\uC11C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15879455188369408
+    m_Localized: "\uC7A5\uBE44\uB97C \uAC15\uD654\uD55C\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15887928240291840
+    m_Localized: "\uC544\uD2F0\uD329\uD2B8 \uAC15\uD654 \uC8FC\uBB38\uC11C\t"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15887929184010240
+    m_Localized: "\uC544\uD2F0\uD329\uD2B8\uB97C \uAC15\uD654\uD55C\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16107848676851712
+    m_Localized: "\uBE68\uAC04\uC0C9 \uC0C1\uC790 \uC5F4\uC1E0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16108073403465728
+    m_Localized: "\uC7A0\uAE34 \uBE68\uAC04\uC0C9 \uC0C1\uC790\uB97C \uC5F4 \uB54C
+      \uD544\uC694\uD55C \uC5F4\uC1E0."
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 3135477887864143876
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 00c03a1c454c3800

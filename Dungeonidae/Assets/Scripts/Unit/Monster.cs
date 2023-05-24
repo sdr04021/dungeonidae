@@ -111,6 +111,7 @@ public class Monster : Unit
 
     public void LookAround()
     {
+        CheckNewInSight();
         for(int i=0; i<UnitsInSight.Count; i++)
         {
             if (IsAggressive&&IsHostileUnit(UnitsInSight[i]) && !UnitData.hostileTargets.Contains(UnitsInSight[i].UnitData))
@@ -121,6 +122,7 @@ public class Monster : Unit
             {
                 UnitData.chaseTarget = UnitsInSight[i].UnitData;
                 UnitData.isChasingTarget = true;
+                FlipSprite(UnitData.chaseTarget.coord);
                 ShowBubble("!");
                 return;
             }
@@ -161,18 +163,26 @@ public class Monster : Unit
             {
                 ItemObject itemTemp = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
                 itemTemp.Init(dm, new Coordinate((Vector2)transform.position), new EquipmentData(tempBase));
-                GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(itemTemp.data);
+                GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(itemTemp.Data);
                 itemTemp.Bounce();
                 dm.GetTileByCoordinate(itemTemp.Coord).items.Push(itemTemp);
             }
         }
         if (Random.Range(0, 2) == 0)
         {
+            int pick = Random.Range(0, GameManager.Instance.StringData.MiscItems.Count);
             ItemObject item = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
-            item.Init(dm, new Coordinate((Vector2)transform.position), new MiscData(GameManager.Instance.testItem, 1));
-            GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(item.data);
+            item.Init(dm, new Coordinate((Vector2)transform.position), new MiscData(GameManager.Instance.GetMiscBase(GameManager.Instance.StringData.MiscItems[pick]), 1));
+            GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(item.Data);
             item.Bounce();
             dm.GetTileByCoordinate(item.Coord).items.Push(item);
         }
+        /*
+        ItemObject testItem = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
+        testItem.Init(dm, new Coordinate((Vector2)transform.position), new MiscData(GameManager.Instance.GetMiscBase("SCROLL_EQUIPMENT_ENCHANT"), 99));
+        GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(testItem.Data);
+        testItem.Bounce();
+        dm.GetTileByCoordinate(testItem.Coord).items.Push(testItem);
+        */
     }
 }

@@ -28,12 +28,18 @@ public class BasicAttack : Skill
         {
             for (int j = owner.UnitData.coord.y - range; j <= owner.UnitData.coord.y + range; j++)
             {
-                if (dm.IsValidIndexForMap(i, j) && (!dm.fogMap.GetElementAt(i,j).FogData.IsOn))
+                if (dm.IsValidIndexForMap(i, j) && (!dm.fogMap.GetElementAt(i, j).IsOn))
                 {
                     Tile tile = dm.map.GetElementAt(i, j);
                     if ((tile.TileData.tileType == TileType.Floor) && (tile.Coord != owner.UnitData.coord))
                     {
                         if ((tile.unit != null) && (owner.IsHostileUnit(tile.unit)))
+                        {
+                            if (showRange)
+                                tile.SetAvailable();
+                            AvailableTilesInRange.Add(tile.Coord);
+                        }
+                        else if (owner.UnitData.coord.IsTargetInRange(tile.Coord,1) && tile.HasTargetable())
                         {
                             if (showRange)
                                 tile.SetAvailable();
@@ -55,8 +61,16 @@ public class BasicAttack : Skill
     {
         ResetTilesInRange();
         owner.FlipSprite(coord);
-        owner.MyAnimator.SetBool("Attack", true);
-        owner.StartCoroutine(SkillEffect(coord));
+        if (dm.map.GetElementAt(coord).unit != null)
+        {
+            owner.MyAnimator.SetBool("Attack", true);
+            owner.StartCoroutine(SkillEffect(coord));
+        }
+        else
+        {
+            dm.map.GetElementAt(coord).GetTargetable().TargetedInteraction();
+            owner.EndSkill(1);
+        }
     }
 
     protected override IEnumerator SkillEffect(Coordinate coord)
@@ -70,7 +84,7 @@ public class BasicAttack : Skill
         owner.EndSkill(100m / owner.UnitData.aspd.Total());
         while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) || !target.isHitFinished)
         {
-            yield return Constants.ZeroPointOne;
+            yield return Constants.ZeroPointZeroOne;
         }
         owner.MyAnimator.SetBool("Attack", false);
         owner.isAnimationFinished = true;
@@ -80,12 +94,12 @@ public class BasicAttack : Skill
     {
         for (int i = 0; i < targetArea.Count; i++)
         {
-            dm.GetTileByCoordinate(targetArea[i]).targetMark.SetActive(false);
+            dm.GetTileByCoordinate(targetArea[i]).targetMark.gameObject.SetActive(false);
         }
         targetArea = SetTargetArea(coord);
         for (int i = 0; i < targetArea.Count; i++)
         {
-            dm.GetTileByCoordinate(targetArea[i]).targetMark.SetActive(true);
+            dm.GetTileByCoordinate(targetArea[i]).targetMark.gameObject.SetActive(true);
         }
     }
 
@@ -103,6 +117,11 @@ public class BasicAttack : Skill
 
     public override Coordinate? SelectTargetAutomatically()
     {
+        for (int i = 0; i < AvailableTilesInRange.Count; i++)
+        {
+            if (dm.map.GetElementAt(AvailableTilesInRange[i]).unit!=null)
+                return AvailableTilesInRange[i];
+        }
         return AvailableTilesInRange[0];
     }
 

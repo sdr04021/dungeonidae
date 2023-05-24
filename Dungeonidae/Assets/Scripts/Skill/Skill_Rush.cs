@@ -33,7 +33,7 @@ public class Skill_Rush : Skill
         {
             for (int j = owner.UnitData.coord.y - SkillData.EffectValues[1]; j <= owner.UnitData.coord.y + SkillData.EffectValues[1]; j++)
             {
-                if (dm.IsValidIndexForMap(i, j) && (!dm.fogMap.GetElementAt(i, j).FogData.IsOn))
+                if (dm.IsValidIndexForMap(i, j) && (!dm.fogMap.GetElementAt(i, j).IsOn))
                 {
                     Vector2 dir = new Vector2(i, j) - (Vector2)owner.transform.position;
                     hit = Physics2D.RaycastAll(owner.transform.position, dir, dir.magnitude, LayerMask.GetMask("Tile"));
@@ -94,12 +94,12 @@ public class Skill_Rush : Skill
     {
         for (int i = 0; i < targetArea.Count; i++)
         {
-            dm.GetTileByCoordinate(targetArea[i]).targetMark.SetActive(false);
+            dm.GetTileByCoordinate(targetArea[i]).targetMark.gameObject.SetActive(false);
         }
         targetArea = SetTargetArea(coord);
         for (int i = 0; i < targetArea.Count; i++)
         {
-            dm.GetTileByCoordinate(targetArea[i]).targetMark.SetActive(true);
+            dm.GetTileByCoordinate(targetArea[i]).targetMark.gameObject.SetActive(true);
         }
     }
 

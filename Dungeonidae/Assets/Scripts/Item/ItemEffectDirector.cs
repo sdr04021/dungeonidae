@@ -16,8 +16,11 @@ public class ItemEffectDirector
     {
         switch (misc.Key)
         {
-            case "RED_POTION":
-                owner.RecoverHp(misc.EffectValues[0]);
+            case "POTION_HEAL":
+                owner.RecoverHp(GameManager.Instance.GetMiscBase(misc.Key).EffectValues[0]);
+                return true;
+            case "SCROLL_TELEPORT":
+                owner.Teleportation();
                 return true;
             default: 
                 throw new NotImplementedException();

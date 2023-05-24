@@ -7,6 +7,7 @@ using DG.Tweening;
 public class PlayerCamera : MonoBehaviour
 {
     public Player target;
+    bool recentControllable = false;
     Vector3 cameraPostion;
     Vector3 targetPosition = new();
     Camera cam;
@@ -32,7 +33,7 @@ public class PlayerCamera : MonoBehaviour
             targetPosition.Set(target.transform.position.x, target.transform.position.y, transform.position.z);
 
             if (EventSystem.current.IsPointerOverGameObject()) return;
-            if(!target.Controllable&&!follow&&!dragging) follow = true;
+            if(!target.Controllable&&recentControllable&&!follow&&!dragging) follow = true;
             cameraPostion = transform.position;
             if (Input.GetMouseButton(2))
             {
@@ -52,7 +53,7 @@ public class PlayerCamera : MonoBehaviour
             }
             if (follow)
             {
-                if (Vector2.Distance((Vector2)transform.position, (Vector2)targetPosition) > 1.5f)
+                if (Vector2.Distance((Vector2)transform.position, (Vector2)targetPosition) > 0.3f * cam.orthographicSize)
                 {
                     transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, Time.deltaTime * 30);
                 }
@@ -111,6 +112,7 @@ public class PlayerCamera : MonoBehaviour
                 transform.position = targetPosition;
                 found = true;
             }
+            recentControllable = target.Controllable;
         }
         else
         {

@@ -445,7 +445,7 @@ MonoBehaviour:
   upSprite: {fileID: 4353041297361145134}
   downSprite: {fileID: 5729758983368335011}
   rangeIndicator: {fileID: 4429593124887579016}
-  targetMark: {fileID: 2808734006613821364}
+  targetMark: {fileID: 5132035114345771658}
   sightBlocker: {fileID: 8609880821663013178}
 --- !u!61 &2258597122319795948
 BoxCollider2D:

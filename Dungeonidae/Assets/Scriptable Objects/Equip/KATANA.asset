@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: KATANA
   m_EditorClassIdentifier: 
   <Key>k__BackingField: KATANA
-  <Price>k__BackingField: 0
+  <Price>k__BackingField: 10
   equipmentType: 1
   stats:
   - statType: 3

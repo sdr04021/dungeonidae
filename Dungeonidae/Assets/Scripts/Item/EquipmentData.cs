@@ -25,6 +25,9 @@ public class EquipmentData : ItemData
     [JsonProperty]
     public int PotentialExp { get; private set; } = 0;
 
+    [JsonProperty]
+    public List<int> EquipmentAblitiyBonus { get; private set; } = new();
+
     public EquipmentData() { }
 
     public EquipmentData(EquipmentBase data) : base (data)
@@ -52,14 +55,14 @@ public class EquipmentData : ItemData
             if (stat.val != 0)
                 Stats.Add(stat);
         }
-    }
 
-    protected override void LoadItemIcon()
-    {
-        loadHandle = Addressables.LoadAssetAsync<Sprite>("Assets/Sprites/Equipment Sprites/" + Key + ".png");
-        loadHandle.WaitForCompletion();
-        if (loadHandle.Status == AsyncOperationStatus.Succeeded)
-            Sprite = loadHandle.Result;
+        if (data.abilities?.Length > 0)
+        {
+            for(int i=0; i<data.abilities[0].vals.Count; i++)
+            {
+                EquipmentAblitiyBonus.Add(0);
+            }
+        }
     }
 
     public void GainPotentialExp()
@@ -90,10 +93,10 @@ public class EquipmentData : ItemData
                 eStat.val = 3;
                 break;
             case < 900:
-                eStat.val = 2;
+                eStat.val = 4;
                 break;
             case < 1000:
-                eStat.val = 1;
+                eStat.val = 5;
                 break;
         }
 
@@ -306,5 +309,42 @@ public class EquipmentData : ItemData
                 break;
             }
         }
+    }
+
+    public void EnchantEquipment()
+    {
+        Enchant++;
+        if (EquipmentType == EquipmentType.Artifact)
+        {
+
+        }
+        else
+        {
+            Stats[0].bonus += (int)(Stats[0].val * 0.25m);
+        }
+        EquipmentBase equipBase = GameManager.Instance.GetEquipmentBase(Key);
+        if (equipBase.abilities?.Length > 0)
+        {
+            for (int i = 0; i < equipBase.abilities[0].vals.Count; i++)
+            {
+                EquipmentAblitiyBonus[i] += equipBase.abilities[0].increments[i];
+            }
+        }
+
+        EquipmentData[] equipped = GameManager.Instance.saveData.playerData.equipped;
+        for (int i = 0; i < equipped.Length; i++)
+        {
+            if (equipped[i] == this)
+            {
+                GameManager.Instance.saveData.playerData.RemoveEquipStats(this);
+                GameManager.Instance.saveData.playerData.ApplyEquipStats(this);
+                break;
+            }
+        }
+    }
+
+    public override Sprite GetSprite()
+    {
+        return GameManager.Instance.GetSprite(SpriteAssetType.Equipment, Key);
     }
 }
