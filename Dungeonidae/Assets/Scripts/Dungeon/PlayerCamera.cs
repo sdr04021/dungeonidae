@@ -33,7 +33,7 @@ public class PlayerCamera : MonoBehaviour
             targetPosition.Set(target.transform.position.x, target.transform.position.y, transform.position.z);
 
             if (EventSystem.current.IsPointerOverGameObject()) return;
-            if(!target.Controllable&&recentControllable&&!follow&&!dragging) follow = true;
+            if (!target.Controllable && recentControllable && !follow && !dragging) follow = true;
             cameraPostion = transform.position;
             if (Input.GetMouseButton(2))
             {
@@ -57,6 +57,7 @@ public class PlayerCamera : MonoBehaviour
                 {
                     transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, Time.deltaTime * 30);
                 }
+                else if(target.Controllable) follow = false;
                 //transform.position = targetPosition;
                 //transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref currentVelocity, Time.deltaTime*50);
                 //transform.DOMove(targetPosition, Time.deltaTime * 20);

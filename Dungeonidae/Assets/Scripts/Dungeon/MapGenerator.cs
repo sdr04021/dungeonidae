@@ -7,11 +7,11 @@ using Gists;
 
 public class MapGenerator
 {
-    int mapWidth = 40;
-    int mapHeight = 40;
+    readonly int mapWidth = 40;
+    readonly int mapHeight = 40;
 
-    DungeonData dungeonData;
-    System.Random rand;
+    readonly DungeonData dungeonData;
+    readonly System.Random rand;
 
 
     public MapGenerator(DungeonData dungeonData)
@@ -20,8 +20,9 @@ public class MapGenerator
         //roomSeedAmount = generationArea * 6;
         this.dungeonData = dungeonData;
         dungeonData.mapData = new();
-        dungeonData.fogData = new();
         dungeonData.rooms = new();
+        dungeonData.genArea = new();
+        dungeonData.dungeonType = DungeonType.Dungeon;
         rand = new System.Random(GameManager.Instance.saveData.FloorSeeds[dungeonData.floor]);
         GenereateBase();
         GenerateRooms();
@@ -34,14 +35,11 @@ public class MapGenerator
         for (int i = 0; i < mapWidth; i++)
         {
             List<TileData> temp = new();
-            List<FogData> tempFog = new();
             for (int j = 0; j < mapHeight; j++)
             {
                 temp.Add(new TileData(rand.Next()));
-                tempFog.Add(new FogData());
             }
             dungeonData.mapData.Add(temp);
-            dungeonData.fogData.Add(tempFog);
         }
     }
 
@@ -285,6 +283,13 @@ public class MapGenerator
         for(int i=0; i<dungeonData.rooms.Count; i++)
         {
             deck.Add(i);
+            for(int j = dungeonData.rooms[i].Left; j <= dungeonData.rooms[i].Right; j++)
+            {
+                for(int k = dungeonData.rooms[i].Bottom; k <= dungeonData.rooms[i].Top; k++)
+                {
+                    dungeonData.genArea.Add(new Coordinate(j, k));
+                }
+            }
         }
         int pick = rand.Next(0, deck.Count);
         int first = deck[pick];

@@ -14,6 +14,16 @@ public class Tomb : DungeonObject
         groundRenderer.sortingOrder = SpriteRenderer.sortingOrder;
     }
 
+    public override void Load(DungeonManager dm, DungeonObjectData dungeonObjectData)
+    {
+        base.Load(dm, dungeonObjectData);
+        if (dungeonObjectData.isActivated)
+        {
+            groundRenderer.sprite = diggedGroundSprite;
+            IsInteractable = false;
+        }
+    }
+
     public void SetSeed(int seed)
     {
         this.seed = seed;
@@ -42,5 +52,6 @@ public class Tomb : DungeonObject
             wraith.EffectAnimator.SetTrigger("WRAITH_APPEAR");
         }
         IsInteractable = false;
+        DungeonObjectData.isActivated = true;
     }
 }

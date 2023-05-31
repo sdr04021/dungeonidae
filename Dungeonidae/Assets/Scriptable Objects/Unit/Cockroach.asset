@@ -18,7 +18,7 @@ MonoBehaviour:
   <ExpCoefficient>k__BackingField: 1
   <MaxHp>k__BackingField: 25
   <HpRegen>k__BackingField: 0
-  <MaxMp>k__BackingField: 0
+  <MaxMp>k__BackingField: 5
   <MpRegen>k__BackingField: 0
   <MaxHunger>k__BackingField: 100
   <Atk>k__BackingField: 10

@@ -5,6 +5,8 @@ using DG.Tweening;
 using UnityEngine.UI;
 using Priority_Queue;
 using TMPro;
+using Unity.Collections;
+using Unity.Jobs;
 
 [System.Serializable]
 abstract public class Unit : MonoBehaviour
@@ -253,13 +255,13 @@ abstract public class Unit : MonoBehaviour
     {
         if (!isFollowingPath || (path.Count <= 0))
             MyAnimator.SetBool("Walk", false);
-        /*
+        
         if (dm.fogMap.GetElementAt(UnitData.coord.x, UnitData.coord.y).IsOn)
         {
             MySpriteRenderer.enabled = false;
             if (canvas != null) canvas.enabled = false;
         }
-        */
+        
         isAnimationFinished = true;
         SetSortingOrder();
     }
@@ -524,6 +526,7 @@ abstract public class Unit : MonoBehaviour
         }
         */
 
+        /*
         TilesInSight.Clear();
         int sightBlockLayer = LayerMask.GetMask("SightBlocker");
         HashSet<Coordinate> doneDir = new();
@@ -556,6 +559,56 @@ abstract public class Unit : MonoBehaviour
                 }
             }
         }
+        */
+
+        TilesInSight.Clear();
+        int sight = UnitData.sight.Total();
+        List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, sight);
+        NativeArray<Vector2> blockInSight = new(inRange.Count, Allocator.TempJob);
+        NativeArray<Vector2> end = new(inRange.Count, Allocator.TempJob);
+        NativeArray<bool> result = new(inRange.Count, Allocator.TempJob);
+        int blockCounter = 0;
+        int endCounter = 0;
+        for (int i = 0; i < inRange.Count; i++)
+        {
+            if (dm.IsValidCoordForMap(inRange[i]))
+            {
+                if (Coordinate.InRange(UnitData.coord, inRange[i], sight))
+                {
+                    end[endCounter] = inRange[i].ToVector2();
+                    endCounter++;
+                }
+                if (dm.map.GetElementAt(inRange[i]).IsBlockingSight())
+                {
+                    blockInSight[blockCounter] = inRange[i].ToVector2();
+                    blockCounter++;
+                }
+            }
+        }
+        SightCheckJob sightJob = new()
+        {
+            blockInSight = blockInSight,
+            blockCounter = blockCounter,
+            start = UnitData.coord.ToVector2(),
+            end = end,
+            endCounter = endCounter,
+            result = result
+        };
+
+        JobHandle handle = sightJob.Schedule(endCounter, 1);
+        handle.Complete();
+
+        for(int i=0; i< endCounter; i++)
+        {
+            if (result[i])
+            {
+                TilesInSight.Add(new Coordinate(end[i]));
+            }
+        }
+
+        blockInSight.Dispose();
+        end.Dispose();
+        result.Dispose();
 
         /*
         TilesInSight.Clear();
@@ -586,52 +639,52 @@ abstract public class Unit : MonoBehaviour
         }
         */
 
-            /*
-            TilesInSight.Clear();
+        /*
+        TilesInSight.Clear();
 
-            float rangePow = Mathf.Pow(UnitData.sight.Total() + 0.5f, 2);
-            List<System.Tuple<Vector2, Vector2>> blockedArea = new();
-            List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, UnitData.sight.Total());
-            //Color c = Random.ColorHSV();
-            for (int i=0; i<inRange.Count; i++)
+        float rangePow = Mathf.Pow(UnitData.sight.Total() + 0.5f, 2);
+        List<System.Tuple<Vector2, Vector2>> blockedArea = new();
+        List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, UnitData.sight.Total());
+        //Color c = Random.ColorHSV();
+        for (int i=0; i<inRange.Count; i++)
+        {
+            if (inRange[i].IsValidCoordForMap(dm.map) && ((Mathf.Pow(inRange[i].x - UnitData.coord.x, 2) + Mathf.Pow(inRange[i].y - UnitData.coord.y, 2) <= rangePow)))
             {
-                if (inRange[i].IsValidCoordForMap(dm.map) && ((Mathf.Pow(inRange[i].x - UnitData.coord.x, 2) + Mathf.Pow(inRange[i].y - UnitData.coord.y, 2) <= rangePow)))
+                Vector2 point = inRange[i].ToVector2() - (Vector2)transform.position;
+
+                bool isBlocked = false;
+                for (int j = 0; j < blockedArea.Count; j++)
                 {
-                    Vector2 point = inRange[i].ToVector2() - (Vector2)transform.position;
 
-                    bool isBlocked = false;
-                    for (int j = 0; j < blockedArea.Count; j++)
+                    //if (UnitData.team == Team.Player)
+                    //{
+                        //Debug.DrawRay(transform.position, blockedArea[j].Item1, c, 10);
+                        //Debug.DrawRay(transform.position, blockedArea[j].Item2, c, 10);
+                    //}x`
+
+                    float angle1 = Vector2.SignedAngle(blockedArea[j].Item1, point);
+                    float angle2 = Vector2.SignedAngle(blockedArea[j].Item1, blockedArea[j].Item2);
+                    if ((angle1 != 0 && angle2 != 0) && (Mathf.Sign(angle1) == Mathf.Sign(angle2)) && (Mathf.Abs(angle2) > Mathf.Abs(angle1)))
                     {
-
-                        //if (UnitData.team == Team.Player)
-                        //{
-                            //Debug.DrawRay(transform.position, blockedArea[j].Item1, c, 10);
-                            //Debug.DrawRay(transform.position, blockedArea[j].Item2, c, 10);
-                        //}x`
-
-                        float angle1 = Vector2.SignedAngle(blockedArea[j].Item1, point);
-                        float angle2 = Vector2.SignedAngle(blockedArea[j].Item1, blockedArea[j].Item2);
-                        if ((angle1 != 0 && angle2 != 0) && (Mathf.Sign(angle1) == Mathf.Sign(angle2)) && (Mathf.Abs(angle2) > Mathf.Abs(angle1)))
-                        {
-                            isBlocked = true;
-                            break;
-                        }
-                    }
-                    if (!isBlocked)
-                        TilesInSight.Add(inRange[i]);
-                    if (dm.map.GetElementAt(inRange[i]).IsBlockingSight())
-                    {
-                        SimplePriorityQueue<Vector2> corners = new();
-                        corners.Enqueue(point + new Vector2(0.5f, 0.5f), -Vector2.Angle(point, point + new Vector2(0.5f, 0.5f)));
-                        corners.Enqueue(point + new Vector2(0.5f, -0.5f), -Vector2.Angle(point, point + new Vector2(0.5f, -0.5f)));
-                        corners.Enqueue(point + new Vector2(-0.5f, -0.5f), -Vector2.Angle(point, point + new Vector2(-0.5f, -0.5f)));
-                        corners.Enqueue(point + new Vector2(-0.5f, 0.5f), -Vector2.Angle(point, point + new Vector2(-0.5f, 0.5f)));
-
-                        blockedArea.Add(new(corners.Dequeue(), corners.Dequeue()));
+                        isBlocked = true;
+                        break;
                     }
                 }
+                if (!isBlocked)
+                    TilesInSight.Add(inRange[i]);
+                if (dm.map.GetElementAt(inRange[i]).IsBlockingSight())
+                {
+                    SimplePriorityQueue<Vector2> corners = new();
+                    corners.Enqueue(point + new Vector2(0.5f, 0.5f), -Vector2.Angle(point, point + new Vector2(0.5f, 0.5f)));
+                    corners.Enqueue(point + new Vector2(0.5f, -0.5f), -Vector2.Angle(point, point + new Vector2(0.5f, -0.5f)));
+                    corners.Enqueue(point + new Vector2(-0.5f, -0.5f), -Vector2.Angle(point, point + new Vector2(-0.5f, -0.5f)));
+                    corners.Enqueue(point + new Vector2(-0.5f, 0.5f), -Vector2.Angle(point, point + new Vector2(-0.5f, 0.5f)));
+
+                    blockedArea.Add(new(corners.Dequeue(), corners.Dequeue()));
+                }
             }
-            */
+        }
+        */
     }
     
     protected void CheckNewInSight()

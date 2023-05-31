@@ -8,9 +8,10 @@ public class DungeonData
 {
     public int floor;
     [System.NonSerialized] public List<List<TileData>> mapData;
-    [System.NonSerialized] public List<List<FogData>> fogData;
     [System.NonSerialized] public List<Room> rooms;
     [System.NonSerialized] public System.Tuple<int, int> stairRooms;
+    [System.NonSerialized] public List<Coordinate> genArea;
+    [System.NonSerialized] public DungeonType dungeonType;
     public HashSet<Coordinate> observedFog = new();
 
     public List<UnitData> unitList = new();

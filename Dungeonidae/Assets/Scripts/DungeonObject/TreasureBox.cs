@@ -7,11 +7,15 @@ public class TreasureBox : DungeonObject
     [SerializeField] Sprite openedSprite;
     [SerializeField] ItemType itemType;
     [SerializeField] string KeyKey;
-    int seed;
 
-    public void SetSeed(int seed)
+    public override void Load(DungeonManager dm, DungeonObjectData dungeonObjectData)
     {
-        this.seed = seed;
+        base.Load(dm, dungeonObjectData);
+        if (dungeonObjectData.isActivated)
+        {
+            SpriteRenderer.sprite = openedSprite;
+            IsInteractable = false;
+        }
     }
 
     public override void Interact()
@@ -32,6 +36,7 @@ public class TreasureBox : DungeonObject
                 dm.GetTileByCoordinate(itemTemp.Coord).items.Push(itemTemp);
             }
             IsInteractable = false;
+            DungeonObjectData.isActivated = true;
         }
     }
 }

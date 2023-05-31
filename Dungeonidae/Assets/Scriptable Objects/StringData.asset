@@ -17,6 +17,7 @@ MonoBehaviour:
   - RAT
   - BEDBUG
   - COCKROACH
+  - FLOATING_EYEBALL
   <EquipTier>k__BackingField:
   - forClass:
     - list:
@@ -24,6 +25,7 @@ MonoBehaviour:
       - LONGSWORD
       - GREATSWORD
       - RAPIER
+      - KATANA
       - WOODEN_SHIELD
       - LEATHER_HELMET
       - LEATHER_SHOES

@@ -129,6 +129,32 @@ public class Monster : Unit
         }
     }
 
+    public override void UpdateSightArea()
+    {
+        bool checkSight = false;
+
+        int sight = UnitData.sight.Total();
+        int left = Mathf.Max(2, UnitData.coord.x - sight);
+        int right = Mathf.Min(dm.map.arrSize.x - 2, UnitData.coord.x + sight);
+        int bottom = Mathf.Max(2, UnitData.coord.y - sight);
+        int top = Mathf.Min(dm.map.arrSize.y - 2, UnitData.coord.y + sight);
+
+        for(int i=left; i<=right; i++)
+        {
+            for(int j=bottom; j<=top; j++)
+            {
+                if(dm.map.GetElementAt(i,j).unit!=null && IsHostileUnit(dm.map.GetElementAt(i, j).unit))
+                {
+                    checkSight = true;
+                    break;
+                }
+            }
+        }
+
+        if (checkSight)
+            base.UpdateSightArea();
+    }
+
     public override void GetDamage(AttackData attackData)
     {
         base.GetDamage(attackData);

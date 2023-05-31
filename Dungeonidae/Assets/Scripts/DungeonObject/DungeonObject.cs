@@ -5,13 +5,13 @@ using UnityEngine;
 public class DungeonObject : MonoBehaviour
 {
     protected DungeonManager dm;
+        
     [field: SerializeField] public bool IsPassable { get; protected set; } = false;
     [SerializeField] protected bool isTargetable = false;
     [field: SerializeField] public bool IsBlockSight { get; protected set; } = false;
     [field: SerializeField] public bool IsInteractable { get; protected set; } = false;
     [field: SerializeField] public bool IsInteractsWithThrownItem { get; protected set; } = false;
-
-    public DungeonObjectData DungeonObjectData { get; private set; }
+    [field: SerializeField] public DungeonObjectData DungeonObjectData { get; protected set; }
 
     [field:SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
 
@@ -26,12 +26,12 @@ public class DungeonObject : MonoBehaviour
         DungeonObjectData = new();
         DungeonObjectData.coord = coord;
         transform.position = coord.ToVector3(0);
-        DungeonObjectData.Init(this, GetType(), key);
+        DungeonObjectData.Init(this, key);
         dm.map.GetElementAt(coord).dungeonObjects.Add(this);
         SpriteRenderer.sortingOrder = 1000 - (10 * coord.y) + (int)LayerOrder.DungeonObject;
     }
 
-    public void Load(DungeonManager dm, DungeonObjectData dungeonObjectData)
+    public virtual void Load(DungeonManager dm, DungeonObjectData dungeonObjectData)
     {
         this.dm = dm;
         DungeonObjectData = dungeonObjectData;

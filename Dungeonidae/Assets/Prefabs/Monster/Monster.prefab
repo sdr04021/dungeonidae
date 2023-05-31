@@ -162,7 +162,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -717,6 +717,7 @@ MonoBehaviour:
   lvText: {fileID: 5414120057605794107}
   bubble: {fileID: 9081412203412747217}
   bubbleText: {fileID: 5528513704641948207}
+  shadow: {fileID: 0}
   <IsAggressive>k__BackingField: 0
   <IsForgetting>k__BackingField: 0
   <IsRunAway>k__BackingField: 0

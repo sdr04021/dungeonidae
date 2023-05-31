@@ -15,7 +15,7 @@ public class Room
     public int Height { get { return Top - Bottom; } }
     public int Area { get { return Width * Height; } }
     public int GrowthCount { get; private set; }
-    bool[] growthRestriction = { false, false, false, false };
+    readonly bool[] growthRestriction = { false, false, false, false };
     public bool FinishedGrowth { get; private set; } = false;
 
     public List<Coordinate> Entrances { get; private set; } = new();
@@ -29,6 +29,14 @@ public class Room
         Left = center.x;
     }
 
+    public Room(int top,int bottom, int right,int left)
+    {
+        Top = top;
+        Bottom = bottom;
+        Right = right;
+        Left = left;
+        SetCenter();
+    }
     public void SetSquare(int x, List<List<TileData>> mapData)
     {
         Top += Mathf.Min(x, mapData[0].Count - 3);

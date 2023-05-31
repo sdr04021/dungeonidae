@@ -63,6 +63,8 @@ public class Fog : MonoBehaviour
     public void ResetFog()
     {
         spriteRenderer.color = Color.black;
+        IsObserved = false;
+        Cover();
     }
 
 

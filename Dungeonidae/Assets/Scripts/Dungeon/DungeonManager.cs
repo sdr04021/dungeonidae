@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -41,7 +42,7 @@ public class DungeonManager : MonoBehaviour
         StartExistingFloor(0);
     }
 
-    void StartNewFloor()
+    async void StartNewFloor()
     {
         SaveData saveData = GameManager.Instance.saveData;
         dungeonData = new();
@@ -49,7 +50,10 @@ public class DungeonManager : MonoBehaviour
         saveData.UpdateFloorSeeds();
 
         dungeonData.floor = saveData.Floors.Count - 1;
-        _ = new MapGenerator(dungeonData);
+        if (GameManager.Instance.saveData.currentFloor % 5 == 1)
+            await Task.Run(() => new MazeGenerator(dungeonData));
+        else
+            _ = new MapGenerator(dungeonData);
         order = 0;
         BuildCurrentFloor();
 
@@ -58,7 +62,7 @@ public class DungeonManager : MonoBehaviour
 
         dungeonData.unitList.Add(player.UnitData);
 
-        GenerateUnits();
+        SetUnitsAndObjects();
 
         dunUI.Init();
         maxOrder = dungeonData.unitList.Count;
@@ -73,11 +77,16 @@ public class DungeonManager : MonoBehaviour
         }
         dungeonData.unitList[order].Owner.StartTurn();
         UpdateUnitRenderers();
+        dunUI.isMapLoadComplete = true;
     }
-    public void StartExistingFloor(int movedDir)
+    public async void StartExistingFloor(int movedDir)
     {
         dungeonData = GameManager.Instance.saveData.GetCurrentDungeonData();
-        _ = new MapGenerator(dungeonData);
+
+        if (dungeonData.dungeonType == DungeonType.Maze)
+            await Task.Run(() => new MazeGenerator(dungeonData));
+        else
+            _ = new MapGenerator(dungeonData);
         order = 0;
         BuildCurrentFloor();
 
@@ -103,6 +112,7 @@ public class DungeonManager : MonoBehaviour
         }
         dungeonData.unitList[order].Owner.StartTurn();
         UpdateUnitRenderers();
+        dunUI.isMapLoadComplete = true;
     }
 
     public void MoveFloor(int movedDir)
@@ -111,10 +121,11 @@ public class DungeonManager : MonoBehaviour
         movedDir = (int)Mathf.Sign(movedDir);
         if ((saveData.currentFloor == 0) && (movedDir < 0)) return;
         saveData.currentFloor += movedDir;
+        ResetAllFog();
         dunUI.ShowFloorCurtain(saveData.currentFloor);
         DestroyAllObjects();
         dungeonData.unitList.Remove(GameManager.Instance.saveData.playerData);
-
+        
         if(saveData.currentFloor >= saveData.Floors.Count)
         {
             saveData.playerData.TurnIndicator = 0;
@@ -180,7 +191,17 @@ public class DungeonManager : MonoBehaviour
             }
         }
     }
-    void GenerateUnits()
+    void ResetAllFog()
+    {
+        for (int i = 1; i < map.arrSize.x - 1; i++)
+        {
+            for (int j = 1; j < map.arrSize.y - 1; j++)
+            {
+                fogMap.GetElementAt(i, j).ResetFog();
+            }
+        }
+    }
+    void SetUnitsAndObjects()
     {
         SaveData saveData = GameManager.Instance.saveData;
         
@@ -210,45 +231,52 @@ public class DungeonManager : MonoBehaviour
                 }
             }
         }
+
+        switch (dungeonData.dungeonType)
+        {
+            case DungeonType.Dungeon:
+                for (int i = 0; i < dungeonData.rooms.Count; i++)
+                {
+                    Room room = dungeonData.rooms[i];
+                    int amount = 1 + (int)((room.Area / 16) * Random.value);
+                    for (int j = 0; j < amount; j++)
+                    {
+                        Coordinate c = new(Random.Range(room.Left, room.Right), Random.Range(room.Top, room.Bottom));
+                        int pick = Random.Range(0, 3);
+                        InstantiateMonster(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]], c);
+                    }
+                }
+                InstantiateDungeonObject("TOMB", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
+                InstantiateDungeonObject("TREASURE_BOX_RED", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
+                InstantiateItemObject("KEY_BOX_RED", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
+                break;
+            case DungeonType.Maze:
+                int count = 0;
+                for(int i=0; i<dungeonData.genArea.Count; i++)
+                {
+                    //Debug.Log(dungeonData.genArea[i].CoordinateToString());
+                    if (Random.Range(0, 2) == 1)
+                    {
+                        count++;
+                        int pick = Random.Range(0, 3);
+                        InstantiateMonster(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]], dungeonData.genArea[i]);
+                    }
+                    else if(Random.Range(0, 20) == 0)
+                    {
+                        InstantiateDungeonObject("TOMB", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
+                    }
+                    if (count >= 500) break;
+                }
+                break;
+        }
         
         Stair stairUp = Instantiate(GameManager.Instance.GetPrefab(PrefabAssetType.DungeonObject, "STAIR_UP")).GetComponent<Stair>();
         stairUp.Init("STAIR_UP",this, dungeonData.rooms[dungeonData.stairRooms.Item1].center);
         dungeonData.dungeonObjectList.Add(stairUp.DungeonObjectData);
         Stair stairDown = Instantiate(GameManager.Instance.GetPrefab(PrefabAssetType.DungeonObject, "STAIR_DOWN")).GetComponent<Stair>();
-        stairDown.Init("STAIR_UP", this, dungeonData.rooms[dungeonData.stairRooms.Item2].center);
+        stairDown.Init("STAIR_DOWN", this, dungeonData.rooms[dungeonData.stairRooms.Item2].center);
         dungeonData.dungeonObjectList.Add(stairDown.DungeonObjectData);
 
-        DungeonObject treasureBox = Instantiate(GameManager.Instance.GetPrefab(PrefabAssetType.DungeonObject, "TREASURE_BOX_RED")).GetComponent<DungeonObject>();
-        List<Coordinate> pickedCoord = GlobalMethods.RangeByStep(dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate(), 1);
-        for(int i=0; i<pickedCoord.Count; i++)
-        {
-            if (map.GetElementAt(pickedCoord[i]).IsEmptyTile())
-            {
-                treasureBox.Init("TREASURE_BOX_RED", this, pickedCoord[i]);
-                dungeonData.dungeonObjectList.Add(treasureBox.DungeonObjectData);
-                break;
-            }
-        }
-
-        for (int i = 0; i < 20; i++)
-        {
-            InstantiateDungeonObject("TOMB", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
-        }
-        InstantiateDungeonObject("TOMB", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
-
-        pickedCoord = GlobalMethods.RangeByStep(dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate(), 1);
-        for (int i = 0; i < pickedCoord.Count; i++)
-        {
-            if (map.GetElementAt(pickedCoord[i]).IsEmptyTile())
-            {
-                ItemObject redKey = Instantiate(GameManager.Instance.itemObjectPrefab, pickedCoord[i].ToVector2(), Quaternion.identity);
-                redKey.Init(this, pickedCoord[i], new MiscData(GameManager.Instance.GetMiscBase("KEY_BOX_RED"), 1));
-                dungeonData.fieldItemList.Add(redKey.Data);
-                map.GetElementAt(pickedCoord[i]).items.Push(redKey);
-                redKey.Drop();
-                break;
-            }
-        }
 
         for(int i=0; i<dungeonData.rooms.Count; i++)
         {
@@ -298,8 +326,7 @@ public class DungeonManager : MonoBehaviour
     void RegenerateMobs()
     {
         SaveData saveData = GameManager.Instance.saveData;
-        Room room = dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)];
-        Coordinate genPoint = new(Random.Range(room.Left, room.Right), Random.Range(room.Bottom, room.Top));
+        Coordinate genPoint = dungeonData.genArea[Random.Range(0, dungeonData.genArea.Count)];
         List<Coordinate> genPoints = GlobalMethods.RangeByStep(genPoint, 1);
         for (int i = 0; i < genPoints.Count; i++)
         {

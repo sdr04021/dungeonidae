@@ -15,6 +15,7 @@ public class DungeonUIManager : MonoBehaviour
 
     [SerializeField] GameObject curtain;
     [SerializeField] TMP_Text curtainFloorText;
+    [SerializeField] Image loadingImage;
 
     [SerializeField] TMP_Text lvText;
     [SerializeField] Image hpBar;
@@ -52,6 +53,8 @@ public class DungeonUIManager : MonoBehaviour
     readonly LocalizedStringTable tableAbility = new("Ability");
     readonly LocalizedStringTable tableSkill = new("Skill Text");
 
+    public bool isMapLoadComplete = false;
+
     private void Awake()
     {
         if (!Application.isMobilePlatform)
@@ -86,18 +89,26 @@ public class DungeonUIManager : MonoBehaviour
         inventoryUI.Init();
         abilityUI.Init();
     }
-
+    
     public void ShowFloorCurtain(int floor)
     {
         curtain.SetActive(true);
+        isMapLoadComplete = false;
         curtainFloorText.text = "B" + (floor + 1).ToString() + "F";
-        curtainFloorText.DOFade(1, 0.5f).OnComplete(HideFloorCurtain);
+        curtainFloorText.DOFade(1, 0.5f).OnComplete(() => { StartCoroutine(HideFloorCurtain()); });
+        loadingImage.rectTransform.DORotate(new Vector3(0, 0, 360), 1, RotateMode.FastBeyond360);
     }
-    void HideFloorCurtain()
+    IEnumerator HideFloorCurtain()
     {
+        while (!isMapLoadComplete)
+        {
+            yield return Constants.ZeroPointOne;
+        }
         curtainFloorText.DOFade(0, 0.5f).OnComplete(() => {
             Camera.main.transform.position = new Vector3(dm.Player.transform.position.x, dm.Player.transform.position.y, Camera.main.transform.position.z);
-            curtain.SetActive(false); });
+            curtain.SetActive(false);
+        });
+        loadingImage.rectTransform.DOKill();
     }
 
     public void UpdateLevelText()
