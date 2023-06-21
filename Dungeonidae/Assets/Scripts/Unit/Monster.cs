@@ -2,13 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class Monster : Unit
 {
     [field:SerializeField] public bool IsAggressive { get; private set; }
     [field:SerializeField] public bool IsForgetting { get; private set; }
-    [field: SerializeField] public bool IsRunAway { get; private set; }
-
+    [field:SerializeField] public bool IsRunAway { get; private set; }
+    [field: SerializeField] public List<string> MustDropItem { get; private set; } = new();
+ 
     protected override void DecideBehavior()
     {
         base.DecideBehavior();
@@ -202,6 +204,14 @@ public class Monster : Unit
             GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(item.Data);
             item.Bounce();
             dm.GetTileByCoordinate(item.Coord).items.Push(item);
+        }
+        for(int i=0; i<MustDropItem.Count; i++)
+        {
+            ItemObject itemTemp = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
+            itemTemp.Init(dm, new Coordinate((Vector2)transform.position), new MiscData(GameManager.Instance.GetMiscBase(MustDropItem[i]), 1));
+            GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(itemTemp.Data);
+            itemTemp.Bounce();
+            dm.GetTileByCoordinate(itemTemp.Coord).items.Push(itemTemp);
         }
         /*
         ItemObject testItem = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);

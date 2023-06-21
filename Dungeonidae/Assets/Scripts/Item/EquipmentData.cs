@@ -297,7 +297,7 @@ public class EquipmentData : ItemData
         if (Constants.PercentPointStats.Contains(eStat.statType))
             eStat.statUnit = StatUnit.Value;
         else eStat.statUnit = StatUnit.Percent;
-
+        
         Potentials.Add(eStat);
         EquipmentData[] equipped = GameManager.Instance.saveData.playerData.equipped;
         for(int i=0; i<equipped.Length; i++)

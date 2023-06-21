@@ -9,6 +9,7 @@ public class MapGenerator
 {
     readonly int mapWidth = 40;
     readonly int mapHeight = 40;
+    readonly int minimumDistance = 7;
 
     readonly DungeonData dungeonData;
     readonly System.Random rand;
@@ -45,7 +46,7 @@ public class MapGenerator
 
     void GenerateRooms()
     {
-        List<Vector2> poissonPoints = FastPoissonDiskSampling.Sampling(new Vector2(5, 5), new Vector2(mapWidth - 5, mapHeight - 5), 8, rand);
+        List<Vector2> poissonPoints = FastPoissonDiskSampling.Sampling(new Vector2(5, 5), new Vector2(mapWidth - 5, mapHeight - 5), minimumDistance, rand);
         for (int i = 0; i < poissonPoints.Count; i++)
         {
             dungeonData.rooms.Add(new Room(new Coordinate(poissonPoints[i])));
@@ -335,6 +336,18 @@ public class MapGenerator
             for (int j = room.Bottom + bezel; j <= room.Top - bezel; j++)
             {
                 dungeonData.mapData[i][j].tileType = TileType.Wall;
+            }
+        }
+    }
+
+    void SetRandomPillarRoom(Room room)
+    {
+        for (int i = room.Left + 1; i <= room.Right - 1; i++)
+        {
+            for (int j = room.Bottom + 1; j <= room.Top - 1; j++)
+            {
+                if (rand.Next(0, 2) == 1)
+                    dungeonData.mapData[i][j].tileType = TileType.Wall;
             }
         }
     }

@@ -18,20 +18,22 @@ public struct SightCheckJob : IJobParallelFor
     public void Execute(int index)
     {
         result[index] = true;
-        for(int i=0; i<blockCounter; i++)
+        Vector2 thisEnd = end[index];
+        for (int i=0; i<blockCounter; i++)
         {
-            if (end[index] == blockInSight[i]) return;
+            Vector2 thisBlockInSight = blockInSight[i];
+            if (thisEnd == thisBlockInSight) return;
 
             Vector2[] points = new Vector2[4];
-            points[0] = new Vector2(blockInSight[i].x + 0.495f, blockInSight[i].y + 0.495f);
-            points[1] = new Vector2(blockInSight[i].x + 0.495f, blockInSight[i].y - 0.495f);
-            points[2] = new Vector2(blockInSight[i].x - 0.495f, blockInSight[i].y - 0.495f);
-            points[3] = new Vector2(blockInSight[i].x - 0.495f, blockInSight[i].y + 0.495f);
+            points[0] = new Vector2(thisBlockInSight.x + 0.495f, thisBlockInSight.y + 0.495f);
+            points[1] = new Vector2(thisBlockInSight.x + 0.495f, thisBlockInSight.y - 0.495f);
+            points[2] = new Vector2(thisBlockInSight.x - 0.495f, thisBlockInSight.y - 0.495f);
+            points[3] = new Vector2(thisBlockInSight.x - 0.495f, thisBlockInSight.y + 0.495f);
 
-            if (DoIntersect(start, end[index], points[0], points[1]) ||
-            DoIntersect(start, end[index], points[1], points[2]) ||
-            DoIntersect(start, end[index], points[2], points[3]) ||
-            DoIntersect(start, end[index], points[3], points[0]))
+            if (DoIntersect(start, thisEnd, points[0], points[1]) ||
+            DoIntersect(start, thisEnd, points[1], points[2]) ||
+            DoIntersect(start, thisEnd, points[2], points[3]) ||
+            DoIntersect(start, thisEnd, points[3], points[0]))
             {
                 result[index] = false;
                 break;

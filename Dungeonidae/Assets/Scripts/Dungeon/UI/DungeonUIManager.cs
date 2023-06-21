@@ -96,7 +96,7 @@ public class DungeonUIManager : MonoBehaviour
         isMapLoadComplete = false;
         curtainFloorText.text = "B" + (floor + 1).ToString() + "F";
         curtainFloorText.DOFade(1, 0.5f).OnComplete(() => { StartCoroutine(HideFloorCurtain()); });
-        loadingImage.rectTransform.DORotate(new Vector3(0, 0, 360), 1, RotateMode.FastBeyond360);
+        loadingImage.rectTransform.DORotate(new Vector3(0, 0, 360), 1, RotateMode.FastBeyond360).SetEase(Ease.Linear).SetLoops(-1);
     }
     IEnumerator HideFloorCurtain()
     {

@@ -90,7 +90,7 @@ public class Player : Unit
             LootItem();
         else if ((dm.map.GetElementAt(UnitData.coord).dungeonObjects.Count > 0) && (dm.map.GetElementAt(UnitData.coord).dungeonObjects[^1].IsInteractable))
         {
-            dm.map.GetElementAt(UnitData.coord).dungeonObjects[^1].Interact();
+            dm.map.GetElementAt(UnitData.coord).dungeonObjects[^1].Interact(this);
         }
     }
     public void LootItem()
@@ -230,7 +230,7 @@ public class Player : Unit
         {
             if (tile.dungeonObjects[i].IsInteractsWithThrownItem)
             {
-                tile.dungeonObjects[i].Interact();
+                tile.dungeonObjects[i].Interact(this);
                 break;
             }
         }

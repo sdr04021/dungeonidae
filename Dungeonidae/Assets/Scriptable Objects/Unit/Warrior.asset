@@ -21,7 +21,7 @@ MonoBehaviour:
   <MaxMp>k__BackingField: 10
   <MpRegen>k__BackingField: 1
   <MaxHunger>k__BackingField: 100
-  <Atk>k__BackingField: 1000
+  <Atk>k__BackingField: 10
   <MAtk>k__BackingField: 0
   <AtkRange>k__BackingField: 1
   <Pen>k__BackingField: 0
@@ -40,7 +40,7 @@ MonoBehaviour:
   <Resist>k__BackingField: 0
   <DmgIncrease>k__BackingField: 0
   <DmgReduction>k__BackingField: 0
-  <Speed>k__BackingField: 1000
+  <Speed>k__BackingField: 100
   <Sight>k__BackingField: 5
   <Instinct>k__BackingField: 30
   <SearchRange>k__BackingField: 1

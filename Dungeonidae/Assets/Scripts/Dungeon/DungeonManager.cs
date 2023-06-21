@@ -245,6 +245,8 @@ public class DungeonManager : MonoBehaviour
                         int pick = Random.Range(0, 3);
                         InstantiateMonster(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]], c);
                     }
+                    if(Random.Range(0,2)==1)
+                        InstantiateDungeonObject("HEART_OF_HEALING", dungeonData.rooms[i].PickRandomCordinate());
                 }
                 InstantiateDungeonObject("TOMB", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
                 InstantiateDungeonObject("TREASURE_BOX_RED", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
@@ -263,7 +265,7 @@ public class DungeonManager : MonoBehaviour
                     }
                     else if(Random.Range(0, 20) == 0)
                     {
-                        InstantiateDungeonObject("TOMB", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
+                        InstantiateDungeonObject("TOMB", dungeonData.genArea[Random.Range(0, dungeonData.genArea.Count)]);
                     }
                     if (count >= 500) break;
                 }
@@ -548,7 +550,12 @@ public class DungeonManager : MonoBehaviour
                 order--;
         }
     }
-    
+
+    public void RemoveDungeonOnject(DungeonObjectData dungeonObjectData)
+    {
+        dungeonData.dungeonObjectList.Remove(dungeonObjectData);
+    }
+
     public void DestroyAllObjects()
     {
         for(int i=0; i<dungeonData.unitList.Count; i++)

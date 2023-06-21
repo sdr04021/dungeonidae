@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 public class MazeGenerator
 {
-    readonly int mapWidth = 100;
-    readonly int mapHeight = 100;
+    readonly int mapWidth = 50;
+    readonly int mapHeight = 50;
 
     readonly DungeonData dungeonData;
     readonly System.Random rand;

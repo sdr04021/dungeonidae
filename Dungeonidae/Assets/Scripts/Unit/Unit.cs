@@ -28,6 +28,7 @@ abstract public class Unit : MonoBehaviour
     [field: SerializeField] public  UnitBase UnitBase { get; private set; }
     public UnitData UnitData { get; private set; }
     public SpriteRenderer MySpriteRenderer { get; private set; }
+    Material spriteMaterial;
     public Animator MyAnimator { get; private set; }
     [field: SerializeField] public Animator EffectAnimator { get; private set; }
     SpriteRenderer effectRenderer;
@@ -56,6 +57,7 @@ abstract public class Unit : MonoBehaviour
     protected virtual void Awake()
     {
         MySpriteRenderer = GetComponent<SpriteRenderer>();
+        spriteMaterial = MySpriteRenderer.material;
         MyAnimator = GetComponent<Animator>();
         effectRenderer = EffectAnimator.GetComponent<SpriteRenderer>();
         //map = GameManager.Instance.dungeonManager.map;
@@ -136,7 +138,7 @@ abstract public class Unit : MonoBehaviour
         {
             for(int j=1; j<dm.map.arrSize.y - 1; j++)
             {
-                if (dm.map.GetElementAt(i, j).IsReachableTile())
+                if (dm.map.GetElementAt(i, j).IsReachableTile() && (i != UnitData.coord.x) && (j != UnitData.coord.y))
                 {
                     coords.Add(new Coordinate(i, j));
                 }
@@ -261,7 +263,14 @@ abstract public class Unit : MonoBehaviour
             MySpriteRenderer.enabled = false;
             if (canvas != null) canvas.enabled = false;
         }
-        
+
+        Tile tile = dm.map.GetElementAt(UnitData.coord);
+        for (int i = 0; i < tile.dungeonObjects.Count; i++)
+        {
+            if (tile.dungeonObjects[i].IsInteractsWithCollision)
+                tile.dungeonObjects[i].Interact(this);
+        }
+
         isAnimationFinished = true;
         SetSortingOrder();
     }
@@ -356,7 +365,8 @@ abstract public class Unit : MonoBehaviour
                         dt.SetValue(damage, DamageType.Critical);
                     else dt.SetValue(damage, DamageType.Normal);
                 }
-                MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(() => { MySpriteRenderer.DOColor(Color.white, 0.2f); });
+                //MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(() => { MySpriteRenderer.DOColor(Color.white, 0.2f); });
+                spriteMaterial.DOFloat(1, "_FlashAmount", 0.2f).OnComplete(() => { spriteMaterial.DOFloat(0, "_FlashAmount", 0.2f); });
                 hpBar.DOFade(0.5f, 0.2f).SetEase(Ease.OutCirc).OnComplete(() => { hpBar.DOFade(1, 0.2f).SetEase(Ease.OutCirc); });
             }
             isHitFinished = false;
@@ -402,9 +412,9 @@ abstract public class Unit : MonoBehaviour
 
     public void RecoverHp(int amount)
     {
-        if (Mathf.Min(amount, UnitData.maxHp.Total() - UnitData.Hp) >= 1)
+        amount = Mathf.Min(amount, UnitData.maxHp.Total() - UnitData.Hp);
+        if (amount >= 1)
         {
-            amount = Mathf.Min(amount, UnitData.maxHp.Total() - UnitData.Hp);
             UnitData.Hp += amount;
             if (canvas != null && MySpriteRenderer.enabled)
             {

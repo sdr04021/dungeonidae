@@ -26,5 +26,6 @@ MonoBehaviour:
     bonus: 0
   - statType: 9
     statUnit: 0
-    val: 90
+    val: 60
     bonus: 0
+  abilities: []

@@ -11,6 +11,7 @@ public class DungeonObject : MonoBehaviour
     [field: SerializeField] public bool IsBlockSight { get; protected set; } = false;
     [field: SerializeField] public bool IsInteractable { get; protected set; } = false;
     [field: SerializeField] public bool IsInteractsWithThrownItem { get; protected set; } = false;
+    [field: SerializeField] public bool IsInteractsWithCollision { get; protected set; } = false;
     [field: SerializeField] public DungeonObjectData DungeonObjectData { get; protected set; }
 
     [field:SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
@@ -37,9 +38,11 @@ public class DungeonObject : MonoBehaviour
         DungeonObjectData = dungeonObjectData;
         dungeonObjectData.SetOwner(this);
         transform.position = DungeonObjectData.coord.ToVector3(0);
+        dm.map.GetElementAt(DungeonObjectData.coord).dungeonObjects.Add(this);
+        SpriteRenderer.sortingOrder = 1000 - (10 * DungeonObjectData.coord.y) + (int)LayerOrder.DungeonObject;
     }
 
-    public virtual void Interact()
+    public virtual void Interact(Unit unit)
     {
 
     }

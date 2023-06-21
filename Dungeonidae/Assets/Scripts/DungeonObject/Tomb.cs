@@ -29,7 +29,7 @@ public class Tomb : DungeonObject
         this.seed = seed;
     }
 
-    public override void Interact()
+    public override void Interact(Unit unit)
     {
         groundRenderer.sprite = diggedGroundSprite;
         if (Random.Range(0, 2) == 0)
