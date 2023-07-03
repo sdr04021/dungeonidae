@@ -38,12 +38,7 @@ public class ItemObject : MonoBehaviour
     }
     public void Loot()
     {
-        transform.DOMove(new Vector3(Coord.x, Coord.y, transform.position.z), 0.1f).OnComplete(DestroyThis);
-    }
-
-    void DestroyThis()
-    {
-        Destroy(gameObject);
+        transform.DOMove(new Vector3(Coord.x, Coord.y, transform.position.z), 0.1f).OnComplete(() => { Destroy(gameObject); });
     }
 
     private void OnDestroy()

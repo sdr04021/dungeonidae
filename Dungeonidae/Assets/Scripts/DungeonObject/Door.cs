@@ -5,12 +5,14 @@ using UnityEngine;
 public class Door : DungeonObject
 {
     [SerializeField] SpriteRenderer door;
+    [SerializeField] SpriteRenderer backgroundBottom;
 
     public override void Init(string key, DungeonManager dm, Coordinate coord)
     {
         base.Init(key, dm, coord);
-        SpriteRenderer.sortingOrder += (-(int)LayerOrder.DungeonObject + (int)LayerOrder.TopWall);
-        door.sortingOrder = SpriteRenderer.sortingOrder;
+        if(backgroundBottom!=null)
+            backgroundBottom.sortingOrder = SpriteRenderer.sortingOrder - (int)LayerOrder.DungeonObject + (int)LayerOrder.TopWall;
+        door.sortingOrder = SpriteRenderer.sortingOrder - (int)LayerOrder.DungeonObject + (int)LayerOrder.Unit;
         dm.map.GetElementAt(coord).sightBlocker.SetActive(true);
     }
 
@@ -27,7 +29,7 @@ public class Door : DungeonObject
         }
     }
 
-    public override void TargetedInteraction()
+    public override void TargetedInteraction(Unit unit)
     {
         if (IsPassable)
         {

@@ -8,9 +8,9 @@ public class HeartOfHealing : DungeonObject
     {
         if (unit.UnitData.team == Team.Player)
         {
-            unit.RecoverHp((int)(unit.UnitData.maxHp.Total() * 0.15f));
+            unit.RecoverHp((int)(unit.UnitData.maxHp.Total() * 0.3f));
             dm.map.GetElementAt(DungeonObjectData.coord).dungeonObjects.Remove(this);
-            dm.RemoveDungeonOnject(DungeonObjectData);
+            dm.RemoveDungeonObjectData(DungeonObjectData);
             Destroy(gameObject);
         }
     }

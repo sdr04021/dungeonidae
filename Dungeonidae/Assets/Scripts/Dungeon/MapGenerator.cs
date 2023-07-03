@@ -22,6 +22,7 @@ public class MapGenerator
         this.dungeonData = dungeonData;
         dungeonData.mapData = new();
         dungeonData.rooms = new();
+        dungeonData.objectRooms = new();
         dungeonData.genArea = new();
         dungeonData.dungeonType = DungeonType.Dungeon;
         rand = new System.Random(GameManager.Instance.saveData.FloorSeeds[dungeonData.floor]);
@@ -46,7 +47,13 @@ public class MapGenerator
 
     void GenerateRooms()
     {
-        List<Vector2> poissonPoints = FastPoissonDiskSampling.Sampling(new Vector2(5, 5), new Vector2(mapWidth - 5, mapHeight - 5), minimumDistance, rand);
+        List<Vector2> poissonPoints;
+        while (true)
+        {
+            poissonPoints = FastPoissonDiskSampling.Sampling(new Vector2(5, 5), new Vector2(mapWidth - 5, mapHeight - 5), minimumDistance, rand);
+            if (poissonPoints.Count >= 2) break;
+        }
+
         for (int i = 0; i < poissonPoints.Count; i++)
         {
             dungeonData.rooms.Add(new Room(new Coordinate(poissonPoints[i])));
@@ -126,17 +133,6 @@ public class MapGenerator
             dungeonData.rooms.Remove(roomsByDist.Dequeue());
             amountToRemove--;
         }
-
-        /*
-        for (int i = 1; i < rooms.Count; i++)
-        {
-            int dice = Random.Range(0, 10);
-            if (dice == 0)
-                SetBigPillarRoom(rooms[i]);
-            else if (dice == 1)
-                SetPillarRoom(rooms[i]);
-        }
-        */
 
         /*
         for(int i=0; i<rooms.Count; i++)
@@ -281,23 +277,53 @@ public class MapGenerator
     void SetRoomElements()
     {
         List<int> deck = new();
+        List<int> mixed = new();
         for(int i=0; i<dungeonData.rooms.Count; i++)
         {
             deck.Add(i);
-            for(int j = dungeonData.rooms[i].Left; j <= dungeonData.rooms[i].Right; j++)
+        }
+        while (deck.Count > 0)
+        {
+            int pick = rand.Next(0, deck.Count);
+            mixed.Add(deck[pick]);
+            deck.RemoveAt(pick);
+        }
+        dungeonData.stairRooms = new(mixed[0], mixed[1]);
+        for (int i = 2; i < mixed.Count; i++)
+        {
+            if (i < 5)
             {
-                for(int k = dungeonData.rooms[i].Bottom; k <= dungeonData.rooms[i].Top; k++)
+                dungeonData.objectRooms.Add(mixed[i]);
+                SetCenterSurroundings(dungeonData.rooms[mixed[i]]);
+            }
+            else
+            {
+                int pick = rand.Next() % 3;
+                switch (pick)
+                {
+                    case 0:
+                        SetPillars(dungeonData.rooms[mixed[i]]);
+                        break;
+                    case 1:
+                        SetBigPillar(dungeonData.rooms[mixed[i]]);
+                        break;
+                    case 2:
+                        SetRandomPillars(dungeonData.rooms[mixed[i]]);
+                        break;
+                }
+            }
+        }
+
+        for (int i = 0; i < dungeonData.rooms.Count; i++)
+        {
+            for (int j = dungeonData.rooms[i].Left; j <= dungeonData.rooms[i].Right; j++)
+            {
+                for (int k = dungeonData.rooms[i].Bottom; k <= dungeonData.rooms[i].Top; k++)
                 {
                     dungeonData.genArea.Add(new Coordinate(j, k));
                 }
             }
         }
-        int pick = rand.Next(0, deck.Count);
-        int first = deck[pick];
-        deck.RemoveAt(pick);
-        pick = rand.Next(0, deck.Count);
-        int second = deck[pick];
-        dungeonData.stairRooms = new(first, second);
     }
 
     bool CheckOverlap (Room a, Room b)
@@ -312,7 +338,7 @@ public class MapGenerator
         else return false;
     }
 
-    void SetPillarRoom(Room room)
+    void SetPillars(Room room)
     {
         for (int i = room.Left + 1; i <= room.Right - 1; i++)
         {
@@ -326,7 +352,7 @@ public class MapGenerator
         }
     }
 
-    void SetBigPillarRoom(Room room)
+    void SetBigPillar(Room room)
     {
         int bezel = room.Width / 3;
         bezel = Mathf.Max(1, bezel);
@@ -340,7 +366,7 @@ public class MapGenerator
         }
     }
 
-    void SetRandomPillarRoom(Room room)
+    void SetRandomPillars(Room room)
     {
         for (int i = room.Left + 1; i <= room.Right - 1; i++)
         {
@@ -348,6 +374,39 @@ public class MapGenerator
             {
                 if (rand.Next(0, 2) == 1)
                     dungeonData.mapData[i][j].tileType = TileType.Wall;
+            }
+        }
+    }
+
+    void SetCenterSurroundings(Room room)
+    {
+        if (room.Width >= 5 && room.Height >= 5)
+        {
+            Coordinate center = room.center;
+            for(int i = -1; i <= 1; i++)
+            {
+                for(int j = -1; j <= 1; j++)
+                {
+                    if ((i == 0 && j == 0)) continue;
+                    dungeonData.mapData[center.x + i][center.y - i].tileType = TileType.Wall;
+                }
+            }
+            int pick = rand.Next(0, 4);
+            switch (pick)
+            {
+                case 0:
+                    dungeonData.mapData[center.x + 1][center.y].tileType = TileType.Floor;
+                    break;
+                case 1:
+                    dungeonData.mapData[center.x - 1][center.y].tileType = TileType.Floor;
+                    break;
+                case 2:
+                    dungeonData.mapData[center.x][center.y + 1].tileType = TileType.Floor;
+                    break;
+                case 3:
+                    dungeonData.mapData[center.x][center.y - 1].tileType = TileType.Floor;
+                    break;
+   
             }
         }
     }

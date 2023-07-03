@@ -21,8 +21,8 @@ MonoBehaviour:
   <MaxMp>k__BackingField: 15
   <MpRegen>k__BackingField: 0
   <MaxHunger>k__BackingField: 100
-  <Atk>k__BackingField: 3
-  <MAtk>k__BackingField: 0
+  <Atk>k__BackingField: 10
+  <MAtk>k__BackingField: 12
   <AtkRange>k__BackingField: 1
   <Pen>k__BackingField: 0
   <MPen>k__BackingField: 0

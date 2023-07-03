@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
         {PrefabAssetType.DungeonObject, new Dictionary<string, AsyncOperationHandle<GameObject>>()},
         {PrefabAssetType.Monster, new Dictionary<string, AsyncOperationHandle<GameObject>>()},
     };
+    readonly Dictionary<string, AsyncOperationHandle<BuffBase>> buffBaseHandles = new();
 
     private static GameManager instance = null;
     private void Awake()
@@ -150,6 +151,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public BuffBase GetBuffBase(string key)
+    {
+        if (buffBaseHandles.ContainsKey(key))
+            return buffBaseHandles[key].Result;
+        else
+        {
+            buffBaseHandles.Add(key, Addressables.LoadAssetAsync<BuffBase>("Assets/Scriptable Objects/Buff/" + key + ".asset"));
+            buffBaseHandles[key].WaitForCompletion();
+            if (buffBaseHandles[key].Status == AsyncOperationStatus.Succeeded)
+                return buffBaseHandles[key].Result;
+            else return null;
+        }
+    }
+
     public void ReleaseAllAssets()
     {
         foreach(KeyValuePair<SpriteAssetType,Dictionary<string, AsyncOperationHandle<Sprite>>> pair in spriteHandles){
@@ -176,6 +191,11 @@ public class GameManager : MonoBehaviour
                 Addressables.Release(pair2.Value);
                 pair.Value.Remove(pair2.Key);
             }
+        }
+        foreach (KeyValuePair<string, AsyncOperationHandle<BuffBase>> pair in buffBaseHandles)
+        {
+            Addressables.Release(pair.Value);
+            buffBaseHandles.Remove(pair.Key);
         }
     }
 }

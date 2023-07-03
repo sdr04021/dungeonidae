@@ -16,7 +16,7 @@ public class BuffIcon : MonoBehaviour
 
     public void SetBuff(BuffData buff)
     {
-        image.sprite = buff.Sprite;
+        image.sprite = GameManager.Instance.GetBuffBase(buff.Key).sprite;
         curtain.fillAmount = 0;
     }
 

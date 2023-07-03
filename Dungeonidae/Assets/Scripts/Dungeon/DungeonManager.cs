@@ -50,7 +50,7 @@ public class DungeonManager : MonoBehaviour
         saveData.UpdateFloorSeeds();
 
         dungeonData.floor = saveData.Floors.Count - 1;
-        if (GameManager.Instance.saveData.currentFloor % 5 == 1)
+        if (GameManager.Instance.saveData.currentFloor % 5 == 3)
             await Task.Run(() => new MazeGenerator(dungeonData));
         else
             _ = new MapGenerator(dungeonData);
@@ -204,33 +204,6 @@ public class DungeonManager : MonoBehaviour
     void SetUnitsAndObjects()
     {
         SaveData saveData = GameManager.Instance.saveData;
-        
-        for (int i = 0; i < dungeonData.rooms.Count; i++)
-        {
-            Room room = dungeonData.rooms[i];
-            int amount = 1 + (int)((room.Area / 16) * Random.value);
-            for (int j = 0; j < amount; j++)
-            {
-                Coordinate c = new(Random.Range(room.Left, room.Right), Random.Range(room.Top, room.Bottom));
-                List<Coordinate> genPoints = GlobalMethods.RangeByStep(c, 1);
-                for (int k = 0; k < genPoints.Count; k++)
-                {
-                    Tile tile = map.GetElementAt(genPoints[k]);
-                    if (tile.IsReachableTile())
-                    {
-                        int pick = Random.Range(0, 3);
-                        GameObject prefab = GetMonsterPrefab(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]]);
-                        if (prefab != null)
-                        {
-                            Monster temp = Instantiate(prefab).GetComponent<Monster>();
-                            dungeonData.unitList.Add(temp.UnitData);
-                            temp.Init(this, genPoints[k], saveData.currentFloor + pick);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
 
         switch (dungeonData.dungeonType)
         {
@@ -242,15 +215,47 @@ public class DungeonManager : MonoBehaviour
                     for (int j = 0; j < amount; j++)
                     {
                         Coordinate c = new(Random.Range(room.Left, room.Right), Random.Range(room.Top, room.Bottom));
-                        int pick = Random.Range(0, 3);
-                        InstantiateMonster(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]], c);
+                        InstantiateMonsterBasedOnCurrentFloor(c);
                     }
                     if(Random.Range(0,2)==1)
-                        InstantiateDungeonObject("HEART_OF_HEALING", dungeonData.rooms[i].PickRandomCordinate());
+                        InstantiateDungeonObject("POT", dungeonData.rooms[i].PickRandomCordinate());
                 }
-                InstantiateDungeonObject("TOMB", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
-                InstantiateDungeonObject("TREASURE_BOX_RED", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
-                InstantiateItemObject("KEY_BOX_RED", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
+                if (saveData.currentFloor > 0)
+                {
+                    while (true)
+                    {
+                        if (Random.value < 0.5f)
+                        {
+                            List<string> list = GameManager.Instance.StringData.GetEquipKeyList(true, true, true, true, true)[0];
+                            InstantiateItemObject(ItemType.Equipment, list[Random.Range(0, list.Count)], dungeonData.genArea[Random.Range(0, dungeonData.genArea.Count)]);
+                        }
+                        else break;
+                    }
+                }
+                int fieldMiscs = Random.Range(1, 3 + saveData.currentFloor/5);
+                for(int i=0; i<fieldMiscs; i++)
+                {
+                    List<string> list = GameManager.Instance.StringData.MiscItems;
+                    InstantiateItemObject(ItemType.Misc, list[Random.Range(0, list.Count)], dungeonData.genArea[Random.Range(0, dungeonData.genArea.Count)]);
+                }
+                
+                for (int i=0; i < dungeonData.objectRooms.Count; i++)
+                {
+                    int pick = Random.Range(0, 3);
+                    switch (pick)
+                    {
+                        case 0:
+                            InstantiateDungeonObject("TOMB", dungeonData.rooms[dungeonData.objectRooms[i]].center);
+                            break;
+                        case 1:
+                            InstantiateDungeonObject("TREASURE_BOX_RED", dungeonData.rooms[dungeonData.objectRooms[i]].center);
+                            InstantiateItemObject(ItemType.Misc, "KEY_BOX_RED", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
+                            break;
+                        case 2:
+                            InstantiateMonster("SENTRY_TOWER", dungeonData.rooms[dungeonData.objectRooms[i]].center, saveData.currentFloor);
+                            break;
+                    }
+                }
                 break;
             case DungeonType.Maze:
                 int count = 0;
@@ -260,8 +265,7 @@ public class DungeonManager : MonoBehaviour
                     if (Random.Range(0, 2) == 1)
                     {
                         count++;
-                        int pick = Random.Range(0, 3);
-                        InstantiateMonster(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]], dungeonData.genArea[i]);
+                        InstantiateMonsterBasedOnCurrentFloor(dungeonData.genArea[i]);
                     }
                     else if(Random.Range(0, 20) == 0)
                     {
@@ -298,7 +302,7 @@ public class DungeonManager : MonoBehaviour
         {
             if (dungeonData.unitList[i].team != Team.Player)
             {
-                GameObject prefab = GetMonsterPrefab(dungeonData.unitList[i].Key);
+                GameObject prefab = GameManager.Instance.GetPrefab(PrefabAssetType.Monster, dungeonData.unitList[i].Key);
                 if(prefab != null)
                 {
                     Monster temp = Instantiate(prefab).GetComponent<Monster>();
@@ -335,27 +339,22 @@ public class DungeonManager : MonoBehaviour
             Tile tile = map.GetElementAt(genPoints[i]);
             if (tile.IsReachableTile() && !player.TilesInSight.Contains(tile.Coord))
             {
-                int pick = Random.Range(0, 3);
-                GameObject prefab = GetMonsterPrefab(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[(saveData.currentFloor + pick) % (saveData.MonsterLayout.Count)]]);
-                if (prefab != null)
-                {
-                    Monster temp = Instantiate(prefab).GetComponent<Monster>();
-                    dungeonData.unitList.Add(temp.UnitData);
-                    temp.Init(this, genPoints[i], saveData.currentFloor + pick);
-                    if (fogMap.GetElementAt(genPoints[i]).IsOn)
-                    {
-                        temp.MySpriteRenderer.enabled = false;
-                        temp.canvas.enabled = false;
-                    }
-                    temp.UpdateSightArea();
-                    temp.LookAround();
-                }
+                InstantiateMonsterBasedOnCurrentFloor(genPoints[i]);
                 break;
             }
         }
     }
 
-    public Monster InstantiateMonster(string key, Coordinate location)
+    public void InstantiateMonsterBasedOnCurrentFloor(Coordinate coord)
+    {
+        SaveData saveData = GameManager.Instance.saveData;
+        int curFloor = saveData.currentFloor;
+        int mobCnt = saveData.MonsterLayout.Count;
+        int pick = Random.Range(Mathf.Max(0, curFloor - 1), curFloor + 2);
+        InstantiateMonster(GameManager.Instance.StringData.Monsters[saveData.MonsterLayout[pick % mobCnt]], coord, pick + mobCnt * (pick / mobCnt));
+    }
+
+    public Monster InstantiateMonster(string key, Coordinate location, int level)
     {
         Monster monster = null;
         List<Coordinate> locations = GlobalMethods.RangeByStep(location, 1);
@@ -369,11 +368,10 @@ public class DungeonManager : MonoBehaviour
                 {
                     monster = Instantiate(prefab).GetComponent<Monster>();
                     dungeonData.unitList.Add(monster.UnitData);
-                    monster.Init(this, locations[i], GameManager.Instance.saveData.currentFloor + 1);
+                    monster.Init(this, locations[i], level);
                     if (fogMap.GetElementAt(locations[i]).IsOn)
                     {
-                        monster.MySpriteRenderer.enabled = false;
-                        monster.canvas.enabled = false;
+                        monster.DisableRenderers();
                     }
                     monster.UpdateSightArea();
                     monster.LookAround();
@@ -403,7 +401,7 @@ public class DungeonManager : MonoBehaviour
             }
         }
     }
-    public void InstantiateItemObject(string key, Coordinate location)
+    public void InstantiateItemObject(ItemType itemType, string key, Coordinate location)
     {
         List<Coordinate> locations = GlobalMethods.RangeByStep(location, 1);
         for (int i = 0; i < locations.Count; i++)
@@ -412,7 +410,10 @@ public class DungeonManager : MonoBehaviour
             if (tile.IsReachableTile())
             {
                 ItemObject temp = Instantiate(GameManager.Instance.itemObjectPrefab, locations[i].ToVector2(), Quaternion.identity);
-                temp.Init(this, locations[i], new MiscData(GameManager.Instance.GetMiscBase(key), 1));
+                if (itemType == ItemType.Misc)
+                    temp.Init(this, locations[i], new MiscData(GameManager.Instance.GetMiscBase(key), 1));
+                else
+                    temp.Init(this, locations[i], new EquipmentData(GameManager.Instance.GetEquipmentBase(key)));
                 dungeonData.fieldItemList.Add(temp.Data);
                 map.GetElementAt(locations[i]).items.Push(temp);
                 temp.Drop();
@@ -427,7 +428,7 @@ public class DungeonManager : MonoBehaviour
         {
             if (dungeonData.unitList[i].Owner.IsDead)
             {
-                RemoveUnit(dungeonData.unitList[i]);
+                RemoveUnitData(dungeonData.unitList[i]);
             }
         }
 
@@ -453,13 +454,11 @@ public class DungeonManager : MonoBehaviour
 
             if (fogMap.GetElementAt(dungeonData.unitList[i].coord.x, dungeonData.unitList[i].coord.y).IsOn)
             {
-                dungeonData.unitList[i].Owner.MySpriteRenderer.enabled = false;
-                dungeonData.unitList[i].Owner.canvas.enabled = false;
+                dungeonData.unitList[i].Owner.DisableRenderers();
             }
             else
             {
-                dungeonData.unitList[i].Owner.MySpriteRenderer.enabled = true;
-                dungeonData.unitList[i].Owner.canvas.enabled = true;
+                dungeonData.unitList[i].Owner.EnableRenderers();
             }
         }
     }
@@ -508,7 +507,7 @@ public class DungeonManager : MonoBehaviour
         }
         for (int i = 0; i < trimAmount; i++)
         {
-            if ((dungeonData.unitList.Count < 50) && (Random.value <= 0.05f)) RegenerateMobs();
+            if ((dungeonData.unitList.Count < 20 + GameManager.Instance.saveData.currentFloor) && (Random.value <= 0.025f)) RegenerateMobs();
         }
 
         dungeonData.unitList[order].Owner.StartTurn();
@@ -539,7 +538,7 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
-    public void RemoveUnit(UnitData unitData)
+    public void RemoveUnitData(UnitData unitData)
     {
         int index = dungeonData.unitList.IndexOf(unitData);
         dungeonData.unitList.RemoveAt(index);
@@ -551,7 +550,7 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
-    public void RemoveDungeonOnject(DungeonObjectData dungeonObjectData)
+    public void RemoveDungeonObjectData(DungeonObjectData dungeonObjectData)
     {
         dungeonData.dungeonObjectList.Remove(dungeonObjectData);
     }
@@ -634,38 +633,6 @@ public class DungeonManager : MonoBehaviour
         if ((c.x >= 0 && c.x < map.arrSize.x) && (c.y >= 0 && c.y < map.arrSize.y))
             return true;
         else return false;
-    }
-
-    GameObject GetMonsterPrefab(string Key)
-    {
-
-        GameObject prefab = null;
-        if (monsterHandles.ContainsKey(Key))
-        {
-            prefab = monsterHandles[Key].Result;
-        }
-        else
-        {
-            monsterHandles.Add(Key, Addressables.LoadAssetAsync<GameObject>("Assets/Prefabs/Monster/" + Key + ".prefab"));
-            monsterHandles[Key].WaitForCompletion();
-            if (monsterHandles[Key].Status == AsyncOperationStatus.Succeeded)
-                prefab = monsterHandles[Key].Result;
-        }
-        return prefab;
-    }
-    public EquipmentBase GetEquipmentBase(string key)
-    {
-        EquipmentBase equipment = null;
-        if (equipmentHandles.ContainsKey(key))
-            equipment = equipmentHandles[key].Result;
-        else
-        {
-            equipmentHandles.Add(key, Addressables.LoadAssetAsync<EquipmentBase>("Assets/Scriptable Objects/Equip/" + key + ".asset"));
-            equipmentHandles[key].WaitForCompletion();
-            if (equipmentHandles[key].Status == AsyncOperationStatus.Succeeded)
-                equipment = equipmentHandles[key].Result;
-        }
-        return equipment;
     }
 
     public void TestOut()

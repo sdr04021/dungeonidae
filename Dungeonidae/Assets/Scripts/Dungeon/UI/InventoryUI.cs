@@ -1,11 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Linq;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -22,7 +20,6 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] List<ItemSlot> miscSlots = new();
 
     [SerializeField] ItemInfo equippedInfo;
-    [SerializeField] GameObject accSelecterBg;
     bool isAccSelectMode = false;
     int accPlanToEquipIndex = -1;
     [SerializeField] GameObject itemInfoBg;
@@ -80,6 +77,7 @@ public class InventoryUI : MonoBehaviour
         CloseInfoBox();
         CloseEquippedINfo();
         if (IsEquipmentEnchantMode || IsArtifactEnchantMode) CancelEnchantMode();
+        if (isAccSelectMode) CancelArtifectSelectMode();
         UpdateMiscInventory();
         itemInfo.SetItemMode();
         miscTabButton.color = Color.white;
@@ -146,6 +144,7 @@ public class InventoryUI : MonoBehaviour
     {
         itemInfo.gameObject.SetActive(false);
         itemInfoBg.SetActive(false);
+        if (isAccSelectMode) CancelArtifectSelectMode();
     }
 
     public void EquippedSlotClicked(int index)
@@ -153,8 +152,7 @@ public class InventoryUI : MonoBehaviour
         if (isAccSelectMode)
         {
             dm.Player.ExchangeEquipment(accPlanToEquipIndex, index);
-            accSelecterBg.SetActive(false);
-            isAccSelectMode = false;
+            CancelArtifectSelectMode();
             dunUI.CloseMenuCanvas();
         }
         else
@@ -194,9 +192,24 @@ public class InventoryUI : MonoBehaviour
 
             //º±≈√
             accPlanToEquipIndex = index;
-            accSelecterBg.SetActive(true);
+            //accSelecterBg.SetActive(true);
             itemInfoBg.SetActive(true);
             isAccSelectMode = true;
+            for (int i = 0; i < equipmentSlots.Count; i++)
+            {
+                if (i < GameManager.Instance.saveData.playerData.equipInventory.Count)
+                {
+                    if (GameManager.Instance.saveData.playerData.equipInventory[i].EquipmentType != EquipmentType.Artifact)
+                    {
+                        equipmentSlots[i].SetCurtain();
+                    }
+                }
+                else equipmentSlots[i].SetCurtain();
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                equippedSlots[i].SetCurtain();
+            }
         }
     }
     public void UnEquipEquipment(int index)
@@ -342,5 +355,29 @@ public class InventoryUI : MonoBehaviour
             }
         }
     }
-    
+    public void CancelArtifectSelectMode()
+    {
+        if (isAccSelectMode)
+        {
+            isAccSelectMode = false;
+            InventoryNotice.SetActive(false);
+            CloseInfoBox();
+            CloseEquippedINfo();
+            for (int i = 0; i < equipmentSlots.Count; i++)
+            {
+                if (i < GameManager.Instance.saveData.playerData.equipInventory.Count)
+                {
+                    if (GameManager.Instance.saveData.playerData.equipInventory[i].EquipmentType != EquipmentType.Artifact)
+                    {
+                        equipmentSlots[i].RemoveCurtain();
+                    }
+                }
+                else equipmentSlots[i].RemoveCurtain();
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                equippedSlots[i].RemoveCurtain();
+            }
+        }
+    }
 }

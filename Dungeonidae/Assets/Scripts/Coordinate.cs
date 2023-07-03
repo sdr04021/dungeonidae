@@ -202,7 +202,11 @@ public struct Coordinate
     }
     public static bool InRange(Coordinate startPoint, Coordinate endPoint, int range)
     {
-        return (((startPoint.x - endPoint.x) * (startPoint.x - endPoint.x) + (startPoint.y - endPoint.y) * (startPoint.y - endPoint.y)) < (range * range));
+        return (((startPoint.x - endPoint.x) * (startPoint.x - endPoint.x) + (startPoint.y - endPoint.y) * (startPoint.y - endPoint.y)) <= (range * range));
+    }
+    public static bool InRange(Coordinate startPoint, Coordinate endPoint, float range)
+    {
+        return (((startPoint.x - endPoint.x) * (startPoint.x - endPoint.x) + (startPoint.y - endPoint.y) * (startPoint.y - endPoint.y)) <= (range * range));
     }
 
     public static Coordinate operator +(Coordinate a, Coordinate b)
@@ -215,6 +219,8 @@ public struct Coordinate
         => new Coordinate(a.x * b, a.y * b);
     public static Coordinate operator /(Coordinate a, int b)
         => new Coordinate(a.x / b, a.y / b);
+    public static Coordinate operator /(Coordinate a, Coordinate b)
+        => new Coordinate(a.x / b.x, a.y / b.y);
     public static bool operator ==(Coordinate a, Coordinate b)
         => (a.x == b.x) && (a.y == b.y);
     public static bool operator !=(Coordinate a, Coordinate b)

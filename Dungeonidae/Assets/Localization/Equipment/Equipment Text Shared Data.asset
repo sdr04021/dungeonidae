@@ -63,6 +63,22 @@ MonoBehaviour:
     m_Key: LEATHER_ARMOR_NAME
     m_Metadata:
       m_Items: []
+  - m_Id: 21382858475749376
+    m_Key: CANINE_NECKLACE_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23617067290378240
+    m_Key: RING_AMPLIFICATION_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23617191261421568
+    m_Key: RING_PROTECTION_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23618463993610240
+    m_Key: RING_CRITICAL_NAME
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

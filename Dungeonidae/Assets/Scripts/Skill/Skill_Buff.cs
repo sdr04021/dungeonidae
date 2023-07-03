@@ -37,7 +37,7 @@ public class Skill_Buff : Skill
         owner.isAnimationFinished = false;
         float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
         yield return new WaitForSeconds(animationLength * 0.5f);
-        owner.BuffDirector.ApplyBuff(new BuffData(GameManager.Instance.buffBaseDict[SkillData.Key], SkillData));
+        owner.BuffDirector.ApplyBuff(new BuffData(GameManager.Instance.buffBaseDict[SkillData.Key], 10));
         SkillData.currentCoolDown = SkillData.EffectValues[^1] + 1;
         owner.EndSkill(1);
         while (owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)

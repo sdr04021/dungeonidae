@@ -10,4 +10,7 @@ public class MiscBase : ItemBase
 
     [field: SerializeField]
     public int MaxStack { get; private set; }
+
+    [field:SerializeField]
+    public bool IsUsable { get; private set; } 
 }

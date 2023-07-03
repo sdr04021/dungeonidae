@@ -20,10 +20,6 @@ MonoBehaviour:
     statUnit: 0
     val: 4
     bonus: 0
-  - statType: 10
-    statUnit: 0
-    val: 0
-    bonus: 0
   - statType: 9
     statUnit: 0
     val: 60

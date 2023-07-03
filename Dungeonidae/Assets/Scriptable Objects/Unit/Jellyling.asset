@@ -16,7 +16,7 @@ MonoBehaviour:
   <Team>k__BackingField: 4
   <MaxExp>k__BackingField: 10
   <ExpCoefficient>k__BackingField: 1
-  <MaxHp>k__BackingField: 30
+  <MaxHp>k__BackingField: 20
   <HpRegen>k__BackingField: 0
   <MaxMp>k__BackingField: 5
   <MpRegen>k__BackingField: 0

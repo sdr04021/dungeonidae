@@ -13,7 +13,10 @@ public class Player : Unit
     public List<Coordinate> throwableRange = new();
 
     public bool IsSkillMode { get; private set; } = false;
-    public bool IsBasicAttackMode { get; private set; } = false; 
+    public bool IsBasicAttackMode { get; private set; } = false;
+
+    public delegate void EventHandler();
+    public event EventHandler MoveCamera;
 
     protected override void Awake()
     {
@@ -37,10 +40,24 @@ public class Player : Unit
         UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[0]), 0);
         UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[1]), 3);
         UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[2]), 4);
-        UnitData.equipped[1] = new EquipmentData(dm.GetEquipmentBase("WOODEN_SWORD"));
-        UnitData.equipped[3] = new EquipmentData(dm.GetEquipmentBase("WORN_WOODEN_SHIELD"));
+        UnitData.equipped[1] = new EquipmentData(GameManager.Instance.GetEquipmentBase("WOODEN_SWORD"));
+        UnitData.equipped[3] = new EquipmentData(GameManager.Instance.GetEquipmentBase("WORN_WOODEN_SHIELD"));
         UnitData.ApplyEquipStats(UnitData.equipped[1]);
         UnitData.ApplyEquipStats(UnitData.equipped[3]);
+        //UnitData.AddMisc(new MiscData(GameManager.Instance.GetMiscBase("POTION_HASTE"), 5));
+    }
+
+    public override void Teleportation()
+    {
+        base.Teleportation();
+        MoveCamera.Invoke();
+    }
+
+    public override bool Move(Directions direction)
+    {
+        bool result = base.Move(direction);
+        MoveCamera.Invoke();
+        return result;
     }
 
     protected override void EndMove()
@@ -234,6 +251,15 @@ public class Player : Unit
                 break;
             }
         }
+        if (throwingItem.Data.GetType() == typeof(MiscData))
+        {
+            if (tile.unit != null && itemEffectDirector.ThrownEffect(tile.unit, (MiscData)throwingItem.Data))
+            {
+                dm.GetTileByCoordinate(throwingItem.Data.coord).items.Pop();
+                GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Remove(throwingItem.Data);
+                Destroy(throwingItem.gameObject);
+            }
+        }
         EndTurn(1);
     }
     void ResetThrowableRange()
@@ -323,8 +349,9 @@ public class Player : Unit
                     }
                     else if (UnitData.coord.IsTargetInRange(coord, 1) && !dm.map.GetElementAt(coord).IsReachableTile() && (dm.map.GetElementAt(coord).GetTargetable() != null))
                     {
-                        dm.map.GetElementAt(coord).GetTargetable().TargetedInteraction();
-                        EndTurn(1);
+                        //dm.map.GetElementAt(coord).GetTargetable().TargetedInteraction(this);
+                        //EndTurn(1);
+                        BasicAttack.StartSkill(coord);
                     }
                     else
                     {

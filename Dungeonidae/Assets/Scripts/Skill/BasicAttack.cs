@@ -63,13 +63,20 @@ public class BasicAttack : Skill
         owner.FlipSprite(coord);
         if (dm.map.GetElementAt(coord).unit != null)
         {
-            owner.MyAnimator.SetBool("Attack", true);
-            owner.StartCoroutine(SkillEffect(coord));
+            if (owner.UnitData.AdditionalEffects.ContainsKey("MISSILE") && !Coordinate.InRange(owner.UnitData.coord, coord, owner.UnitData.AdditionalEffects["MISSILE"][0] + 0.5f))
+            {
+                owner.StartCoroutine(Missile(coord));
+            }
+            else
+            {
+                owner.MyAnimator.SetBool("Attack", true);
+                owner.StartCoroutine(SkillEffect(coord));
+            }
         }
         else
         {
-            dm.map.GetElementAt(coord).GetTargetable().TargetedInteraction();
-            owner.EndSkill(1);
+            owner.MyAnimator.SetBool("Attack", true);
+            owner.StartCoroutine(InteractionAnimation(dm.map.GetElementAt(coord).GetTargetable()));
         }
     }
 
@@ -83,6 +90,36 @@ public class BasicAttack : Skill
         owner.UnitData.equipped[1]?.GainPotentialExp();
         owner.EndSkill(100m / owner.UnitData.aspd.Total());
         while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) || !target.isHitFinished)
+        {
+            yield return Constants.ZeroPointZeroOne;
+        }
+        owner.MyAnimator.SetBool("Attack", false);
+        owner.isAnimationFinished = true;
+    }
+
+    IEnumerator Missile(Coordinate coord)
+    {
+        Unit target = dm.GetTileByCoordinate(coord).unit;
+        owner.isAnimationFinished = false;
+        Projectile projectile = GameObject.Instantiate(owner.BasicProjectilePrefab, owner.transform.position, Quaternion.identity);
+        projectile.Init(coord.ToVector3(0));
+        while (projectile != null)
+        {
+            yield return Constants.ZeroPointZeroOne;
+        }
+        target.GetDamage(MakeAttackData(target));
+        owner.EndSkill(100m / owner.UnitData.aspd.Total());
+        owner.isAnimationFinished = true;
+    }
+
+    IEnumerator InteractionAnimation(DungeonObject target)
+    {
+        owner.isAnimationFinished = false;
+        float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
+        yield return new WaitForSeconds(animationLength * 0.4f);
+        target.TargetedInteraction(owner);
+        owner.EndSkill(1);
+        while (owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
         {
             yield return Constants.ZeroPointZeroOne;
         }

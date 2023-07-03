@@ -1,4 +1,4 @@
-
+public enum AdditionalEffectKey { BLOCK, MISSILE }
 public enum AreaType { Room, Hallway, Entrance, Border, None }
 public enum AttackType { Atk, MAtk, Fixed}
 public enum BuffType { Buff, Debuff }
@@ -8,7 +8,7 @@ public enum DungeonType { Dungeon, Maze }
 public enum EquipmentType { Hat, Weapon, Armor, Sub, Shoes, Artifact }
 public enum ItemSlotType { Item, Equipped, Shop }
 public enum ItemType { Equipment, Misc }
-public enum LayerOrder { Floor, BottomWall, Stair, DungeonObject, Unit, ItemObject, Bush, TopWall, Fog, Canvas }
+public enum LayerOrder { BottomWall, Stair, DungeonObject, Unit, ItemObject, Bush, Wall, TopWall, Fog, Canvas }
 public enum PrefabAssetType { Monster, DungeonObject}
 public enum SkillType { Attack, Status }
 public enum SpriteAssetType { Ability, Equipment, Misc, Skill }

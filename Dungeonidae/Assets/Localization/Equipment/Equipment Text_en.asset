@@ -68,6 +68,22 @@ MonoBehaviour:
     m_Localized: Leather Armor
     m_Metadata:
       m_Items: []
+  - m_Id: 21382858475749376
+    m_Localized: Canine Necklace
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23617067290378240
+    m_Localized: Ring of Amplification
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23617191261421568
+    m_Localized: Ring of Protection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23618463993610240
+    m_Localized: Ring of Critical
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

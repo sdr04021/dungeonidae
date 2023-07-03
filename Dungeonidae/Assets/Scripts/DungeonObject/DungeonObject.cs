@@ -47,7 +47,7 @@ public class DungeonObject : MonoBehaviour
 
     }
 
-    public virtual void TargetedInteraction()
+    public virtual void TargetedInteraction(Unit unit)
     {
 
     }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
-using Priority_Queue;
 using TMPro;
 using Unity.Collections;
 using Unity.Jobs;
@@ -16,7 +15,7 @@ abstract public class Unit : MonoBehaviour
     public bool Controllable { get; protected set; } = false;
     public bool IsDead { get; private set; } = false;
 
-    float walkDelay = 0.2f;
+    readonly float walkDelay = 0.2f;
     public List<Coordinate> TilesInSight { get; protected set; } = new();
     protected bool isFollowingPath = false;
     protected Stack<Directions> path;
@@ -44,6 +43,7 @@ abstract public class Unit : MonoBehaviour
 
     [SerializeField] SpriteRenderer shadow;
     public BasicAttack BasicAttack { get; private set; }
+    [field:SerializeField] public Projectile BasicProjectilePrefab { get; private set; }
 
     protected ItemEffectDirector itemEffectDirector;
     public AbilityDirector abilityDirector { get; private set; }
@@ -131,7 +131,7 @@ abstract public class Unit : MonoBehaviour
         }
     }
 
-    public void Teleportation()
+    public virtual void Teleportation()
     {
         List<Coordinate> coords = new();
         for(int i=1; i<dm.map.arrSize.x - 1; i++)
@@ -198,7 +198,7 @@ abstract public class Unit : MonoBehaviour
         UnitData.TurnIndicator -= amount;
     }
 
-    public bool Move(Directions direction)
+    public virtual bool Move(Directions direction)
     {
         FlipSprite(direction);
 
@@ -212,8 +212,7 @@ abstract public class Unit : MonoBehaviour
 
                 if (!dm.fogMap.GetElementAt(dest.x, dest.y).IsOn)
                 {
-                    MySpriteRenderer.enabled = true;
-                    if (canvas != null) canvas.enabled = true;
+                    EnableRenderers();
                 }
 
                 dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y).unit = null;
@@ -260,8 +259,7 @@ abstract public class Unit : MonoBehaviour
         
         if (dm.fogMap.GetElementAt(UnitData.coord.x, UnitData.coord.y).IsOn)
         {
-            MySpriteRenderer.enabled = false;
-            if (canvas != null) canvas.enabled = false;
+            DisableRenderers();
         }
 
         Tile tile = dm.map.GetElementAt(UnitData.coord);
@@ -333,7 +331,7 @@ abstract public class Unit : MonoBehaviour
                 dt.SetMiss();
             }
         }
-        else if (UnitData.EquipAbilities.ContainsKey("BLOCK") && (Random.Range(0, 100) < UnitData.EquipAbilities["BLOCK"][0]))
+        else if (UnitData.AdditionalEffects.ContainsKey("BLOCK") && (Random.Range(0, 100) < UnitData.AdditionalEffects["BLOCK"][0]))
         {
             if (MySpriteRenderer.enabled)
             {
@@ -444,6 +442,8 @@ abstract public class Unit : MonoBehaviour
 
     protected void RandomStep()
     {
+        if (UnitData.speed.Total() <= 0) EndTurn(1);
+
         List<Directions> deck = new();
         for(int i=0; i<8; i++)
         {
@@ -573,35 +573,43 @@ abstract public class Unit : MonoBehaviour
 
         TilesInSight.Clear();
         int sight = UnitData.sight.Total();
+
+        int wallMapSize = sight * 2 + 1;
+        NativeArray<bool> wallMap = new(wallMapSize * wallMapSize, Allocator.TempJob);
+        Coordinate origin = new(UnitData.coord.x - sight, UnitData.coord.y - sight);
+        for (int i = 0; i < wallMapSize; i++)
+        {
+            for (int j = 0; j < wallMapSize; j++)
+            {
+                if (dm.IsValidIndexForMap(origin.x + i, origin.y + j) && dm.map.GetElementAt(origin.x + i, origin.y + j).IsBlockingSight())
+                {
+                    wallMap[j + i * wallMapSize] = true;
+                }
+                else wallMap[j + i * wallMapSize] = false;
+            }
+        }
         List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, sight);
-        NativeArray<Vector2> blockInSight = new(inRange.Count, Allocator.TempJob);
-        NativeArray<Vector2> end = new(inRange.Count, Allocator.TempJob);
+        NativeArray<Coordinate> end = new(inRange.Count, Allocator.TempJob);
         NativeArray<bool> result = new(inRange.Count, Allocator.TempJob);
-        int blockCounter = 0;
         int endCounter = 0;
         for (int i = 0; i < inRange.Count; i++)
         {
             if (dm.IsValidCoordForMap(inRange[i]))
             {
-                if (Coordinate.InRange(UnitData.coord, inRange[i], sight))
+                if (Coordinate.InRange(UnitData.coord, inRange[i], sight + 0.5f))
                 {
-                    end[endCounter] = inRange[i].ToVector2();
+                    end[endCounter] = (inRange[i] - origin);
                     endCounter++;
-                }
-                if (dm.map.GetElementAt(inRange[i]).IsBlockingSight())
-                {
-                    blockInSight[blockCounter] = inRange[i].ToVector2();
-                    blockCounter++;
                 }
             }
         }
-        SightCheckJob sightJob = new()
+
+        SightCheckJob2 sightJob = new()
         {
-            blockInSight = blockInSight,
-            blockCounter = blockCounter,
-            start = UnitData.coord.ToVector2(),
+            wallMap = wallMap,
+            wallMapSize = wallMapSize,
+            start = UnitData.coord - origin,
             end = end,
-            endCounter = endCounter,
             result = result
         };
 
@@ -612,11 +620,11 @@ abstract public class Unit : MonoBehaviour
         {
             if (result[i])
             {
-                TilesInSight.Add(new Coordinate(end[i]));
+                TilesInSight.Add(end[i] + origin);
             }
         }
 
-        blockInSight.Dispose();
+        wallMap.Dispose();
         end.Dispose();
         result.Dispose();
 
@@ -806,6 +814,21 @@ abstract public class Unit : MonoBehaviour
             bubble.DOFade(0, 1).SetEase(Ease.Linear).OnComplete(() => { bubble.gameObject.SetActive(false); bubble.color = Color.white; });
             bubbleText.DOFade(0, 1).SetEase(Ease.Linear).OnComplete(() => { bubbleText.color = Color.black; });
         }
+    }
+
+    public void EnableRenderers()
+    {
+        MySpriteRenderer.enabled = true;
+        canvas.enabled = true;
+        bubble.enabled = true;
+        shadow.enabled = true;
+    }
+    public void DisableRenderers()
+    {
+        MySpriteRenderer.enabled = false;
+        canvas.enabled = false;
+        bubble.enabled = false;
+        shadow.enabled = false;
     }
 
     private void OnDestroy()

@@ -24,9 +24,9 @@ public class TreasureBox : DungeonObject
         if (playerData.RemoveOneMisc(KeyKey))
         {
             SpriteRenderer.sprite = openedSprite;
-            List<string> list = GameManager.Instance.StringData.EquipTier[0].forClass[0].list;
+            List<string> list = GameManager.Instance.StringData.GetEquipKeyList(true, true, true, true, true)[0];
             string tempKey = list[Random.Range(0, list.Count)];
-            EquipmentBase tempBase = dm.GetEquipmentBase(tempKey);
+            EquipmentBase tempBase = GameManager.Instance.GetEquipmentBase(tempKey);
             if (tempBase != null)
             {
                 ItemObject itemTemp = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);

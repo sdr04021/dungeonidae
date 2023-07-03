@@ -14,6 +14,8 @@ public class Tile : MonoBehaviour
     [SerializeField] SpriteRenderer spriteRenderer;
     [SerializeField] SpriteRenderer upSprite;
     [SerializeField] SpriteRenderer downSprite;
+    [SerializeField] SpriteRenderer cornereLeft;
+    [SerializeField] SpriteRenderer cornerRight;
     DungeonManager dm;
     Coordinate coord;
     public Coordinate Coord { get { return coord; } }
@@ -103,6 +105,8 @@ public class Tile : MonoBehaviour
         dungeonObjects.Clear();
         upSprite.gameObject.SetActive(false);
         downSprite.gameObject.SetActive(false);
+        cornereLeft.gameObject.SetActive(false);
+        cornerRight.gameObject.SetActive(false);
         TurnOffRangeIndicator();
     }
 
@@ -114,11 +118,13 @@ public class Tile : MonoBehaviour
         spriteRenderer.sortingOrder = 1000 - (10 * coord.y);
         if (TileData.tileType == TileType.Wall)
         {
-            spriteRenderer.sortingOrder += (int)LayerOrder.TopWall;
-            upSprite.sortingOrder = spriteRenderer.sortingOrder;
+            upSprite.sortingOrder = spriteRenderer.sortingOrder + (int)LayerOrder.TopWall;
+            cornereLeft.sortingOrder = upSprite.sortingOrder;
+            cornerRight.sortingOrder = upSprite.sortingOrder;
+            spriteRenderer.sortingOrder += (int)LayerOrder.Wall;
             downSprite.sortingOrder = 1000 - (10 * (coord.y - 1)) + (int)LayerOrder.BottomWall;
         }
-        else spriteRenderer.sortingOrder = (int)LayerOrder.Floor;
+        else spriteRenderer.sortingOrder = 0;
 
         fourWays[0] = dm.map.GetElementAt(coord.x, coord.y + 1).TileData.tileType;
         fourWays[1] = dm.map.GetElementAt(coord.x + 1, coord.y).TileData.tileType;
@@ -152,6 +158,15 @@ public class Tile : MonoBehaviour
             if (fourWays[0] == TileType.Wall)
             {
                 upSprite.gameObject.SetActive(false);
+
+                TileType[] digonalTops = new TileType[2];
+                digonalTops[0] = dm.map.GetElementAt(coord.x + 1, coord.y + 1).TileData.tileType;
+                digonalTops[1] = dm.map.GetElementAt(coord.x - 1, coord.y + 1).TileData.tileType;
+
+                if (fourWays[1]==TileType.Wall && digonalTops[0] == TileType.Floor) cornerRight.gameObject.SetActive(true);
+                else cornerRight.gameObject.SetActive(false);
+                if (fourWays[3] == TileType.Wall && digonalTops[1] == TileType.Floor) cornereLeft.gameObject.SetActive(true);
+                else cornereLeft.gameObject.SetActive(false);
             }
             else if (fourWays[0] == TileType.Floor)
             {
@@ -211,8 +226,10 @@ public class Tile : MonoBehaviour
                 }
                 else if ((fourWays[1] == TileType.Floor) && (fourWays[3] == TileType.Wall))
                 {
-                    if (digonalBottoms[0] == TileType.Wall)
+                    if (digonalBottoms[0] == TileType.Wall && digonalBottoms[1]==TileType.Wall)
                         spriteRenderer.sprite = sprites[7];
+                    else if (digonalBottoms[0] == TileType.Wall && digonalBottoms[1] == TileType.Floor)
+                        spriteRenderer.sprite = sprites[6];
                     else if (digonalBottoms[1] == TileType.Floor)
                         spriteRenderer.sprite = sprites[6];
                     else spriteRenderer.sprite = sprites[8];
@@ -237,7 +254,6 @@ public class Tile : MonoBehaviour
                         spriteRenderer.sprite = sprites[17];
                 }
             }
-
         }
         rangeIndicator.sortingOrder = 1000 - (10 * coord.y) + 10 + (int)LayerOrder.Fog;
         targetMark.sortingOrder = 1000 - (10 * coord.y) + 10 + (int)LayerOrder.Fog;

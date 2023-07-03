@@ -132,6 +132,8 @@ public class ItemInfo : MonoBehaviour
             title.text = inventoryUI.DunUI.GetItemName(misc.Key);
             icon.sprite = GameManager.Instance.GetSprite(SpriteAssetType.Misc, misc.Key);
             itemString.Append(inventoryUI.DunUI.GetItemDescription(misc.Key, GameManager.Instance.GetMiscBase(misc.Key).EffectValues));
+            if(GameManager.Instance.GetMiscBase(misc.Key).IsUsable) UseButton.SetActive(true);
+            else UseButton.SetActive(false);
         }
         mainText.text = itemString.ToString();
 

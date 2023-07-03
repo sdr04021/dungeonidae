@@ -45,11 +45,7 @@ public class EquipmentData : ItemData
             };
             if (i == 0)
             {
-                stat.val = (int)(stat.val * (1 + Mathf.Pow(Random.value, 4) / 2));
-            }
-            else if(stat.val == 0)
-            {
-                stat.val = (int)(Mathf.Pow(Random.value, 4) * 5);
+                stat.val += (int)(stat.val * (1 / ((Random.value - 1.05f) * -20f) - 0.047619f) * 0.5f);
             }
 
             if (stat.val != 0)
@@ -62,6 +58,11 @@ public class EquipmentData : ItemData
             {
                 EquipmentAblitiyBonus.Add(0);
             }
+        }
+
+        if (data.equipmentType == EquipmentType.Artifact)
+        {
+            PotentialExp = 30;
         }
     }
 
@@ -314,14 +315,7 @@ public class EquipmentData : ItemData
     public void EnchantEquipment()
     {
         Enchant++;
-        if (EquipmentType == EquipmentType.Artifact)
-        {
-
-        }
-        else
-        {
-            Stats[0].bonus += (int)(Stats[0].val * 0.25m);
-        }
+        if (Stats.Count > 0) Stats[0].bonus += (int)(1 + Stats[0].val * 0.25m);
         EquipmentBase equipBase = GameManager.Instance.GetEquipmentBase(Key);
         if (equipBase.abilities?.Length > 0)
         {

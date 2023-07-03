@@ -60,10 +60,27 @@ MonoBehaviour:
     m_Localized: The key needed to open the locked red box.
     m_Metadata:
       m_Items: []
+  - m_Id: 33997100982910976
+    m_Localized: Small Stone
+    m_Metadata:
+      m_Items: []
+  - m_Id: 33997172432879616
+    m_Localized: 'It may seem useless, but when thrown, it can deal damage to enemies. '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35865640451096576
+    m_Localized: Potion of Haste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35865675150573568
+    m_Localized: Movement speed Increases by {0.1}%p for  {0.0} turns.
+    m_Metadata:
+      m_Items:
+      - rid: 3135477887864143875
   references:
     version: 2
     RefIds:
     - rid: 3135477887864143875
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_Entries: 00c03a1c454c3800
+        m_Entries: 00c03a1c454c380000c0fa3aa46b7f00

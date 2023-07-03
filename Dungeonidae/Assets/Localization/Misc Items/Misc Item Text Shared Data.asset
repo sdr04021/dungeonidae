@@ -55,6 +55,22 @@ MonoBehaviour:
     m_Key: KEY_BOX_RED_DESC
     m_Metadata:
       m_Items: []
+  - m_Id: 33997100982910976
+    m_Key: SMALL_STONE_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 33997172432879616
+    m_Key: SMALL_STONE_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35865640451096576
+    m_Key: POTION_HASTE_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35865675150573568
+    m_Key: POTION_HASTE_DESC
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

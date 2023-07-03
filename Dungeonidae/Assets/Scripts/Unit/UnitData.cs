@@ -106,7 +106,7 @@ public class UnitData
         }
     }
     [JsonIgnore] public UnitStat stealth;
-    [JsonIgnore] public Dictionary<string, int[]> EquipAbilities { get; private set; } = new();
+    [JsonIgnore] public Dictionary<string, int[]> AdditionalEffects { get; private set; } = new();
 
     public Dictionary<string,AbilityData> abilities = new();
     public int abilityPoint = 0;
@@ -354,15 +354,15 @@ public class UnitData
             {
                 if (equipBase.abilities[i].vals?.Count > 0)
                 {
-                    if (EquipAbilities.ContainsKey(equipBase.abilities[i].key))
-                        EquipAbilities[equipBase.abilities[i].key] = GlobalMethods.AddArrays(EquipAbilities[equipBase.abilities[i].key], equipBase.abilities[i].vals, equip.EquipmentAblitiyBonus).ToArray();
-                    else EquipAbilities.Add(equipBase.abilities[i].key, equipBase.abilities[i].vals.ToArray());
+                    if (AdditionalEffects.ContainsKey(equipBase.abilities[i].key))
+                        AdditionalEffects[equipBase.abilities[i].key] = GlobalMethods.AddArrays(AdditionalEffects[equipBase.abilities[i].key], equipBase.abilities[i].vals, equip.EquipmentAblitiyBonus).ToArray();
+                    else AdditionalEffects.Add(equipBase.abilities[i].key, equipBase.abilities[i].vals.ToArray());
                 }
                 else
                 {
-                    if (EquipAbilities.ContainsKey(equipBase.abilities[i].key))
-                        EquipAbilities[equipBase.abilities[i].key][0]++;
-                    else EquipAbilities.Add(equipBase.abilities[i].key, new int[] {1});
+                    if (AdditionalEffects.ContainsKey(equipBase.abilities[i].key))
+                        AdditionalEffects[equipBase.abilities[i].key][0]++;
+                    else AdditionalEffects.Add(equipBase.abilities[i].key, new int[] {1});
                 }
             }
         }
@@ -389,11 +389,11 @@ public class UnitData
             for (int i = 0; i < equipBase.abilities.Length; i++)
             {
                 if (equipBase.abilities[i].vals?.Count > 0)
-                    EquipAbilities[equipBase.abilities[i].key] = GlobalMethods.SubstractArrays(EquipAbilities[equipBase.abilities[i].key], equipBase.abilities[i].vals, equip.EquipmentAblitiyBonus).ToArray();
+                    AdditionalEffects[equipBase.abilities[i].key] = GlobalMethods.SubstractArrays(AdditionalEffects[equipBase.abilities[i].key], equipBase.abilities[i].vals, equip.EquipmentAblitiyBonus).ToArray();
                 else
-                    EquipAbilities[equipBase.abilities[i].key][0]--;
-                if (EquipAbilities[equipBase.abilities[i].key][0] == 0)
-                    EquipAbilities.Remove(equipBase.abilities[i].key);
+                    AdditionalEffects[equipBase.abilities[i].key][0]--;
+                if (AdditionalEffects[equipBase.abilities[i].key][0] == 0)
+                    AdditionalEffects.Remove(equipBase.abilities[i].key);
             }
         }
     }

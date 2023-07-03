@@ -17,7 +17,7 @@ public class Room
     public int GrowthCount { get; private set; }
     readonly bool[] growthRestriction = { false, false, false, false };
     public bool FinishedGrowth { get; private set; } = false;
-
+    
     public List<Coordinate> Entrances { get; private set; } = new();
 
     public Room(Coordinate center)
@@ -81,6 +81,12 @@ public class Room
 
     public void Grow(System.Random rand, List<List<TileData>> mapData)
     {
+        if (Width > 10 || Height > 10)
+        {
+            FinishedGrowth = true;
+            return;
+        }
+
         int randomNumber;
         List<int> deck = new() { 0, 1, 2, 3 };
         if (growthRestriction[0]) deck.Remove(0);

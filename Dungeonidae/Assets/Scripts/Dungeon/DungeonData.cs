@@ -10,6 +10,7 @@ public class DungeonData
     [System.NonSerialized] public List<List<TileData>> mapData;
     [System.NonSerialized] public List<Room> rooms;
     [System.NonSerialized] public System.Tuple<int, int> stairRooms;
+    [System.NonSerialized] public List<int> objectRooms;
     [System.NonSerialized] public List<Coordinate> genArea;
     [System.NonSerialized] public DungeonType dungeonType;
     public HashSet<Coordinate> observedFog = new();

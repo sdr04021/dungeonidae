@@ -20,10 +20,6 @@ MonoBehaviour:
     statUnit: 0
     val: 16
     bonus: 0
-  - statType: 10
-    statUnit: 0
-    val: 0
-    bonus: 0
   - statType: 9
     statUnit: 0
     val: 10
@@ -32,3 +28,4 @@ MonoBehaviour:
     statUnit: 0
     val: -50
     bonus: 0
+  abilities: []

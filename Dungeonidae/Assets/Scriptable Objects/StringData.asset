@@ -14,24 +14,43 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Monsters>k__BackingField:
   - JELLYLING
-  - RAT
+  - TOAD_SWORDSMAN
   - BEDBUG
   - COCKROACH
   - FLOATING_EYEBALL
-  <EquipTier>k__BackingField:
-  - forClass:
+  <Hats_Class>k__BackingField:
+  - tier:
+    - list:
+      - LEATHER_HELMET
+  <Weapons_Class>k__BackingField:
+  - tier:
     - list:
       - SWORD
       - LONGSWORD
       - GREATSWORD
-      - RAPIER
       - KATANA
-      - WOODEN_SHIELD
-      - LEATHER_HELMET
-      - LEATHER_SHOES
+      - RAPIER
+  <Armors_Class>k__BackingField:
+  - tier:
+    - list:
       - LEATHER_ARMOR
+  <Subs_Class>k__BackingField:
+  - tier:
+    - list:
+      - WOODEN_SHIELD
+  <Shoes_Class>k__BackingField:
+  - tier:
+    - list:
+      - LEATHER_SHOES
+  <Artifacts>k__BackingField:
+  - CANINE_NECKLACE
+  - RING_PROTECTION
+  - RING_AMPLIFICATION
+  - RING_CRITICAL
   <MiscItems>k__BackingField:
   - POTION_HEAL
   - SCROLL_TELEPORT
   - SCROLL_EQUIPMENT_ENCHANT
   - SCROLL_ARTIFACT_ENCHANT
+  - SMALL_STONE
+  - POTION_HASTE

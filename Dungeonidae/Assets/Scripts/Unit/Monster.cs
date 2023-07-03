@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class Monster : Unit
 {
@@ -10,7 +9,8 @@ public class Monster : Unit
     [field:SerializeField] public bool IsForgetting { get; private set; }
     [field:SerializeField] public bool IsRunAway { get; private set; }
     [field: SerializeField] public List<string> MustDropItem { get; private set; } = new();
- 
+    [field: SerializeField] public List<EquipmentType> LikelyDropItem { get; private set; } = new();
+
     protected override void DecideBehavior()
     {
         base.DecideBehavior();
@@ -182,11 +182,12 @@ public class Monster : Unit
 
         dm.Player.IncreaseExp((int)((UnitData.level + 1) * UnitBase.ExpCoefficient));
 
+        /*
         if (Random.Range(0, 9) == 0)
         {
             List<string> list = GameManager.Instance.StringData.EquipTier[0].forClass[0].list;
             string tempKey = list[Random.Range(0, list.Count)];
-            EquipmentBase tempBase = dm.GetEquipmentBase(tempKey);
+            EquipmentBase tempBase = GameManager.Instance.GetEquipmentBase(tempKey);
             if (tempBase != null)
             {
                 ItemObject itemTemp = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
@@ -196,6 +197,7 @@ public class Monster : Unit
                 dm.GetTileByCoordinate(itemTemp.Coord).items.Push(itemTemp);
             }
         }
+        */
         if (Random.Range(0, 2) == 0)
         {
             int pick = Random.Range(0, GameManager.Instance.StringData.MiscItems.Count);
@@ -205,6 +207,7 @@ public class Monster : Unit
             item.Bounce();
             dm.GetTileByCoordinate(item.Coord).items.Push(item);
         }
+        
         for(int i=0; i<MustDropItem.Count; i++)
         {
             ItemObject itemTemp = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);

@@ -51,6 +51,12 @@ MonoBehaviour:
   <IsBlockSight>k__BackingField: 1
   <IsInteractable>k__BackingField: 0
   <IsInteractsWithThrownItem>k__BackingField: 1
+  <IsInteractsWithCollision>k__BackingField: 0
+  <DungeonObjectData>k__BackingField:
+    coord:
+      x: 0
+      y: 0
+    isActivated: 0
   <SpriteRenderer>k__BackingField: {fileID: 5479862808353489907}
   door: {fileID: 8558770759328149641}
 --- !u!1 &2214653667064714671
@@ -126,7 +132,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 44e2f0c0f1c44a74594d995a1e2c37b1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 92415ff97a17df640b3f0360d8c20af9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -210,7 +216,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 0d5b3dd42149b7447890c47fd5150fe9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 934c91030c55a6a4482ced5b931205f6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
