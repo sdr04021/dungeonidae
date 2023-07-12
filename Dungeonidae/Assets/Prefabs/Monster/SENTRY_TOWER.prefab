@@ -153,6 +153,7 @@ MonoBehaviour:
   bubbleText: {fileID: 6129438779623232320}
   shadow: {fileID: 765730294979493938}
   <BasicProjectilePrefab>k__BackingField: {fileID: 7042617091162049684, guid: fae9a10ff30c5724eb711faa5c9f8a1b, type: 3}
+  <BasicAttack>k__BackingField: {fileID: 11400000, guid: 3948c534e9d1f6a479ed80f23c28c0d6, type: 2}
   <IsAggressive>k__BackingField: 1
   <IsForgetting>k__BackingField: 0
   <IsRunAway>k__BackingField: 0

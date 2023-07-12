@@ -18,7 +18,7 @@ public class TreasureBox : DungeonObject
         }
     }
 
-    public override void Interact(Unit unit)
+    public override void Activate(Unit unit)
     {
         UnitData playerData = GameManager.Instance.saveData.playerData;
         if (playerData.RemoveOneMisc(KeyKey))

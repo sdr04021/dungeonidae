@@ -23,20 +23,12 @@ MonoBehaviour:
     m_Key: POWER_STRIKE_DESC
     m_Metadata:
       m_Items: []
-  - m_Id: 125270839296
-    m_Key: POWER_STRIKE_EFFECT
-    m_Metadata:
-      m_Items: []
   - m_Id: 862045540630528
     m_Key: RUSH_NAME
     m_Metadata:
       m_Items: []
   - m_Id: 862104399298560
     m_Key: RUSH_DESC
-    m_Metadata:
-      m_Items: []
-  - m_Id: 862107859599360
-    m_Key: RUSH_EFFECT
     m_Metadata:
       m_Items: []
   - m_Id: 2891726909521920
@@ -47,8 +39,20 @@ MonoBehaviour:
     m_Key: SPRINT_DESC
     m_Metadata:
       m_Items: []
-  - m_Id: 2891762204590080
-    m_Key: SPRINT_EFFECT
+  - m_Id: 35547705568313344
+    m_Key: CRITICAL_BLOW_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35547752703901696
+    m_Key: CRITICAL_BLOW_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36369171213893632
+    m_Key: MUCUS_ATTACK_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 36369207767252992
+    m_Key: MUCUS_ATTACK_DESC
     m_Metadata:
       m_Items: []
   m_Metadata:

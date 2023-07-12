@@ -42,14 +42,15 @@ abstract public class Unit : MonoBehaviour
     [SerializeField] TMP_Text bubbleText;
 
     [SerializeField] SpriteRenderer shadow;
-    public BasicAttack BasicAttack { get; private set; }
     [field:SerializeField] public Projectile BasicProjectilePrefab { get; private set; }
 
     protected ItemEffectDirector itemEffectDirector;
     public AbilityDirector abilityDirector { get; private set; }
     public BuffDirector BuffDirector { get; private set; }
 
-    public Skill skill { get; protected set; }
+    public List<Coordinate> AvailableRange { get; private set; } = new();
+    public List<Coordinate> UnavailableRange { get; private set; } = new();
+    [field: SerializeField] public SkillBase BasicAttack { get; private set; }
 
     Tweener moveTween;
 
@@ -85,7 +86,6 @@ abstract public class Unit : MonoBehaviour
         UnitData = unitData;
         UnitData.Init(this);
         dm = dungeonManager;
-        BasicAttack = new BasicAttack(this, dm, null);
         SetPosition();
         UnitData.SetStartLevel(UnitData.level);
         lvText.text = (UnitData.level + 1).ToString();
@@ -95,7 +95,6 @@ abstract public class Unit : MonoBehaviour
     public virtual void Init(DungeonManager dungeonManager, Coordinate c, int level)
     {
         dm = dungeonManager;
-        BasicAttack = new BasicAttack(this, dm, null);
         UnitData.coord = c;
         SetPosition();
         UnitData.Init(this);
@@ -168,7 +167,7 @@ abstract public class Unit : MonoBehaviour
         if(UnitData.mpRegenCounter >= 10)
         {
             RecoverMp(UnitData.mpRegen.Total() * UnitData.mpRegenCounter / 10);
-            UnitData.mpRegenCounter -= UnitData.mpRegenCounter % 10;
+            UnitData.mpRegenCounter = UnitData.mpRegenCounter % 10;
         }
         if (isFollowingPath)
         {
@@ -186,8 +185,8 @@ abstract public class Unit : MonoBehaviour
 
     public void TrimTurn(int amount)
     {
-        UnitData.ReduceSkillCurrentCooldowns(amount);
         UnitData.UpdateBuffDurations(amount);
+        UnitData.UpdateSkillRechargeLeft(amount);
         for(int i= UnitData.Buffs.Count-1; i>=0; i--)
         {
             if (UnitData.Buffs[i].durationLeft <= 0)
@@ -266,7 +265,7 @@ abstract public class Unit : MonoBehaviour
         for (int i = 0; i < tile.dungeonObjects.Count; i++)
         {
             if (tile.dungeonObjects[i].IsInteractsWithCollision)
-                tile.dungeonObjects[i].Interact(this);
+                tile.dungeonObjects[i].Activate(this);
         }
 
         isAnimationFinished = true;
@@ -440,7 +439,7 @@ abstract public class Unit : MonoBehaviour
         UnitData.Mp += amount;
     }
 
-    protected void RandomStep()
+     protected void RandomStep()
     {
         if (UnitData.speed.Total() <= 0) EndTurn(1);
 
@@ -495,82 +494,6 @@ abstract public class Unit : MonoBehaviour
 
     public virtual void UpdateSightArea()
     {
-        /*
-        int northBound = Mathf.Min(UnitData.coord.y + UnitData.sight.Total(), dm.map.arrSize.x - 1);
-        int southBound = Mathf.Max(UnitData.coord.y - UnitData.sight.Total(), 0);
-        int eastBound = Mathf.Min(UnitData.coord.x + UnitData.sight.Total(), dm.map.arrSize.y - 1);
-        int westBound = Mathf.Max(UnitData.coord.x - UnitData.sight.Total(), 0);
-
-        TilesInSight.Clear();
-
-        float rangePow = Mathf.Pow(UnitData.sight.Total() + 0.5f, 2);
-        for (int i=westBound; i<=eastBound; i++)
-        {
-            for(int j=southBound; j<=northBound; j++)
-            {
-                Vector2 dir = new Vector2(i, j) - (Vector2)transform.position;
-                RaycastHit2D hit =  Physics2D.Raycast(transform.position, dir, dir.magnitude, LayerMask.GetMask("SightBlocker"));
-                if (hit.collider == null)
-                    TilesInSight.Add(new Coordinate(i, j));
-                else if ((hit.collider.transform.position.x == i) && (hit.collider.transform.position.y == j))
-                    TilesInSight.Add(new Coordinate(i, j));
-                
-                if (Mathf.Pow((i - UnitData.coord.x), 2) + Mathf.Pow(j - UnitData.coord.y, 2) <= rangePow)
-                {
-                    Vector2 dir = new Vector2(i, j) - (Vector2)transform.position;
-
-                    int hits = Physics2D.RaycastNonAlloc(transform.position, dir, raycastResult, dir.magnitude, LayerMask.GetMask("Tile"));
-                    for (int k = 0; k < hits; k++)
-                    {
-                        if (k == hits - 1)
-                        {
-                            Coordinate c = new(raycastResult[k].transform.position);
-                            TilesInSight.Add(c);
-                        }
-                        else if (dm.map.GetElementAt((int)raycastResult[k].transform.position.x, (int)raycastResult[k].transform.position.y).IsBlockingSight())
-                            break;
-                    }
-                }
-                
-            }
-        }
-        */
-
-        /*
-        TilesInSight.Clear();
-        int sightBlockLayer = LayerMask.GetMask("SightBlocker");
-        HashSet<Coordinate> doneDir = new();
-        int sight = UnitData.sight.Total();
-        List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, sight);
-        for (int i = 0; i < inRange.Count; i++)
-        {
-            if (Coordinate.InRange(UnitData.coord, inRange[i], sight))
-            {
-                Coordinate dir = new(inRange[i].x - UnitData.coord.x, inRange[i].y - UnitData.coord.y);
-                Coordinate norm = new(dir);
-                for (int j = 50; j > 1; j--)
-                {
-                    if ((norm.x % j == 0) && (norm.y % j == 0))
-                    {
-                        norm /= j;
-                        break;
-                    }
-                }
-                if (doneDir.Contains(norm)) continue;
-                RaycastHit2D hit = Physics2D.Raycast(UnitData.coord.ToVector2(), dir.ToVector2(), dir.Magnitude(), sightBlockLayer);
-                if (hit.collider == null)
-                {
-                    TilesInSight.Add(inRange[i]);
-                }
-                else if (hit.collider.transform.position.x == inRange[i].x && hit.collider.transform.position.y == inRange[i].y)
-                {
-                    TilesInSight.Add(inRange[i]);
-                    doneDir.Add(norm);
-                }
-            }
-        }
-        */
-
         TilesInSight.Clear();
         int sight = UnitData.sight.Total();
 
@@ -627,82 +550,6 @@ abstract public class Unit : MonoBehaviour
         wallMap.Dispose();
         end.Dispose();
         result.Dispose();
-
-        /*
-        TilesInSight.Clear();
-        HashSet<Coordinate> doneDir = new();
-        List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, UnitData.sight.Total());
-        int tileLayer = LayerMask.GetMask("Tile");
-        for(int i=0; i<inRange.Count; i++)
-        {
-            Coordinate dir = new(inRange[i].x - UnitData.coord.x, inRange[i].y - UnitData.coord.y);
-            Coordinate norm = new(dir);
-            for (int j = 50; j > 1; j--)
-            {
-                if ((norm.x % j == 0) && (norm.y % j == 0))
-                    norm /= j;
-            }
-            if (doneDir.Contains(norm)) continue;
-
-            int hits = Physics2D.RaycastNonAlloc(transform.position, dir.ToVector2(), raycastResult, UnitData.sight.Total(), tileLayer);
-            for (int k = 0; k < hits; k++)
-            {
-                TilesInSight.Add(new(raycastResult[k].transform.position));
-                if ((k == hits - 1) || dm.map.GetElementAt((int)raycastResult[k].transform.position.x, (int)raycastResult[k].transform.position.y).IsBlockingSight())
-                {
-                    doneDir.Add(norm);
-                    break;
-                }
-            }
-        }
-        */
-
-        /*
-        TilesInSight.Clear();
-
-        float rangePow = Mathf.Pow(UnitData.sight.Total() + 0.5f, 2);
-        List<System.Tuple<Vector2, Vector2>> blockedArea = new();
-        List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, UnitData.sight.Total());
-        //Color c = Random.ColorHSV();
-        for (int i=0; i<inRange.Count; i++)
-        {
-            if (inRange[i].IsValidCoordForMap(dm.map) && ((Mathf.Pow(inRange[i].x - UnitData.coord.x, 2) + Mathf.Pow(inRange[i].y - UnitData.coord.y, 2) <= rangePow)))
-            {
-                Vector2 point = inRange[i].ToVector2() - (Vector2)transform.position;
-
-                bool isBlocked = false;
-                for (int j = 0; j < blockedArea.Count; j++)
-                {
-
-                    //if (UnitData.team == Team.Player)
-                    //{
-                        //Debug.DrawRay(transform.position, blockedArea[j].Item1, c, 10);
-                        //Debug.DrawRay(transform.position, blockedArea[j].Item2, c, 10);
-                    //}x`
-
-                    float angle1 = Vector2.SignedAngle(blockedArea[j].Item1, point);
-                    float angle2 = Vector2.SignedAngle(blockedArea[j].Item1, blockedArea[j].Item2);
-                    if ((angle1 != 0 && angle2 != 0) && (Mathf.Sign(angle1) == Mathf.Sign(angle2)) && (Mathf.Abs(angle2) > Mathf.Abs(angle1)))
-                    {
-                        isBlocked = true;
-                        break;
-                    }
-                }
-                if (!isBlocked)
-                    TilesInSight.Add(inRange[i]);
-                if (dm.map.GetElementAt(inRange[i]).IsBlockingSight())
-                {
-                    SimplePriorityQueue<Vector2> corners = new();
-                    corners.Enqueue(point + new Vector2(0.5f, 0.5f), -Vector2.Angle(point, point + new Vector2(0.5f, 0.5f)));
-                    corners.Enqueue(point + new Vector2(0.5f, -0.5f), -Vector2.Angle(point, point + new Vector2(0.5f, -0.5f)));
-                    corners.Enqueue(point + new Vector2(-0.5f, -0.5f), -Vector2.Angle(point, point + new Vector2(-0.5f, -0.5f)));
-                    corners.Enqueue(point + new Vector2(-0.5f, 0.5f), -Vector2.Angle(point, point + new Vector2(-0.5f, 0.5f)));
-
-                    blockedArea.Add(new(corners.Dequeue(), corners.Dequeue()));
-                }
-            }
-        }
-        */
     }
     
     protected void CheckNewInSight()
@@ -725,9 +572,13 @@ abstract public class Unit : MonoBehaviour
         UnitsInSight = detectedUnits;
     }
 
-    public void EndSkill(decimal turnSpent)
+    protected virtual void ResetSkillRange()
     {
-        skill = null;
+        AvailableRange.Clear();
+        UnavailableRange.Clear();
+    }
+    public virtual void EndSkill(decimal turnSpent)
+    {
         EndTurn(turnSpent);
     }
 
@@ -819,6 +670,7 @@ abstract public class Unit : MonoBehaviour
     public void EnableRenderers()
     {
         MySpriteRenderer.enabled = true;
+        MyAnimator.enabled = true;
         canvas.enabled = true;
         bubble.enabled = true;
         shadow.enabled = true;
@@ -826,6 +678,7 @@ abstract public class Unit : MonoBehaviour
     public void DisableRenderers()
     {
         MySpriteRenderer.enabled = false;
+        MyAnimator.enabled = false;
         canvas.enabled = false;
         bubble.enabled = false;
         shadow.enabled = false;
@@ -839,5 +692,11 @@ abstract public class Unit : MonoBehaviour
         bubble.DOKill();
         bubbleText.DOKill();
         hpBar.DOKill();
+        hpBarBg.DOKill();
+        mpBar.DOKill();
+        mpBarBg.DOKill();
+        lvText.DOKill();
+        lvBg.DOKill();
+        spriteMaterial.DOKill();
     }
 }

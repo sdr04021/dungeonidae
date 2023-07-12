@@ -23,8 +23,9 @@ public class Tile : MonoBehaviour
     [SerializeField] SpriteRenderer rangeIndicator;
     readonly Color transparentRed = new(1, 0, 0, 0.33f);
     readonly Color transparentBlue = new(0, 0, 1, 0.33f);
-    public SpriteRenderer targetMark;
-    public GameObject sightBlocker;
+    [SerializeField] Sprite redRange;
+    [SerializeField] Sprite blueRange;
+    public bool IsAvailable { get; private set; } = false;
 
     public void Init(DungeonManager dm, TileData tileData, int x, int y)
     {
@@ -32,6 +33,7 @@ public class Tile : MonoBehaviour
         TileData = tileData;
         coord = new Coordinate(x, y);
         //transform.position = new Vector2(x, y);
+        rangeIndicator.sortingOrder = 1000;
     }
 
     public bool IsReachableTile()
@@ -149,12 +151,9 @@ public class Tile : MonoBehaviour
                     spriteRenderer.sprite = dm.FirstFloor[1];
                 else spriteRenderer.sprite = dm.FirstFloor[3];
             }
-
-            sightBlocker.SetActive(false);
         }
         else if (TileData.tileType == TileType.Wall)
         {
-            sightBlocker.SetActive(true);
             if (fourWays[0] == TileType.Wall)
             {
                 upSprite.gameObject.SetActive(false);
@@ -255,8 +254,7 @@ public class Tile : MonoBehaviour
                 }
             }
         }
-        rangeIndicator.sortingOrder = 1000 - (10 * coord.y) + 10 + (int)LayerOrder.Fog;
-        targetMark.sortingOrder = 1000 - (10 * coord.y) + 10 + (int)LayerOrder.Fog;
+        //rangeIndicator.sortingOrder = 1000 - (10 * coord.y) + 10 + (int)LayerOrder.BottomWall;
     }
 
     /*
@@ -350,16 +348,18 @@ public class Tile : MonoBehaviour
     public void SetAvailable()
     {
         rangeIndicator.gameObject.SetActive(true);
-        rangeIndicator.color = transparentBlue;
+        rangeIndicator.sprite = blueRange;
+        IsAvailable = true;
     }
     public void SetUnavailable()
     {
         rangeIndicator.gameObject.SetActive(true);
-        rangeIndicator.color = transparentRed;
+        rangeIndicator.sprite = redRange;
+        IsAvailable = false;
     }
     public void TurnOffRangeIndicator()
     {
         rangeIndicator.gameObject.SetActive(false);
-        targetMark.gameObject.SetActive(false);
+        IsAvailable = false;
     }
 }

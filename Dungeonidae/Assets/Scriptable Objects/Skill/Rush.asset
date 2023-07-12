@@ -9,12 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea86ffcf4155b8748b62d00595cc859d, type: 3}
-  m_Name: Rush
+  m_Script: {fileID: 11500000, guid: 18668824bac9bcc4eaa12ba9f6b941af, type: 3}
+  m_Name: RUSH
   m_EditorClassIdentifier: 
-  key: RUSH
-  type: 1
-  sprite: {fileID: 21300000, guid: 57fda9ec2d134dd40ab0f79dd2a9736f, type: 3}
-  effectValues: 050000000500000005000000
-  mutableValueIndex: 
-  needTarget: 1
+  <Key>k__BackingField: RUSH
+  <Type>k__BackingField: 1
+  <Cost>k__BackingField: 10
+  <Range>k__BackingField: 10
+  <EffectValues>k__BackingField: 
+  <NeedTarget>k__BackingField: 1
+  <IgnoreBlock>k__BackingField: 0
+  <TargetReachableTile>k__BackingField: 1
+  <TargetDungeonObjects>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 21300000, guid: b6c5209829702734a96682eeff24b41b, type: 3}

@@ -9,11 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea86ffcf4155b8748b62d00595cc859d, type: 3}
-  m_Name: Sprint
+  m_Script: {fileID: 11500000, guid: 3d24e8fb5df1c9c42987bd44a944fecc, type: 3}
+  m_Name: SPRINT
   m_EditorClassIdentifier: 
-  key: SPRINT
-  type: 1
-  sprite: {fileID: 21300000, guid: dd8c5dae44901f34998579ee296e7953, type: 3}
-  effectValues: 0a0000000a0000006400000005000000
-  mutableValueIndex: 
+  <Key>k__BackingField: SPRINT
+  <Type>k__BackingField: 1
+  <Cost>k__BackingField: 5
+  <Range>k__BackingField: -1
+  <EffectValues>k__BackingField: 64000000
+  <NeedTarget>k__BackingField: 0
+  <IgnoreBlock>k__BackingField: 0
+  <TargetReachableTile>k__BackingField: 0
+  <TargetDungeonObjects>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 21300000, guid: fbef328993cb86043aa4467b442387b4, type: 3}
+  <Duration>k__BackingField: 5

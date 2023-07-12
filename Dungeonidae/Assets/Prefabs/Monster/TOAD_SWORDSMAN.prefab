@@ -83,6 +83,14 @@ PrefabInstance:
       propertyPath: <IsAggressive>k__BackingField
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7838909848763801257, guid: 96f9da26198eb954b84120b132806eef, type: 3}
+      propertyPath: <Skills>k__BackingField.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7838909848763801257, guid: 96f9da26198eb954b84120b132806eef, type: 3}
+      propertyPath: <Skills>k__BackingField.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: dad6e4cf114ee374ca0b1ff6bb11ab5d, type: 2}
     - target: {fileID: 8115240825663333907, guid: 96f9da26198eb954b84120b132806eef, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.03125

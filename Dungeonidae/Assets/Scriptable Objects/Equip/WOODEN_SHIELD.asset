@@ -18,10 +18,10 @@ MonoBehaviour:
   stats:
   - statType: 4
     statUnit: 0
-    val: 4
+    val: 2
     bonus: 0
   abilities:
   - key: BLOCK
-    vals: 0a000000
+    vals: 14000000
     bonuses: 
     increments: 02000000

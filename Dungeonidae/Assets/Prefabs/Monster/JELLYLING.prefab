@@ -65,7 +65,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6888825807354538410, guid: 96f9da26198eb954b84120b132806eef, type: 3}
       propertyPath: m_Name
-      value: Jellyling
+      value: JELLYLING
       objectReference: {fileID: 0}
     - target: {fileID: 7838909848763801257, guid: 96f9da26198eb954b84120b132806eef, type: 3}
       propertyPath: <UnitBase>k__BackingField

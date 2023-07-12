@@ -21,9 +21,7 @@ public class GameManager : MonoBehaviour
     public DamageText damageTextPrefab;
     public ItemObject itemObjectPrefab;
     public AbilityBase[] testAbility;
-    public SkillBase[] testSkill;
-    [SerializeField] BuffBase[] buffBases;
-    public Dictionary<string, BuffBase> buffBaseDict = new();
+    [field: SerializeField] public AnimationEffect AnimationEffectPrefab { get; private set; }
 
     [SerializeField] Sprite blankImage;
     readonly Dictionary<SpriteAssetType, Dictionary<string, AsyncOperationHandle<Sprite>>> spriteHandles = new()
@@ -41,6 +39,7 @@ public class GameManager : MonoBehaviour
         {PrefabAssetType.Monster, new Dictionary<string, AsyncOperationHandle<GameObject>>()},
     };
     readonly Dictionary<string, AsyncOperationHandle<BuffBase>> buffBaseHandles = new();
+    readonly Dictionary<string, AsyncOperationHandle<SkillBase>> skillBaseHandles = new();
 
     private static GameManager instance = null;
     private void Awake()
@@ -49,9 +48,6 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-
-            for(int i=0; i<buffBases.Length; i++)
-                buffBaseDict.Add(buffBases[i].key, buffBases[i]);
 
             saveData = new SaveData();
         }
@@ -164,6 +160,19 @@ public class GameManager : MonoBehaviour
             else return null;
         }
     }
+    public SkillBase GetSkillBase(string key)
+    {
+        if (skillBaseHandles.ContainsKey(key))
+            return skillBaseHandles[key].Result;
+        else
+        {
+            skillBaseHandles.Add(key, Addressables.LoadAssetAsync<SkillBase>("Assets/Scriptable Objects/Skill/" + key + ".asset"));
+            skillBaseHandles[key].WaitForCompletion();
+            if (skillBaseHandles[key].Status == AsyncOperationStatus.Succeeded)
+                return skillBaseHandles[key].Result;
+            else return null;
+        }
+    }
 
     public void ReleaseAllAssets()
     {
@@ -196,6 +205,11 @@ public class GameManager : MonoBehaviour
         {
             Addressables.Release(pair.Value);
             buffBaseHandles.Remove(pair.Key);
+        }
+        foreach (KeyValuePair<string, AsyncOperationHandle<SkillBase>> pair in skillBaseHandles)
+        {
+            Addressables.Release(pair.Value);
+            skillBaseHandles.Remove(pair.Key);
         }
     }
 }

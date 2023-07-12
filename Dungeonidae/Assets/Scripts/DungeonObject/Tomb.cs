@@ -17,6 +17,7 @@ public class Tomb : DungeonObject
     public override void Load(DungeonManager dm, DungeonObjectData dungeonObjectData)
     {
         base.Load(dm, dungeonObjectData);
+        groundRenderer.sortingOrder = SpriteRenderer.sortingOrder;
         if (dungeonObjectData.isActivated)
         {
             groundRenderer.sprite = diggedGroundSprite;
@@ -29,7 +30,7 @@ public class Tomb : DungeonObject
         this.seed = seed;
     }
 
-    public override void Interact(Unit unit)
+    public override void Activate(Unit unit)
     {
         groundRenderer.sprite = diggedGroundSprite;
         if (Random.Range(0, 2) == 0)

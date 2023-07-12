@@ -5,13 +5,13 @@ using UnityEngine;
 public class DungeonObject : MonoBehaviour
 {
     protected DungeonManager dm;
-        
     [field: SerializeField] public bool IsPassable { get; protected set; } = false;
     [SerializeField] protected bool isTargetable = false;
     [field: SerializeField] public bool IsBlockSight { get; protected set; } = false;
     [field: SerializeField] public bool IsInteractable { get; protected set; } = false;
     [field: SerializeField] public bool IsInteractsWithThrownItem { get; protected set; } = false;
     [field: SerializeField] public bool IsInteractsWithCollision { get; protected set; } = false;
+    [field: SerializeField] public DungeonObjectDurability Durability { get; protected set; } = DungeonObjectDurability.Unbreakable;
     [field: SerializeField] public DungeonObjectData DungeonObjectData { get; protected set; }
 
     [field:SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
@@ -42,12 +42,7 @@ public class DungeonObject : MonoBehaviour
         SpriteRenderer.sortingOrder = 1000 - (10 * DungeonObjectData.coord.y) + (int)LayerOrder.DungeonObject;
     }
 
-    public virtual void Interact(Unit unit)
-    {
-
-    }
-
-    public virtual void TargetedInteraction(Unit unit)
+    public virtual void Activate(Unit unit)
     {
 
     }

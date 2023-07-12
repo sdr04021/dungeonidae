@@ -794,6 +794,8 @@ MonoBehaviour:
   bubble: {fileID: 7152602546702333340}
   bubbleText: {fileID: 7964585238827926767}
   shadow: {fileID: 6711961476730578381}
+  <BasicProjectilePrefab>k__BackingField: {fileID: 0}
+  <BasicAttack>k__BackingField: {fileID: 11400000, guid: 3948c534e9d1f6a479ed80f23c28c0d6, type: 2}
   throwableRange: []
 --- !u!95 &-938570391358087375
 Animator:

@@ -9,7 +9,7 @@ public class MapGenerator
 {
     readonly int mapWidth = 40;
     readonly int mapHeight = 40;
-    readonly int minimumDistance = 7;
+    readonly int minimumDistance = 8;
 
     readonly DungeonData dungeonData;
     readonly System.Random rand;

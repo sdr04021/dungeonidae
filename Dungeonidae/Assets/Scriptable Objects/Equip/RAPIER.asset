@@ -18,11 +18,11 @@ MonoBehaviour:
   stats:
   - statType: 3
     statUnit: 0
-    val: 4
+    val: 3
     bonus: 0
   - statType: 9
     statUnit: 0
-    val: 10
+    val: 20
     bonus: 0
   - statType: 15
     statUnit: 0

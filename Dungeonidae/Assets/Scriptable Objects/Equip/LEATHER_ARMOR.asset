@@ -18,6 +18,6 @@ MonoBehaviour:
   stats:
   - statType: 4
     statUnit: 0
-    val: 4
+    val: 3
     bonus: 0
   abilities: []

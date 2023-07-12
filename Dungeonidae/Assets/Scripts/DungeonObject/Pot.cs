@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Pot : DungeonObject
 {   
-    public override void TargetedInteraction(Unit unit)
+    public override void Activate(Unit unit)
     {
         dm.RemoveDungeonObjectData(DungeonObjectData);
         dm.map.GetElementAt(DungeonObjectData.coord).dungeonObjects.Remove(this);

@@ -18,7 +18,7 @@ MonoBehaviour:
   stats:
   - statType: 0
     statUnit: 0
-    val: 20
+    val: 12
     bonus: 0
   - statType: 4
     statUnit: 0

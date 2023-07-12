@@ -20,42 +20,6 @@ public class Controller : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*
-        if (Input.GetKey(KeyCode.W))
-        {
-            player.Move(Directions.N);
-        }
-        else if (Input.GetKey(KeyCode.E))
-        {
-            player.Move(Directions.NE);
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            player.Move(Directions.E);
-        }
-        else if (Input.GetKey(KeyCode.C))
-        {
-            player.Move(Directions.SE);
-        }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            player.Move(Directions.S);
-        }
-        else if (Input.GetKey(KeyCode.Z))
-        {
-            player.Move(Directions.SW);
-        }
-        else if (Input.GetKey(KeyCode.A))
-        {
-            player.Move(Directions.W);
-        }
-        else if (Input.GetKey(KeyCode.Q))
-        {
-            player.Move(Directions.NW);
-        }
-        else if (Input.GetKeyDown(KeyCode.F))
-            player.SkipTurn();
-        */
         if (Input.GetMouseButton(0) && (Vector3.Magnitude(lastMousePostion - Input.mousePosition) > 6))
         {
             mouseDragged = true;
@@ -89,25 +53,25 @@ public class Controller : MonoBehaviour
         {
             if (player.Controllable)
             {
-                player.PrepareBasicAttack();
+                player.StartBasicAttack();
             }
-            else if (player.IsBasicAttackMode)
+            else if (player.IsSkillMode && player.CurrentSkill == player.BasicAttack)
             {
-                player.AutoBasicAttack();
+                player.SkillOnCurrentTargeting();
             }
         }
         else if (Input.GetKeyUp(KeyCode.A))
         {
-            if (player.IsBasicAttackMode && (player.BasicAttack.AvailableTilesInRange.Count == 0))
+            if (player.IsSkillMode && player.CurrentSkill == player.BasicAttack && (player.AvailableRange.Count == 0))
             {
-                player.CancelBasicAttack();
+                player.CancelSkill();
             }
         }
         else if (Input.GetKey(KeyCode.S))
         {
             if (player.Controllable)
             {
-                if ((SPressedTime > 2)&&(!player.FoundSomething))
+                if ((SPressedTime > 2) && (!player.FoundSomething))
                 {
                     player.SkipTurn();
                 }
@@ -131,95 +95,136 @@ public class Controller : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Q))
         {
-            if(player.Controllable)
-            {
-                player.PrepareSkill(0);
-            }
-            else if (player.IsSkillMode)
-            {
-                player.AutoSkill();
-            }
+            SkillKeyDown(0);
         }
         else if (Input.GetKeyUp(KeyCode.Q))
         {
-            if (player.IsSkillMode && (player.skill.AvailableTilesInRange.Count==0))
-            {
-                player.CancelSkill();
-            }
+            SkillKeyUp(0);
         }
         else if (Input.GetKeyDown(KeyCode.W))
         {
-            if (player.Controllable)
-            {
-                player.PrepareSkill(1);
-            }
-            else if (player.IsSkillMode)
-            {
-                player.AutoSkill();
-            }
+            SkillKeyDown(1);
         }
         else if (Input.GetKeyUp(KeyCode.W))
         {
-            if (player.IsSkillMode && (player.skill.AvailableTilesInRange.Count == 0))
-            {
-                player.CancelSkill();
-            }
+            SkillKeyUp(1);
         }
         else if (Input.GetKeyDown(KeyCode.E))
         {
-            if (player.Controllable)
-            {
-                player.PrepareSkill(2);
-            }
-            else if (player.IsSkillMode)
-            {
-                player.AutoSkill();
-            }
+            SkillKeyDown(2);
         }
         else if (Input.GetKeyUp(KeyCode.E))
         {
-            if (player.IsSkillMode && (player.skill.AvailableTilesInRange.Count == 0))
-            {
-                player.CancelSkill();
-            }
+            SkillKeyUp(2);
         }
         else if (Input.GetKeyDown(KeyCode.R))
         {
-            if (player.Controllable)
-            {
-                player.PrepareSkill(3);
-            }
-            else if (player.IsSkillMode)
-            {
-                player.AutoSkill();
-            }
+            SkillKeyDown(3);
         }
         else if (Input.GetKeyUp(KeyCode.R))
         {
-            if (player.IsSkillMode && (player.skill.AvailableTilesInRange.Count == 0))
-            {
-                player.CancelSkill();
-            }
+            SkillKeyUp(3);
         }
         else if (Input.GetKeyDown(KeyCode.T))
         {
-            if (player.Controllable)
-            {
-                player.PrepareSkill(4);
-            }
-            else if (player.IsSkillMode)
-            {
-                player.AutoSkill();
-            }
+            SkillKeyDown(4);
         }
         else if (Input.GetKeyUp(KeyCode.T))
         {
-            if (player.IsSkillMode && (player.skill.AvailableTilesInRange.Count == 0))
+            SkillKeyUp(4);
+        }
+        else if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.Keypad8))
+        {
+            if (player.Controllable)
             {
-                player.CancelSkill();
+                if (Input.GetKey(KeyCode.RightArrow)) player.Step(Directions.NE);
+                else if (Input.GetKey(KeyCode.LeftArrow)) player.Step(Directions.NW);
+                else player.Step(Directions.N);
+            }
+        }
+        else if (Input.GetKey(KeyCode.Keypad9))
+        {
+            if(player.Controllable) player.Step(Directions.NE);
+        }
+        else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.Keypad2))
+        {
+            if (player.Controllable)
+            {
+                if (Input.GetKey(KeyCode.RightArrow)) player.Step(Directions.SE);
+                else if (Input.GetKey(KeyCode.LeftArrow)) player.Step(Directions.SW);
+                else player.Step(Directions.S);
+            }
+        }
+        else if (Input.GetKey(KeyCode.Keypad3))
+        {
+            if (player.Controllable) player.Step(Directions.SE);
+        }
+        else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.Keypad4))
+        {
+            if (player.Controllable)
+            {
+                if (Input.GetKey(KeyCode.UpArrow)) player.Step(Directions.NW);
+                else if (Input.GetKey(KeyCode.DownArrow)) player.Step(Directions.SW);
+                else player.Step(Directions.W);
+            }
+        }
+        else if (Input.GetKey(KeyCode.Keypad1))
+        {
+            if (player.Controllable) player.Step(Directions.SW);
+        }
+        else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.Keypad6))
+        {
+            if (player.Controllable)
+            {
+                if (Input.GetKey(KeyCode.UpArrow)) player.Step(Directions.NE);
+                else if (Input.GetKey(KeyCode.DownArrow)) player.Step(Directions.SE);
+                else player.Step(Directions.E);
+            }
+
+        }
+        else if (Input.GetKey(KeyCode.Keypad7))
+        {
+            if (player.Controllable) player.Step(Directions.NW);
+        }
+        if (player.IsSkillMode || player.IsThrowingMode)
+        {
+            if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.Keypad8))
+            {
+                player.MoveTargeting(Directions.N);
+            }
+            else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.Keypad2))
+            {
+                player.MoveTargeting(Directions.S);
+            }
+            else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.Keypad4))
+            {
+                player.MoveTargeting(Directions.W);
+            }
+            else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.Keypad6))
+            {
+                player.MoveTargeting(Directions.E);
             }
         }
 
         lastMousePostion.Set(Input.mousePosition.x, Input.mousePosition.y, Input.mousePosition.z);
+    }
+
+    void SkillKeyDown(int index)
+    {
+        if (player.Controllable)
+        {
+            player.StartSkill(index);
+        }
+        else if (player.IsSkillMode && player.CurrentSkill.Key == player.UnitData.currentSkills[index])
+        {
+            player.SkillOnCurrentTargeting();
+        }
+    }
+    void SkillKeyUp(int index)
+    {
+        if (player.IsSkillMode && player.CurrentSkill.Key == player.UnitData.currentSkills[index] && (player.AvailableRange.Count == 0))
+        {
+            player.CancelSkill();
+        }
     }
 }

@@ -24,11 +24,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 122959777792
-    m_Localized: Swing your weapon hard, dealing damage to the enemy.
-    m_Metadata:
-      m_Items: []
-  - m_Id: 125270839296
-    m_Localized: MP cost {0.0}, Damage {0.1}%. Cooldown {0.2} turn.
+    m_Localized: Deals <color=#FFEA00>{0.0}%</color> of your <color=#FFEA00>attack
+      power</color> as damage to a neighboring emeny.
     m_Metadata:
       m_Items:
       - rid: 3135477992852029468
@@ -36,27 +33,40 @@ MonoBehaviour:
     m_Localized: Rush
     m_Metadata:
       m_Items: []
-  - m_Id: 862107859599360
-    m_Localized: MP cost {0.0}, Move {0.1} tiles. Cooldown {0.2} turn.
+  - m_Id: 862104399298560
+    m_Localized: Moves to the specified location within <color=#FFEA00>{0.0}</color>
+      tiles range.
     m_Metadata:
       m_Items:
       - rid: 3135477992852029468
-  - m_Id: 862104399298560
-    m_Localized: Moves to the selected location.
-    m_Metadata:
-      m_Items: []
   - m_Id: 2891726909521920
     m_Localized: Sprint
     m_Metadata:
       m_Items: []
-  - m_Id: 2891762204590080
-    m_Localized: MP cost {0.0}, Movement Speed increase {0.2}%P for {0.1} turn. Cooldown
-      {0.3} turn.
+  - m_Id: 2891760661086208
+    m_Localized: Increases <color=#FFEA00>movement speed {0.1}%P</color> for <color=#FFEA00>{0.0}</color>
+      turnes.
     m_Metadata:
       m_Items:
       - rid: 3135477992852029468
-  - m_Id: 2891760661086208
-    m_Localized: Increases movement speed for the duration.
+  - m_Id: 35547705568313344
+    m_Localized: Critical Blow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 35547752703901696
+    m_Localized: Attack at the enemy's critical weak point. Attacks caused by this
+      skill are always critical.
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029468
+  - m_Id: 36369207767252992
+    m_Localized: Attack with mucus and damage {0.0}% of attack power. The opponent
+      under attack will become mucus-covered for {0.1} turns.
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029468
+  - m_Id: 36369171213893632
+    m_Localized: Mucus Attack
     m_Metadata:
       m_Items: []
   references:
@@ -65,4 +75,4 @@ MonoBehaviour:
     - rid: 3135477992852029468
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_Entries: 0050b92a1d00000000c0ba201510030000c0fada0a460a00
+        m_Entries: 0050b92a1d00000000c0ba201510030000c0fada0a460a000050f9a01c00000000c07a521410030000c0fa7e0a460a0000c07a247e4a7e0000c0ba0d9a358100

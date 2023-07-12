@@ -13,13 +13,13 @@ public class SkillUI : MonoBehaviour
     [SerializeField] Image skillIcon;
     [SerializeField] Image skillTypeIcon;
     [SerializeField] TMP_Text skillTitle;
+    [SerializeField] TMP_Text skillCost;
     [SerializeField] TMP_Text skillDescription;
     [SerializeField] TMP_Text skillEffect;
 
-    [SerializeField] Image[] skillSlotIcons = new Image[5];
-    [SerializeField] TMP_Text[] skillSlotNames = new TMP_Text[5];
-    [SerializeField] GameObject[] upButtons = new GameObject[5];
-    [SerializeField] GameObject[] downButtons = new GameObject[5];
+    [SerializeField] RectTransform content;
+    [SerializeField] Image skillSlotPrefab;
+    List<Image> skillSlots = new();
 
     public void Init()
     {
@@ -28,77 +28,43 @@ public class SkillUI : MonoBehaviour
 
     public void Refresh()
     {
-        for(int i=0; i<5; i++)
+        List<string> skills = dm.Player.UnitData.acquiredSkills;
+
+        int count = Mathf.Max(skills.Count, skillSlots.Count);
+        for(int i=0; i<count; i++)
         {
-            if(dm.Player.UnitData.Skills[i] == null)
+            if (i >= skillSlots.Count)
             {
-                skillSlotIcons[i].gameObject.SetActive(false);
-                skillSlotNames[i].gameObject.SetActive(false);
-                upButtons[i].SetActive(false);
-                downButtons[i].SetActive(false);
+                Image slot = Instantiate(skillSlotPrefab, content);
+                int temp = i;
+                slot.sprite = GameManager.Instance.GetSkillBase(skills[i]).Sprite;
+                slot.GetComponent<Button>().onClick.AddListener(() => Btn_SkillSlotClicked(temp));
+                skillSlots.Add(slot);
+            }
+            else if (i >= skills.Count)
+            {
+                skillSlots[i].gameObject.SetActive(false);
             }
             else
             {
-                SkillData skill = dm.Player.UnitData.Skills[i];
-                skillSlotIcons[i].gameObject.SetActive(true);
-                skillSlotIcons[i].sprite = skill.GetSprite();
-                skillSlotNames[i].gameObject.SetActive(true);
-                skillSlotNames[i].text = dunUI.GetSkillName(skill.Key);
-                skillSlotNames[i].gameObject.SetActive(true);
-                switch (i)
-                {
-                    case 0:
-                        downButtons[i].SetActive(true);
-                        break;
-                    case 1:
-                        upButtons[i].SetActive(true);
-                        downButtons[i].SetActive(true);
-                        break;
-                    case 2:
-                        upButtons[i].SetActive(true);
-                        if (dm.Player.UnitData.Skills[i + 1]?.Type == SkillType.Status)
-                            downButtons[i].SetActive(false);
-                        else
-                            downButtons[i].SetActive(true);
-                        break;
-                    case 3:
-                        if (dm.Player.UnitData.Skills[i].Type == SkillType.Attack)
-                            upButtons[i].SetActive(true);
-                        else if (dm.Player.UnitData.Skills[i].Type == SkillType.Status)
-                            downButtons[i].SetActive(true);
-                        break;
-                    case 4:
-                        if (dm.Player.UnitData.Skills[i - 1]?.Type == SkillType.Attack)
-                            upButtons[i].SetActive(false);
-                        else
-                            upButtons[i].SetActive(true);
-                        break;
-                }
+                skillSlots[i].gameObject.SetActive(true);
+                skillSlots[i].sprite = GameManager.Instance.GetSkillBase(skills[i]).Sprite;
             }
         }
     }
 
     public void Btn_SkillSlotClicked(int index)
     {
-        if (dm.Player.UnitData.Skills[index] != null)
+        List<string> skills = dm.Player.UnitData.acquiredSkills;
+        if ((index < skills.Count) && (skills[index] != null))
         {
-            SkillData skill = dm.Player.UnitData.Skills[index];
+            SkillBase skillBase = GameManager.Instance.GetSkillBase(dm.Player.UnitData.acquiredSkills[index]);
             skillIcon.gameObject.SetActive(true);
-            skillIcon.sprite = skill.GetSprite();
-            skillTitle.text = dunUI.GetSkillName(skill.Key);
-            skillDescription.text = dunUI.GetSkillDescription(skill.Key);
-            skillEffect.text = dunUI.GetSkillEffect(skill.Key, skill.EffectValues);
+            skillIcon.sprite = skillBase.Sprite;
+            skillTitle.text = dunUI.GetSkillName(skillBase.Key);
+            skillCost.text = skillBase.Cost.ToString() + " MP";
+            skillDescription.text = dunUI.GetSkillDescription(skillBase.Key, skillBase.GetListForDescription());
+            //skillEffect.text = dunUI.GetSkillEffect(skillBase.Key, skillBase.EffectValues);
         }
-    }
-
-    public void Btn_UpButtonClicked(int index)
-    {
-        dm.Player.UnitData.SwapSkillSlots(index - 1, index);
-        Refresh();
-    }
-    public void Btn_DownButtonClicked(int index)
-    {
-        dm.Player.UnitData.SwapSkillSlots(index, index + 1);
-        Refresh();
     }
 }

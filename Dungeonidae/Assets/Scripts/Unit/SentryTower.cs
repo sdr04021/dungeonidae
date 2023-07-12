@@ -15,7 +15,7 @@ public class SentryTower : Monster
         if ((UnitData.chaseTarget != null) && UnitsInSight.Contains(UnitData.chaseTarget.Owner)
             && UnitData.coord.IsTargetInRange(UnitData.chaseTarget.coord, UnitData.atkRange.Total()))
         {
-            BasicAttack.StartSkill(UnitData.chaseTarget.coord);
+
         }
         else EndTurn(1);
     }

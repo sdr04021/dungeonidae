@@ -10,12 +10,13 @@ public class AttackData
     public int FixedDamage { get; private set; }
     public bool IsCritical { get; private set; }
 
-    public AttackData(Unit attacker, int attackDamage, int magicAttackDamage, int fixedDamage)
+    public AttackData(Unit attacker, int attackDamage, int magicAttackDamage, int fixedDamage, bool isCritical = false)
     {
         Attacker = attacker;
+        IsCritical = isCritical;
         AttackDamage = (int)(attackDamage * (Random.Range(attacker.UnitData.proficiency.Total() - 1, 100) + 1) * 0.01f);
         MagicAttackDamage = (int)(magicAttackDamage * (Random.Range(attacker.UnitData.proficiency.Total() - 1, 100) + 1) * 0.01f);
-        if ((Random.Range(0, 100) + 1) <= attacker.UnitData.cri.Total())
+        if (IsCritical || ((Random.Range(0, 100) + 1) <= attacker.UnitData.cri.Total()))
         {
             IsCritical = true;
             AttackDamage = (int)(AttackDamage * (attacker.UnitData.criDmg.Total() * 0.01f));

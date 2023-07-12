@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using UnityEngine;
 
@@ -10,10 +11,12 @@ public class Player : Unit
     public bool IsThrowingMode { get; private set; } = false;
     Tuple<ItemType, ItemSlotType, int> itemToThrow;
     ItemObject throwingItem;
-    public List<Coordinate> throwableRange = new();
 
     public bool IsSkillMode { get; private set; } = false;
-    public bool IsBasicAttackMode { get; private set; } = false;
+    public SkillBase CurrentSkill { get; private set; }
+    public int CurrentSkillIndex { get; private set; } = -1;
+
+    public Coordinate Targeting { get; private set; }
 
     public delegate void EventHandler();
     public event EventHandler MoveCamera;
@@ -37,14 +40,25 @@ public class Player : Unit
         {
             UnitData.AddAbility(new AbilityData(GameManager.Instance.testAbility[i]));
         }
-        UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[0]), 0);
-        UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[1]), 3);
-        UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[2]), 4);
+        //UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[0]), 0);
+        //UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[1]), 3);
+        //UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[2]), 4);
+        UnitData.acquiredSkills.Add("POWER_STRIKE");
+        UnitData.acquiredSkills.Add("RUSH");
+        UnitData.acquiredSkills.Add("SPRINT");
+        UnitData.acquiredSkills.Add("CRITICAL_BLOW");
+        //UnitData.skillDeck[0] = "POWER_STRIKE";s
         UnitData.equipped[1] = new EquipmentData(GameManager.Instance.GetEquipmentBase("WOODEN_SWORD"));
         UnitData.equipped[3] = new EquipmentData(GameManager.Instance.GetEquipmentBase("WORN_WOODEN_SHIELD"));
         UnitData.ApplyEquipStats(UnitData.equipped[1]);
         UnitData.ApplyEquipStats(UnitData.equipped[3]);
         //UnitData.AddMisc(new MiscData(GameManager.Instance.GetMiscBase("POTION_HASTE"), 5));
+    }
+
+    public void Step(Directions directions)
+    {
+        if (!Move(directions)) DecideBehavior();
+        else MoveCamera.Invoke();
     }
 
     public override void Teleportation()
@@ -107,7 +121,7 @@ public class Player : Unit
             LootItem();
         else if ((dm.map.GetElementAt(UnitData.coord).dungeonObjects.Count > 0) && (dm.map.GetElementAt(UnitData.coord).dungeonObjects[^1].IsInteractable))
         {
-            dm.map.GetElementAt(UnitData.coord).dungeonObjects[^1].Interact(this);
+            dm.map.GetElementAt(UnitData.coord).dungeonObjects[^1].Activate(this);
         }
     }
     public void LootItem()
@@ -204,7 +218,7 @@ public class Player : Unit
             Tile tile = dm.GetTileByCoordinate(TilesInSight[i]);
             if ((tile.Coord != UnitData.coord) && (tile.TileData.tileType == TileType.Floor))
             {
-                throwableRange.Add(tile.Coord);
+                AvailableRange.Add(tile.Coord);
                 tile.SetAvailable();
             }
         }
@@ -247,7 +261,7 @@ public class Player : Unit
         {
             if (tile.dungeonObjects[i].IsInteractsWithThrownItem)
             {
-                tile.dungeonObjects[i].Interact(this);
+                tile.dungeonObjects[i].Activate(this);
                 break;
             }
         }
@@ -262,17 +276,22 @@ public class Player : Unit
         }
         EndTurn(1);
     }
-    void ResetThrowableRange()
+    protected override void ResetSkillRange()
     {
-        for (int i = 0; i < throwableRange.Count; i++)
+        for (int i = 0; i < AvailableRange.Count; i++)
         {
-            dm.GetTileByCoordinate(throwableRange[i]).TurnOffRangeIndicator();
+            dm.GetTileByCoordinate(AvailableRange[i]).TurnOffRangeIndicator();
         }
-        throwableRange.Clear();
+        for (int i = 0; i < UnavailableRange.Count; i++)
+        {
+            dm.GetTileByCoordinate(UnavailableRange[i]).TurnOffRangeIndicator();
+        }
+        dm.targetMark.SetActive(false);
+        base.ResetSkillRange();
     }
     public void CancelThrow()
     {
-        ResetThrowableRange();
+        ResetSkillRange();
         IsThrowingMode = false;
         Controllable = true;
         itemToThrow= null;
@@ -291,33 +310,22 @@ public class Player : Unit
             }
             else if (IsThrowingMode)
             {
-                if (throwableRange.Contains(coord))
+                if (AvailableRange.Contains(coord))
                 {
                     FlipSprite(coord);
                     ThrowItem(coord);
-                    ResetThrowableRange();
+                    ResetSkillRange();
                 }
                 else CancelThrow();
             }
             else if (IsSkillMode)
             {
-                if (skill.AvailableTilesInRange.Contains(coord))
+                if (AvailableRange.Contains(coord))
                 {
-                    IsSkillMode = false;
-                    FlipSprite(coord);
-                    skill.StartSkill(coord);
+                    UseCurrentSkill(coord);
+                    ResetSkillRange();
                 }
                 else CancelSkill();
-            }
-            else if (IsBasicAttackMode)
-            {
-                if (BasicAttack.AvailableTilesInRange.Contains(coord))
-                {
-                    IsBasicAttackMode = false;
-                    FlipSprite(coord);
-                    BasicAttack.StartSkill(coord);
-                }
-                else CancelBasicAttack();
             }
             return;
         }
@@ -337,21 +345,20 @@ public class Player : Unit
                 }
                 else
                 {
-                    if (dm.map.GetElementAt(coord.x, coord.y).unit != null)
+                    if (dm.map.GetElementAt(coord).unit != null)
                     {
-                        BasicAttack.SetRange(false);
-                        if (BasicAttack.AvailableTilesInRange.Contains(coord))
+                        BasicAttack.SetRange(this, dm, false);
+                        if (AvailableRange.Contains(coord))
                         {
+                            StartCoroutine(BasicAttack.Skill(this, dm, coord));
                             Controllable = false;
-                            BasicAttack.StartSkill(coord);
                         }
-                        else BasicAttack.ResetTilesInRange();
+                        else ResetSkillRange();
                     }
                     else if (UnitData.coord.IsTargetInRange(coord, 1) && !dm.map.GetElementAt(coord).IsReachableTile() && (dm.map.GetElementAt(coord).GetTargetable() != null))
                     {
-                        //dm.map.GetElementAt(coord).GetTargetable().TargetedInteraction(this);
-                        //EndTurn(1);
-                        BasicAttack.StartSkill(coord);
+                        StartCoroutine(BasicAttack.Skill(this, dm, coord));
+                        Controllable = false;
                     }
                     else
                     {
@@ -376,26 +383,132 @@ public class Player : Unit
 
     public void TileTargeted(Coordinate coord)
     {
-        if (IsThrowingMode)
+        if (IsThrowingMode || IsSkillMode)
         {
-            for (int i = 0; i < throwableRange.Count; i++)
+            for (int i = 0; i < AvailableRange.Count; i++)
             {
-                if (throwableRange[i] == coord)
+                if (AvailableRange[i] == coord)
                 {
-                    dm.GetTileByCoordinate(coord).targetMark.gameObject.SetActive(true);
+                    Targeting = coord;
+                    dm.targetMark.transform.position = Targeting.ToVector2();
                 }
-                else dm.GetTileByCoordinate(throwableRange[i]).targetMark.gameObject.SetActive(false);
             }
         }
-        else if (IsSkillMode)
-        {
-           skill.ShowTargetArea(coord);
-        }
-        else if(IsBasicAttackMode)
-        {
-            BasicAttack.ShowTargetArea(coord);
-        }
+    }
 
+    public void MoveTargeting(Directions direction)
+    {
+        if (AvailableRange.Contains(Targeting + new Coordinate(direction)))
+        {
+            Targeting += new Coordinate(direction);
+            dm.targetMark.transform.position = Targeting.ToVector2();
+        }
+        else
+        {
+            Coordinate moved = Targeting + new Coordinate(direction);
+            Coordinate next = Targeting;
+            float dist = Mathf.Infinity;
+            for(int i=0; i<AvailableRange.Count; i++)
+            {
+                if (AvailableRange[i] == Targeting) continue;
+                float a = Coordinate.Distance(AvailableRange[i], moved);
+                if (a < dist)
+                {
+                    dist = a;
+                    next = AvailableRange[i];
+                }
+            }
+            Targeting = next;
+            dm.targetMark.transform.position = Targeting.ToVector2();
+        }
+    }
+
+    public void StartSkill(int index)
+    {
+        if (UnitData.currentSkills[index] == null) return;
+
+        CurrentSkill = GameManager.Instance.GetSkillBase(UnitData.currentSkills[index]);
+        if (CurrentSkill.IsUseable(this))
+        {
+            CurrentSkillIndex = index;
+            IsSkillMode = true;
+            Controllable = false;
+            if (CurrentSkill.NeedTarget)
+            {
+                CurrentSkill.SetRange(this, dm, true);
+                if (!AvailableRange.Contains(Targeting)) Targeting = AvailableRange[0];
+                if (AvailableRange.Count == 1)
+                {
+                    ResetSkillRange();
+                    UseCurrentSkill(Targeting);
+                }
+                else if (AvailableRange.Count > 1)
+                {
+                    dm.targetMark.SetActive(true);
+                    dm.targetMark.transform.position = Targeting.ToVector2();
+                }
+            }
+            else UseCurrentSkill();
+        }
+        else CurrentSkill = null;
+    }
+    public void UseCurrentSkill(Coordinate coord)
+    {
+        if (CurrentSkillIndex >= 0 && CurrentSkillIndex <= 5)
+        {
+            UnitData.currentSkills[CurrentSkillIndex] = null;
+            UnitData.skillRechargeLeft[CurrentSkillIndex] = 21;
+        }
+        StartCoroutine(CurrentSkill.Skill(this, dm, coord));
+    }
+    public void UseCurrentSkill()
+    {
+        if (CurrentSkillIndex >= 0 && CurrentSkillIndex <= 5)
+        {
+            UnitData.currentSkills[CurrentSkillIndex] = null;
+            UnitData.skillRechargeLeft[CurrentSkillIndex] = 11;
+        }
+        StartCoroutine(CurrentSkill.Skill(this, dm, UnitData.coord));
+    }
+    public void StartBasicAttack()
+    {
+        IsSkillMode = true;
+        Controllable = false;
+        BasicAttack.SetRange(this, dm, true);
+        CurrentSkill = BasicAttack;
+        CurrentSkillIndex = -1;
+        if (AvailableRange.Count > 0)
+        {
+            if(!AvailableRange.Contains(Targeting)) Targeting = AvailableRange[0];
+            if (AvailableRange.Count == 1)
+            {
+                ResetSkillRange();
+                UseCurrentSkill(Targeting);
+            }
+            else
+            {
+                dm.targetMark.SetActive(true);
+                dm.targetMark.transform.position = Targeting.ToVector2();
+            }
+        }
+    }
+    public override void EndSkill(decimal turnSpent)
+    {
+        base.EndSkill(turnSpent);
+        ResetSkillRange();
+        CurrentSkill = null;
+        IsSkillMode = false;
+    }
+    public void CancelSkill()
+    {
+        ResetSkillRange();
+        IsSkillMode = false;
+        Controllable = true;
+        CurrentSkill = null;
+    }
+    public void SkillOnCurrentTargeting()
+    {
+        UseCurrentSkill(Targeting);
     }
 
     public void EquipEquipment(int inventoryIndex, int equippedIndex)
@@ -443,77 +556,4 @@ public class Player : Unit
         else return false;
     }
 
-    public void PrepareSkill(int index)
-    {
-        if ((UnitData.Skills[index] != null) && (skill == null))
-        {
-            MatchSkillData(UnitData.Skills[index]);
-            if (skill.IsUsable())
-            {
-                skill.Prepare();
-                Controllable = false;
-                if (skill.SkillData.NeedTarget)
-                    IsSkillMode = true;
-            }
-            else
-            {
-                skill = null;
-            }
-        }
-    }
-
-    public void CancelSkill()
-    {
-        skill.ResetTilesInRange();
-        IsSkillMode = false;
-        Controllable = true;
-        skill = null;
-    }
-    public void AutoSkill()
-    {
-        if(skill.AvailableTilesInRange.Count > 0)
-        {
-            Coordinate? c = skill.SelectTargetAutomatically();
-            if(c!= null)
-            {
-                IsSkillMode = false;
-                FlipSprite((Coordinate)c);
-                skill.StartSkill((Coordinate)c);
-            }
-        }
-    }
-
-    public void PrepareBasicAttack()
-    {
-        if (BasicAttack.IsUsable())
-        {
-            BasicAttack.Prepare();
-            Controllable = false;
-            IsBasicAttackMode = true;
-        }
-    }
-    public void CancelBasicAttack()
-    {
-        BasicAttack.ResetTilesInRange();
-        IsBasicAttackMode = false;
-        Controllable = true;
-    }
-    public void AutoBasicAttack()
-    {
-        Coordinate? c = BasicAttack.SelectTargetAutomatically();
-        IsBasicAttackMode = false;
-        FlipSprite((Coordinate)c);
-        BasicAttack.StartSkill((Coordinate)c);
-    }
-
-    public void MatchSkillData(SkillData skillData)
-    {
-        skill = skillData.Key switch
-        {
-            "POWER_STRIKE" => new SkillPowerStrike(this, dm, skillData),
-            "RUSH" => new Skill_Rush(this, dm, skillData),
-            "SPRINT" => new Skill_Buff(this, dm, skillData),
-            _ => null,
-        };
-    }
 }

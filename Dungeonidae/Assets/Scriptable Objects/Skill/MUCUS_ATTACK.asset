@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 443cb66c6290a914b9363b980f4fbb59, type: 3}
+  m_Name: MUCUS_ATTACK
+  m_EditorClassIdentifier: 
+  <Key>k__BackingField: MUCUS_ATTACK
+  <Type>k__BackingField: 0
+  <Cost>k__BackingField: 2
+  <Range>k__BackingField: 1
+  <EffectValues>k__BackingField: 3200000005000000
+  <NeedTarget>k__BackingField: 1
+  <IgnoreBlock>k__BackingField: 0
+  <TargetReachableTile>k__BackingField: 0
+  <TargetDungeonObjects>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 0}

@@ -10,7 +10,7 @@ public class Monster : Unit
     [field:SerializeField] public bool IsRunAway { get; private set; }
     [field: SerializeField] public List<string> MustDropItem { get; private set; } = new();
     [field: SerializeField] public List<EquipmentType> LikelyDropItem { get; private set; } = new();
-
+    [field: SerializeField] public List<SkillBase> Skills { get; private set; } = new();
     protected override void DecideBehavior()
     {
         base.DecideBehavior();
@@ -25,10 +25,21 @@ public class Monster : Unit
             if (UnitsInSight.Contains(UnitData.chaseTarget.Owner))
             {
                 UnitData.chaseTargetRecentCoord = UnitData.chaseTarget.coord;
-                if (UnitData.coord.IsTargetInRange(UnitData.chaseTarget.coord, UnitData.atkRange.Total()))
+
+                SkillBase skill = BasicAttack;
+                for(int i=0; i<Skills.Count; i++)
                 {
-                    Controllable = false;
-                    BasicAttack.StartSkill(UnitData.chaseTarget.coord);
+                    if (Skills[i].IsUseable(this))
+                    {
+                        skill = Skills[i];
+                        break;
+                    }
+                }
+                skill.SetRange(this, dm, false);
+                if (AvailableRange.Contains(UnitData.chaseTarget.coord))
+                {
+                    StartCoroutine(skill.Skill(this, dm, UnitData.chaseTarget.coord));
+                    ResetSkillRange();
                 }
                 else
                 {

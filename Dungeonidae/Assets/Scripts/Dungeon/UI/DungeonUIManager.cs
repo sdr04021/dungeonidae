@@ -80,9 +80,9 @@ public class DungeonUIManager : MonoBehaviour
         dm.Player.UnitData.OnBuffDurationChange += UpdateBuffIconDurations;
         SetSkillIcons();
         dm.Player.UnitData.OnSkillChange += SetSkillIcons;
-        UpdateSkillIconCooldowns();
-        dm.Player.UnitData.OnSkillCurrentCooldownChange += UpdateSkillIconCooldowns;
-        dm.Player.UnitData.OnSkillChange += UpdateSkillIconCooldowns;
+        UpdateSkillIconRechargeLeft();
+        dm.Player.UnitData.OnSkillRechargeChange += UpdateSkillIconRechargeLeft;
+        dm.Player.UnitData.OnSkillChange += UpdateSkillIconRechargeLeft;
 
         dm.Player.UnitData.OnTurnChange += UpdateInteractIcon;
 
@@ -180,30 +180,31 @@ public class DungeonUIManager : MonoBehaviour
     {
         for(int i=0; i<skillShortcutButtons.Length; i++)
         {
-            if (dm.Player.UnitData.Skills[i]==null)
+            if (dm.Player.UnitData.currentSkills[i]==null)
                 skillShortcutButtons[i].icon.gameObject.SetActive(false);
             else
             {
-                skillShortcutButtons[i].icon.sprite = dm.Player.UnitData.Skills[i].GetSprite();
+                skillShortcutButtons[i].icon.sprite = GameManager.Instance.GetSkillBase(dm.Player.UnitData.currentSkills[i]).Sprite;
                 skillShortcutButtons[i].icon.gameObject.SetActive(true);
             }
         }
     }
-    void UpdateSkillIconCooldowns()
+    void UpdateSkillIconRechargeLeft()
     {
         for (int i = 0; i < skillShortcutButtons.Length; i++)
         {
-            SkillData skill = dm.Player.UnitData.Skills[i];
-            if ((skill == null) || (skill.currentCoolDown <= 0))
-            {
-                skillShortcutButtons[i].curtain.gameObject.SetActive(false);
-                skillShortcutButtons[i].coolDownText.gameObject.SetActive(false);
-            }
-            else
+            string skill = dm.Player.UnitData.currentSkills[i];
+            int rechargeLeft = dm.Player.UnitData.skillRechargeLeft[i];
+            if ((skill == null) || (rechargeLeft > 0))
             {
                 skillShortcutButtons[i].curtain.gameObject.SetActive(true);
                 skillShortcutButtons[i].coolDownText.gameObject.SetActive(true);
-                skillShortcutButtons[i].coolDownText.text = skill.currentCoolDown.ToString();
+                skillShortcutButtons[i].coolDownText.text = rechargeLeft.ToString();
+            }
+            else
+            {
+                skillShortcutButtons[i].curtain.gameObject.SetActive(false);
+                skillShortcutButtons[i].coolDownText.gameObject.SetActive(false);
             }
         }
     }
@@ -212,22 +213,24 @@ public class DungeonUIManager : MonoBehaviour
     {
         if (shortCutPressed) return;
         shortCutPressed = true;
+
         if (dm.Player.Controllable)
         {
-            dm.Player.PrepareSkill(index);
+            dm.Player.StartSkill(index);
         }
-        else if (dm.Player.IsSkillMode)
+        else if (dm.Player.IsSkillMode && dm.Player.CurrentSkill.Key == dm.Player.UnitData.currentSkills[index])
         {
-            dm.Player.AutoSkill();
+            dm.Player.SkillOnCurrentTargeting();
         }
+
     }
     public void Btn_SkillShortcutPointerUp()
     {
-        if (dm.Player.IsSkillMode && (dm.Player.skill.AvailableTilesInRange.Count == 0))
+        shortCutPressed = false;
+        if (dm.Player.IsSkillMode && (dm.Player.AvailableRange.Count == 0))
         {
             dm.Player.CancelSkill();
         }
-        shortCutPressed = false;
     }
     public void Btn_ActionShortCutPointerDown(int index)
     {
@@ -237,10 +240,10 @@ public class DungeonUIManager : MonoBehaviour
         switch(index)
         {
             case 0:
-                if (dm.Player.IsBasicAttackMode)
-                    dm.Player.AutoBasicAttack();
+                if (dm.Player.IsSkillMode && dm.Player.CurrentSkill == dm.Player.BasicAttack)
+                    dm.Player.SkillOnCurrentTargeting();
                 else
-                    dm.Player.PrepareBasicAttack();
+                    dm.Player.StartBasicAttack();
                 break;
             case 1:
                 dm.Player.SkipTurn();
@@ -258,9 +261,9 @@ public class DungeonUIManager : MonoBehaviour
     {
         if (index == 0)
         {
-            if (dm.Player.IsBasicAttackMode && (dm.Player.BasicAttack.AvailableTilesInRange.Count == 0))
+            if (dm.Player.IsSkillMode && dm.Player.CurrentSkill == dm.Player.BasicAttack && (dm.Player.AvailableRange.Count == 0))
             {
-                dm.Player.CancelBasicAttack();
+                dm.Player.CancelSkill();
             }
         }
         shortCutPressed = false;
@@ -420,12 +423,8 @@ public class DungeonUIManager : MonoBehaviour
     {
         return tableSkill.GetTable().GetEntry(key + "_NAME").GetLocalizedString();
     }
-    public string GetSkillDescription(string key)
+    public string GetSkillDescription(string key, int[] values)
     {
-        return tableSkill.GetTable().GetEntry(key + "_DESC").GetLocalizedString();
-    }
-    public string GetSkillEffect(string key, int[] values)
-    {
-        return tableSkill.GetTable().GetEntry(key + "_EFFECT").GetLocalizedString(values);
+        return tableSkill.GetTable().GetEntry(key + "_DESC").GetLocalizedString(values);
     }
 }

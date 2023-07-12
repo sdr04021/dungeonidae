@@ -254,7 +254,7 @@ public class InventoryUI : MonoBehaviour
     }
     public void ThrowItem(int index, ItemSlotType itemSlotType)
     {
-        if (equipmentSlotField.activeSelf)
+        if (equipmentSlotField.activeSelf || itemSlotType == ItemSlotType.Equipped)
         {
             dm.Player.PrepareThrowing(ItemType.Equipment, itemSlotType, index);
         }

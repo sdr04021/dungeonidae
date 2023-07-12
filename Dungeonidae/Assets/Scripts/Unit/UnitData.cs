@@ -13,7 +13,7 @@ public class UnitData
     public event EventHandler OnMpValueChange;
     public event EventHandler OnExpValueChange;
     public event EventHandler OnSkillChange;
-    public event EventHandler OnSkillCurrentCooldownChange;
+    public event EventHandler OnSkillRechargeChange;
     public event EventHandler OnLevelChange;
     public event EventHandler OnBuffListChange;
     public event EventHandler OnBuffDurationChange;
@@ -111,8 +111,9 @@ public class UnitData
     public Dictionary<string,AbilityData> abilities = new();
     public int abilityPoint = 0;
 
-    public SkillData[] Skills = new SkillData[5];
-    public List<SkillData> learnedSkills = new();
+    public string[] currentSkills = new string[5];
+    public int[] skillRechargeLeft = { 0, 0, 0, 0, 0 }; 
+    public List<string> acquiredSkills = new();
 
     public List<BuffData> Buffs = new();
 
@@ -440,31 +441,51 @@ public class UnitData
         abilities.Add(ability.Key, ability);
     }
 
-    public void AddSkill(SkillData skill, int index)
+    public void AddSkill(string key, int index)
     {
-        Skills[index] = skill;
-        learnedSkills.Add(skill);
+        currentSkills[index] = key;
+        acquiredSkills.Add(key);
         OnSkillChange?.Invoke();
     }
     public void SwapSkillSlots(int a, int b)
     {
-        (Skills[a], Skills[b]) = (Skills[b], Skills[a]);
+        (currentSkills[a], currentSkills[b]) = (currentSkills[b], currentSkills[a]);
         OnSkillChange?.Invoke();
     }
     public void InvokeSkillChanged()
     {
         OnSkillChange?.Invoke();
     }
-    public void ReduceSkillCurrentCooldowns(int turn)
+    public void UpdateSkillRechargeLeft(int turn)
     {
-        for(int i=0; i<Skills.Length; i++)
+        for(int i=0; i<currentSkills.Length; i++)
         {
-            if ((Skills[i] != null) && (Skills[i].currentCoolDown >= 1))
+            if (currentSkills[i] ==null)
             {
-                Skills[i].currentCoolDown -= turn;
+                if (skillRechargeLeft[i] >= 1)
+                {
+                    skillRechargeLeft[i] -= turn;
+                }
+                if (skillRechargeLeft[i] <= 0 && acquiredSkills.Count > 0)
+                {
+                    skillRechargeLeft[i] = 0;
+                    List<string> deck = new();
+                    for (int j = 0; j < acquiredSkills.Count; j++)
+                    {
+                        int count = 0;
+                        for (int k = 0; k < currentSkills.Length; k++)
+                        {
+                            if (currentSkills[k] == acquiredSkills[j]) count++;
+                        }
+                        if (count < 1) deck.Add(acquiredSkills[j]);
+                    }
+                    if (deck.Count > 0)
+                        currentSkills[i] = deck[Random.Range(0, deck.Count)];
+                }
+                OnSkillChange?.Invoke();
             }
         }
-        OnSkillCurrentCooldownChange?.Invoke();
+        OnSkillRechargeChange?.Invoke();
     }
 
     public void AddBuff(BuffData buff)

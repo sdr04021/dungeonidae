@@ -15,14 +15,20 @@ public class BuffDirector
     {
         buff.durationLeft = buff.MaxDuration + 1;
         owner.UnitData.AddBuff(buff);
+        int[] effectValues;
         switch (buff.Key)
         {
+            case "MUCUS":
+                effectValues = GameManager.Instance.GetBuffBase(buff.Key).effectValues.ToArray();
+                owner.UnitData.SetStatValue(buff.Key, StatType.Speed, StatValueType.Temporary, -effectValues[0], true);
+                break;
             case "POTION_HASTE":
-                int[] effectValues = GameManager.Instance.GetMiscBase(buff.Key).EffectValues;
+                effectValues = GameManager.Instance.GetMiscBase(buff.Key).EffectValues;
                 owner.UnitData.SetStatValue(buff.Key, StatType.Speed, StatValueType.Temporary, effectValues[1], true);
                 break;
             case "SPRINT":
-                //owner.UnitData.SetStatValue(buff.Key, StatType.Speed, StatValueType.Temporary, buff.EffectValues[1], true);
+                effectValues = GameManager.Instance.GetSkillBase(buff.Key).EffectValues;
+                owner.UnitData.SetStatValue(buff.Key, StatType.Speed, StatValueType.Temporary, effectValues[0], true);
                 break;
         }
     }
@@ -32,11 +38,14 @@ public class BuffDirector
         owner.UnitData.RemoveBuff(buff);
         switch (buff.Key)
         {
+            case "MUCUS":
+                owner.UnitData.RemoveStatValue(buff.Key, StatType.Speed, StatValueType.Temporary);
+                break;
             case "POTION_HASTE":
                 owner.UnitData.RemoveStatValue(buff.Key, StatType.Speed, StatValueType.Temporary);
                 break;
             case "SPRINT":
-                //owner.UnitData.RemoveStatValue(buff.Key, StatType.Speed, StatValueType.Temporary);
+                owner.UnitData.RemoveStatValue(buff.Key, StatType.Speed, StatValueType.Temporary);
                 break;
         }
     }

@@ -13,23 +13,24 @@ public class Door : DungeonObject
         if(backgroundBottom!=null)
             backgroundBottom.sortingOrder = SpriteRenderer.sortingOrder - (int)LayerOrder.DungeonObject + (int)LayerOrder.TopWall;
         door.sortingOrder = SpriteRenderer.sortingOrder - (int)LayerOrder.DungeonObject + (int)LayerOrder.Unit;
-        dm.map.GetElementAt(coord).sightBlocker.SetActive(true);
     }
 
     public override void Load(DungeonManager dm, DungeonObjectData dungeonObjectData)
     {
         base.Load(dm, dungeonObjectData);
+        if (backgroundBottom != null)
+            backgroundBottom.sortingOrder = SpriteRenderer.sortingOrder - (int)LayerOrder.DungeonObject + (int)LayerOrder.TopWall;
+        door.sortingOrder = SpriteRenderer.sortingOrder - (int)LayerOrder.DungeonObject + (int)LayerOrder.Unit;
         if (dungeonObjectData.isActivated)
         {
             IsPassable = true;
             door.gameObject.SetActive(false);
             IsBlockSight = false;
             IsInteractsWithThrownItem = false;
-            dm.map.GetElementAt(DungeonObjectData.coord).sightBlocker.SetActive(false);
         }
     }
 
-    public override void TargetedInteraction(Unit unit)
+    public override void Activate(Unit unit)
     {
         if (IsPassable)
         {
@@ -38,7 +39,6 @@ public class Door : DungeonObject
             IsBlockSight = true;
             IsInteractsWithThrownItem = true;
             DungeonObjectData.isActivated = false;
-            dm.map.GetElementAt(DungeonObjectData.coord).sightBlocker.SetActive(true);
             dm.UpdateSightAreaNearThis(DungeonObjectData.coord);
             dm.UpdateUnitRenderers();
         }
@@ -49,7 +49,6 @@ public class Door : DungeonObject
             IsBlockSight = false;
             IsInteractsWithThrownItem = false;
             DungeonObjectData.isActivated = true;
-            dm.map.GetElementAt(DungeonObjectData.coord).sightBlocker.SetActive(false);
             dm.UpdateSightAreaNearThis(DungeonObjectData.coord);
             dm.UpdateUnitRenderers();
         }

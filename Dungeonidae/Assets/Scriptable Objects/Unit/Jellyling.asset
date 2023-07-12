@@ -30,7 +30,7 @@ MonoBehaviour:
   <Aspd>k__BackingField: 100
   <Cri>k__BackingField: 0
   <CriDmg>k__BackingField: 150
-  <Proficiency>k__BackingField: 10
+  <Proficiency>k__BackingField: 50
   <LifeSteal>k__BackingField: 0
   <ManaSteal>k__BackingField: 0
   <Def>k__BackingField: 1

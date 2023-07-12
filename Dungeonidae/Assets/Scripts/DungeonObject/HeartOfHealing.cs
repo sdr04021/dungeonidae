@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class HeartOfHealing : DungeonObject
 {
-    public override void Interact(Unit unit)
+    public override void Activate(Unit unit)
     {
         if (unit.UnitData.team == Team.Player)
         {

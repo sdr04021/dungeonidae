@@ -12,7 +12,13 @@ public class Stair : DungeonObject
         SpriteRenderer.sortingOrder += (-(int)LayerOrder.DungeonObject + (int)LayerOrder.Stair);
     }
 
-    public override void Interact(Unit unit)
+    public override void Load(DungeonManager dm, DungeonObjectData dungeonObjectData)
+    {
+        base.Load(dm, dungeonObjectData);
+        SpriteRenderer.sortingOrder += (-(int)LayerOrder.DungeonObject + (int)LayerOrder.Stair);
+    }
+
+    public override void Activate(Unit unit)
     {
         //base.Interaction();
         dm.MoveFloor(moveAmount);

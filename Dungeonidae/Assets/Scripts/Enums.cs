@@ -4,6 +4,7 @@ public enum AttackType { Atk, MAtk, Fixed}
 public enum BuffType { Buff, Debuff }
 public enum DamageType { Normal, Miss, Critical, Block, Heal }
 public enum Directions { N, NE, E, SE, S, SW, W, NW, NONE }
+public enum DungeonObjectDurability { Fragile, Breakable, Unbreakable }
 public enum DungeonType { Dungeon, Maze }
 public enum EquipmentType { Hat, Weapon, Armor, Sub, Shoes, Artifact }
 public enum ItemSlotType { Item, Equipped, Shop }

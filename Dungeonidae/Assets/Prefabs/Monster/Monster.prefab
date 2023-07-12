@@ -803,9 +803,13 @@ MonoBehaviour:
   bubble: {fileID: 9081412203412747217}
   bubbleText: {fileID: 5528513704641948207}
   shadow: {fileID: 1371757653738371421}
+  <BasicProjectilePrefab>k__BackingField: {fileID: 0}
+  <BasicAttack>k__BackingField: {fileID: 11400000, guid: 3948c534e9d1f6a479ed80f23c28c0d6, type: 2}
   <IsAggressive>k__BackingField: 0
   <IsForgetting>k__BackingField: 0
   <IsRunAway>k__BackingField: 0
+  <MustDropItem>k__BackingField: []
+  <LikelyDropItem>k__BackingField: 
 --- !u!1 &7063770631119673149
 GameObject:
   m_ObjectHideFlags: 0

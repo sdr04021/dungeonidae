@@ -13,6 +13,7 @@ public class DungeonManager : MonoBehaviour
 
     public Sprite[] FirstTile;
     public Sprite[] FirstFloor;
+    public GameObject targetMark;
 
     public Arr2D<Tile> map;
     public Arr2D<Fog> fogMap;
@@ -252,7 +253,7 @@ public class DungeonManager : MonoBehaviour
                             InstantiateItemObject(ItemType.Misc, "KEY_BOX_RED", dungeonData.rooms[Random.Range(0, dungeonData.rooms.Count)].PickRandomCordinate());
                             break;
                         case 2:
-                            InstantiateMonster("SENTRY_TOWER", dungeonData.rooms[dungeonData.objectRooms[i]].center, saveData.currentFloor);
+                            //InstantiateMonster("SENTRY_TOWER", dungeonData.rooms[dungeonData.objectRooms[i]].center, saveData.currentFloor);
                             break;
                     }
                 }
