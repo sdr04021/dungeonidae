@@ -8,10 +8,10 @@ public class Fog : MonoBehaviour
     SpriteRenderer spriteRenderer;
     public bool IsOn { get; private set; } = true;
     public bool IsObserved { get; private set; } = false;
-    Color dark = new(1, 1, 1, 0.8f);
+    Color dark = new(1, 1, 1, 0.6f);
     DungeonManager dm;
     int x, y;
-    int identifier = 15;
+    //int identifier = 15;
 
     void Awake()
     {
@@ -67,7 +67,7 @@ public class Fog : MonoBehaviour
         Cover();
     }
 
-
+    /*
     public void UpdateSprite()
     {
         if (!gameObject.activeSelf) return;
@@ -87,4 +87,5 @@ public class Fog : MonoBehaviour
             this.identifier = identifier;
         }
     }
+    */
 }

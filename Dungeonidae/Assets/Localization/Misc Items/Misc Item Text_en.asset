@@ -53,11 +53,12 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 16107848676851712
-    m_Localized: Red Box Key
+    m_Localized: Red Key
     m_Metadata:
       m_Items: []
   - m_Id: 16108073403465728
-    m_Localized: The key needed to open the locked red box.
+    m_Localized: A key with a red color, which you may need when you come across
+      treasure chests of similar color.
     m_Metadata:
       m_Items: []
   - m_Id: 33997100982910976
@@ -77,10 +78,20 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 3135477887864143875
+  - m_Id: 44849888528875520
+    m_Localized: Blue Key
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44849938155880448
+    m_Localized: A key with a blue color, which you may need when you come across
+      treasure chests of similar color.
+    m_Metadata:
+      m_Items:
+      - rid: 3135477887864143875
   references:
     version: 2
     RefIds:
     - rid: 3135477887864143875
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_Entries: 00c03a1c454c380000c0fa3aa46b7f00
+        m_Entries: 00c03a1c454c380000c0fa3aa46b7f0000c0faf7c7569f00

@@ -26,7 +26,7 @@ public class Door : DungeonObject
             IsPassable = true;
             door.gameObject.SetActive(false);
             IsBlockSight = false;
-            IsInteractsWithThrownItem = false;
+            IsActivatesByThrownItem = false;
         }
     }
 
@@ -37,7 +37,7 @@ public class Door : DungeonObject
             IsPassable = false;
             door.gameObject.SetActive(true);
             IsBlockSight = true;
-            IsInteractsWithThrownItem = true;
+            IsActivatesByThrownItem = true;
             DungeonObjectData.isActivated = false;
             dm.UpdateSightAreaNearThis(DungeonObjectData.coord);
             dm.UpdateUnitRenderers();
@@ -47,7 +47,7 @@ public class Door : DungeonObject
             IsPassable = true;
             door.gameObject.SetActive(false);
             IsBlockSight = false;
-            IsInteractsWithThrownItem = false;
+            IsActivatesByThrownItem = false;
             DungeonObjectData.isActivated = true;
             dm.UpdateSightAreaNearThis(DungeonObjectData.coord);
             dm.UpdateUnitRenderers();

@@ -18,6 +18,7 @@ public class AbilityUI : MonoBehaviour
     List<AbilitySlot> abilitySlot = new();
 
     int currentIndex = -1;
+    [SerializeField] GameObject iconBg;
     [SerializeField] Image abilityIcon;
     [SerializeField] GameObject levelUpButton;
     [SerializeField] TMP_Text currentLevel;
@@ -58,7 +59,7 @@ public class AbilityUI : MonoBehaviour
         {
             List<AbilityData> abilities = dm.Player.UnitData.abilities.Values.ToList();
             currentIndex = index;
-            abilityIcon.gameObject.SetActive(true);
+            iconBg.SetActive(true);
             AbilityData ability = abilities[index];
             abilityTitle.text = DunUI.GetAbilityName(ability.Key);
             abilityIcon.sprite = ability.GetSprite();

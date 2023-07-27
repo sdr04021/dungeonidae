@@ -52,6 +52,7 @@ MonoBehaviour:
   <IsInteractable>k__BackingField: 0
   <IsInteractsWithThrownItem>k__BackingField: 1
   <IsInteractsWithCollision>k__BackingField: 0
+  <Durability>k__BackingField: 2
   <DungeonObjectData>k__BackingField:
     coord:
       x: 0
@@ -59,6 +60,7 @@ MonoBehaviour:
     isActivated: 0
   <SpriteRenderer>k__BackingField: {fileID: 5479862808353489907}
   door: {fileID: 8558770759328149641}
+  backgroundBottom: {fileID: 0}
 --- !u!1 &2214653667064714671
 GameObject:
   m_ObjectHideFlags: 0

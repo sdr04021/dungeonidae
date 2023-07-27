@@ -13,6 +13,7 @@ public class MucusAttack : SkillBase
         Unit target = dm.GetTileByCoordinate(coord).unit;
         if (owner.MySpriteRenderer.enabled || target.MySpriteRenderer.enabled)
         {
+            owner.MyAnimator.SetBool("Attack", false);
             owner.MyAnimator.SetBool("Attack", true);
             float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
             yield return new WaitForSeconds(animationLength * 0.5f);

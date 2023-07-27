@@ -58,6 +58,10 @@ MonoBehaviour:
     m_Address: Assets/Scriptable Objects/Skill
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: f41e87661870c9a438bf83bef02b662a
+    m_Address: Assets/Prefabs/ParticleEffect
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: b53bedf15dc1db54e89466810ca69c3d, type: 2}
   m_SchemaSet:

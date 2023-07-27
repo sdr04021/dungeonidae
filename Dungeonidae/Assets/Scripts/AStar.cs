@@ -15,6 +15,7 @@ public class AStar
     Coordinate start;
     Coordinate end;
     public Stack<Directions> Path { get; private set; } = new();
+    bool avoidTrap;
 
     public AStar(List<List<TileData>> mapData, Coordinate start, Coordinate end)
     {
@@ -38,10 +39,11 @@ public class AStar
         }
     }
 
-    public AStar(Arr2D<Tile> map, Coordinate start, Coordinate end, Arr2D<Fog> fogMap)
+    public AStar(Arr2D<Tile> map, Coordinate start, Coordinate end, Arr2D<Fog> fogMap, bool avoidTrap)
     {
         this.start = start;
         this.end = end;
+        this.avoidTrap = avoidTrap;
         openList.Enqueue(start, 0);
         gTable.Add(start, 0);
 
@@ -109,7 +111,7 @@ public class AStar
         Coordinate neighbor = now + new Coordinate(direction);
         if ((neighbor.IsValidCoordForMap(map)) && (map.GetElementAt(neighbor.x, neighbor.y).TileData.areaType != AreaType.Border)) 
         {
-            if (!map.GetElementAt(neighbor.x, neighbor.y).IsReachableTile())
+            if (!map.GetElementAt(neighbor.x, neighbor.y).IsReachableTile(avoidTrap))
                 return;
             if ((fogMap != null) && !fogMap.GetElementAt(neighbor.x, neighbor.y).IsObserved)
                 return;

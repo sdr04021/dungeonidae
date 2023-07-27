@@ -59,8 +59,8 @@ public class DungeonUIManager : MonoBehaviour
     {
         if (!Application.isMobilePlatform)
         {
-            gameCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(2560, 1440);
-            menuCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(2560, 1440);
+            //gameCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(960, 540);
+            //menuCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(960, 540);
         }
     }
 

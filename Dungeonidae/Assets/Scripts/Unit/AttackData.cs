@@ -14,16 +14,25 @@ public class AttackData
     {
         Attacker = attacker;
         IsCritical = isCritical;
-        AttackDamage = (int)(attackDamage * (Random.Range(attacker.UnitData.proficiency.Total() - 1, 100) + 1) * 0.01f);
-        MagicAttackDamage = (int)(magicAttackDamage * (Random.Range(attacker.UnitData.proficiency.Total() - 1, 100) + 1) * 0.01f);
-        if (IsCritical || ((Random.Range(0, 100) + 1) <= attacker.UnitData.cri.Total()))
+        if (attacker != null)
         {
-            IsCritical = true;
-            AttackDamage = (int)(AttackDamage * (attacker.UnitData.criDmg.Total() * 0.01f));
-            MagicAttackDamage = (int)(MagicAttackDamage * (attacker.UnitData.criDmg.Total() * 0.01f));
+            AttackDamage = (int)(attackDamage * (Random.Range(attacker.UnitData.proficiency.Total() - 1, 100) + 1) * 0.01f);
+            MagicAttackDamage = (int)(magicAttackDamage * (Random.Range(attacker.UnitData.proficiency.Total() - 1, 100) + 1) * 0.01f);
+            if (IsCritical || ((Random.Range(0, 100) + 1) <= attacker.UnitData.cri.Total()))
+            {
+                IsCritical = true;
+                AttackDamage = (int)(AttackDamage * (attacker.UnitData.criDmg.Total() * 0.01f));
+                MagicAttackDamage = (int)(MagicAttackDamage * (attacker.UnitData.criDmg.Total() * 0.01f));
+            }
+            AttackDamage += (int)(AttackDamage * (attacker.UnitData.dmgIncrease.Total() * 0.01f));
+            MagicAttackDamage += (int)(MagicAttackDamage * (attacker.UnitData.dmgIncrease.Total() * 0.01f));
         }
-        AttackDamage += (int)(AttackDamage * (attacker.UnitData.dmgIncrease.Total() * 0.01f));
-        MagicAttackDamage += (int)(MagicAttackDamage * (attacker.UnitData.dmgIncrease.Total() * 0.01f));
+        else
+        {
+            AttackDamage = attackDamage;
+            MagicAttackDamage = magicAttackDamage;
+        }
+
 
         FixedDamage = fixedDamage;
     }

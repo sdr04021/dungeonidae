@@ -75,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 4909b296f44c82f4689d636249f49e96, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 71e48827a164f1649bd5e63781270fde, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -94,7 +94,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8321111386697188980}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 7776039bd719eac418ffa0c41d058056, type: 2}
   m_CullingMode: 0
@@ -123,11 +123,13 @@ MonoBehaviour:
   isTargetable: 0
   <IsBlockSight>k__BackingField: 0
   <IsInteractable>k__BackingField: 0
-  <IsInteractsWithThrownItem>k__BackingField: 0
+  <IsActivatesByThrownItem>k__BackingField: 0
   <IsInteractsWithCollision>k__BackingField: 1
+  <Durability>k__BackingField: 2
   <DungeonObjectData>k__BackingField:
     coord:
       x: 0
       y: 0
     isActivated: 0
+    isHidden: 0
   <SpriteRenderer>k__BackingField: {fileID: 0}

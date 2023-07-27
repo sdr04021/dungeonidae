@@ -9,7 +9,7 @@ public class DungeonObject : MonoBehaviour
     [SerializeField] protected bool isTargetable = false;
     [field: SerializeField] public bool IsBlockSight { get; protected set; } = false;
     [field: SerializeField] public bool IsInteractable { get; protected set; } = false;
-    [field: SerializeField] public bool IsInteractsWithThrownItem { get; protected set; } = false;
+    [field: SerializeField] public bool IsActivatesByThrownItem { get; protected set; } = false;
     [field: SerializeField] public bool IsInteractsWithCollision { get; protected set; } = false;
     [field: SerializeField] public DungeonObjectDurability Durability { get; protected set; } = DungeonObjectDurability.Unbreakable;
     [field: SerializeField] public DungeonObjectData DungeonObjectData { get; protected set; }

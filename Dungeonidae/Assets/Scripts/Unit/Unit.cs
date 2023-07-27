@@ -137,7 +137,7 @@ abstract public class Unit : MonoBehaviour
         {
             for(int j=1; j<dm.map.arrSize.y - 1; j++)
             {
-                if (dm.map.GetElementAt(i, j).IsReachableTile() && (i != UnitData.coord.x) && (j != UnitData.coord.y))
+                if (dm.map.GetElementAt(i, j).IsReachableTile(false) && (i != UnitData.coord.x) && (j != UnitData.coord.y))
                 {
                     coords.Add(new Coordinate(i, j));
                 }
@@ -205,7 +205,7 @@ abstract public class Unit : MonoBehaviour
 
         if (dest.IsValidCoordForMap(dm.map))
         {
-            if (dm.GetTileByCoordinate(dest).IsReachableTile())
+            if (dm.GetTileByCoordinate(dest).IsReachableTile(false))
             {
                 Controllable = false;
 
@@ -265,7 +265,10 @@ abstract public class Unit : MonoBehaviour
         for (int i = 0; i < tile.dungeonObjects.Count; i++)
         {
             if (tile.dungeonObjects[i].IsInteractsWithCollision)
+            {
                 tile.dungeonObjects[i].Activate(this);
+                FoundSomething = true;
+            }
         }
 
         isAnimationFinished = true;
@@ -322,7 +325,9 @@ abstract public class Unit : MonoBehaviour
 
     public virtual void GetDamage(AttackData attackData)
     {
-        int hitChance = Mathf.Min((85 + 5 * (attackData.Attacker.UnitData.level - UnitData.level) + (attackData.Attacker.UnitData.acc.Total() - UnitData.eva.Total())));
+        int hitChance = 90 - UnitData.eva.Total();
+        if (attackData.Attacker != null)
+            hitChance += (attackData.Attacker.UnitData.acc.Total() + 5 * (attackData.Attacker.UnitData.level - UnitData.level));
         if ((Random.Range(0, 100) + 1) > hitChance)
         {
             if (MySpriteRenderer.enabled) {
@@ -340,18 +345,28 @@ abstract public class Unit : MonoBehaviour
         }
         else
         {
-            int attackDamage = attackData.AttackDamage - (int)(UnitData.def.Total() * (1 - attackData.Attacker.UnitData.pen.Total() * 0.01f));
-            int magicAttackDamage = attackData.MagicAttackDamage - (int)(UnitData.mDef.Total() * (1 - attackData.Attacker.UnitData.mPen.Total() * 0.01f));
+            int damage = 0;
+            if (attackData.Attacker != null)
+            {
+                int attackDamage = attackData.AttackDamage - (int)(UnitData.def.Total() * (1 - attackData.Attacker.UnitData.pen.Total() * 0.01f));
+                int magicAttackDamage = attackData.MagicAttackDamage - (int)(UnitData.mDef.Total() * (1 - attackData.Attacker.UnitData.mPen.Total() * 0.01f));
 
-            if (attackDamage < 0) attackDamage = 0;
-            if (magicAttackDamage < 0) magicAttackDamage = 0;
-            int damage = (int)Mathf.Max(0, (attackDamage + magicAttackDamage) * ((100 - UnitData.dmgReduction.Total()) * 0.01f));
-            int stolenHp = (int)(Mathf.Min(damage, UnitData.Hp) * 0.01f * attackData.Attacker.UnitData.lifeSteal.Total());
-            int stolenMp = (int)(Mathf.Min(damage, UnitData.Hp) * 0.01f * attackData.Attacker.UnitData.lifeSteal.Total());
+                if (attackDamage < 0) attackDamage = 0;
+                if (magicAttackDamage < 0) magicAttackDamage = 0;
+                damage = (int)Mathf.Max(0, (attackDamage + magicAttackDamage) * ((100 - UnitData.dmgReduction.Total()) * 0.01f));
+                int stolenHp = (int)(Mathf.Min(damage, UnitData.Hp) * 0.01f * attackData.Attacker.UnitData.lifeSteal.Total());
+                int stolenMp = (int)(Mathf.Min(damage, UnitData.Hp) * 0.01f * attackData.Attacker.UnitData.lifeSteal.Total());
+
+                if (stolenHp > 0) attackData.Attacker.RecoverHp(stolenHp);
+                if (stolenMp > 0) attackData.Attacker.RecoverMp(stolenMp);
+            }
+            else
+            {
+                damage = Mathf.Max(0, attackData.AttackDamage - UnitData.def.Total() + attackData.MagicAttackDamage - UnitData.mDef.Total());
+                damage = (int)Mathf.Max(0, damage * ((100 - UnitData.dmgReduction.Total()) * 0.01f));
+            }
 
             UnitData.Hp -= damage;
-            if (stolenHp > 0) attackData.Attacker.RecoverHp(stolenHp);
-            if (stolenMp > 0) attackData.Attacker.RecoverMp(stolenMp);
 
             if (MySpriteRenderer.enabled)
             {
@@ -365,6 +380,7 @@ abstract public class Unit : MonoBehaviour
                 //MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(() => { MySpriteRenderer.DOColor(Color.white, 0.2f); });
                 spriteMaterial.DOFloat(1, "_FlashAmount", 0.2f).OnComplete(() => { spriteMaterial.DOFloat(0, "_FlashAmount", 0.2f); });
                 hpBar.DOFade(0.5f, 0.2f).SetEase(Ease.OutCirc).OnComplete(() => { hpBar.DOFade(1, 0.2f).SetEase(Ease.OutCirc); });
+                Instantiate(GameManager.Instance.GetPrefab(PrefabAssetType.ParticleEffect, "HIT"), transform);
             }
             isHitFinished = false;
         }
@@ -375,6 +391,33 @@ abstract public class Unit : MonoBehaviour
         }
         else isHitFinished = true;
     }
+    public virtual void GetDamage(int attackDamage, int magicAttackDamage, int fixedDamage)
+    {
+        int damage = Mathf.Max(0, attackDamage - UnitData.def.Total() + magicAttackDamage - UnitData.mDef.Total() + fixedDamage);
+        damage = (int)Mathf.Max(0, damage * ((100 - UnitData.dmgReduction.Total()) * 0.01f));
+
+        UnitData.Hp -= damage;
+
+        if (MySpriteRenderer.enabled)
+        {
+            if (canvas != null)
+            {
+                DamageText dt = Instantiate(GameManager.Instance.damageTextPrefab, canvas.transform);
+                dt.SetValue(damage, DamageType.Normal);
+            }
+            spriteMaterial.DOFloat(1, "_FlashAmount", 0.2f).OnComplete(() => { spriteMaterial.DOFloat(0, "_FlashAmount", 0.2f); });
+            hpBar.DOFade(0.5f, 0.2f).SetEase(Ease.OutCirc).OnComplete(() => { hpBar.DOFade(1, 0.2f).SetEase(Ease.OutCirc); });
+            Instantiate(GameManager.Instance.GetPrefab(PrefabAssetType.ParticleEffect, "HIT"), transform);
+        }
+        isHitFinished = false;
+
+        if (UnitData.Hp <= 0)
+        {
+            StartDie();
+        }
+        else isHitFinished = true;
+    }
+
     protected virtual void StartDie()
     {
         MySpriteRenderer.DOFade(0, 0.5f).OnComplete(() => { Destroy(gameObject); });
@@ -449,7 +492,7 @@ abstract public class Unit : MonoBehaviour
             Coordinate dest = UnitData.coord.MovedCoordinate((Directions)i, 1);
             if (dest.IsValidCoordForMap(dm.map))
             {
-                if(dm.GetTileByCoordinate(dest).IsReachableTile())
+                if(dm.GetTileByCoordinate(dest).IsReachableTile(true))
                     deck.Add((Directions)i);
             }
         }
@@ -460,9 +503,9 @@ abstract public class Unit : MonoBehaviour
             Move(deck[Random.Range(0, max)]);
     }
 
-    protected bool FindPath(Coordinate targetCoord)
+    protected bool FindPath(Coordinate targetCoord, bool avoidTrap)
     {
-        AStar aStar = new(dm.map, UnitData.coord, targetCoord, dm.fogMap);
+        AStar aStar = new(dm.map, UnitData.coord, targetCoord, dm.fogMap, avoidTrap);
         if (aStar.Path.Count == 0)
             return false;
         else
@@ -485,7 +528,7 @@ abstract public class Unit : MonoBehaviour
     }
     protected Directions FollowTarget(Coordinate targetCoord)
     {
-        AStar aStar = (UnitData.team == Team.Player) ? new(dm.map, UnitData.coord, targetCoord, dm.fogMap) : new(dm.map, UnitData.coord, targetCoord, null);
+        AStar aStar = (UnitData.team == Team.Player) ? new(dm.map, UnitData.coord, targetCoord, dm.fogMap, true) : new(dm.map, UnitData.coord, targetCoord, null, true);
         if (aStar.Path.Count == 0)
             return Directions.NONE;
         else

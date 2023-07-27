@@ -36,13 +36,15 @@ public class Tile : MonoBehaviour
         rangeIndicator.sortingOrder = 1000;
     }
 
-    public bool IsReachableTile()
+    public bool IsReachableTile(bool avoidTrap, bool isPlayer = false)
     {
         if ((TileData.tileType == TileType.Wall) || unit != null)
             return false;
         for (int i = 0; i < dungeonObjects.Count; i++)
         {
             if (!dungeonObjects[i].IsPassable)
+                return false;
+            if (avoidTrap && dungeonObjects[i] is Trap && !(isPlayer && !dungeonObjects[i].SpriteRenderer.enabled))
                 return false;
         }
         return true;
@@ -125,8 +127,13 @@ public class Tile : MonoBehaviour
             cornerRight.sortingOrder = upSprite.sortingOrder;
             spriteRenderer.sortingOrder += (int)LayerOrder.Wall;
             downSprite.sortingOrder = 1000 - (10 * (coord.y - 1)) + (int)LayerOrder.BottomWall;
+            spriteRenderer.sortingLayerName = "Default";
         }
-        else spriteRenderer.sortingOrder = 0;
+        else
+        {
+            spriteRenderer.sortingOrder = 0;
+            spriteRenderer.sortingLayerName = "Floor";
+        }
 
         fourWays[0] = dm.map.GetElementAt(coord.x, coord.y + 1).TileData.tileType;
         fourWays[1] = dm.map.GetElementAt(coord.x + 1, coord.y).TileData.tileType;

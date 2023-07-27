@@ -11,6 +11,7 @@ public class DungeonObjectData
     [JsonProperty] public string Key { get; private set; }
 
     public bool isActivated = false;
+    public bool isHidden = false;
 
     public void Init(DungeonObject dunObj, string key)
     {

@@ -28,20 +28,14 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 333065142272
-    m_Localized: '[Level 1]
-
-      {0.0}% increase.
+    m_Localized: '[1] {0.0}% increase.
 
 
-      [Level 2]
-
-      {0.1}%
-      increase.
+      [2] {0.1}% increase.
 
 
-      [Level 3]
-
-      {0.2}% increase.'
+      [3] {0.2}%
+      increase.'
     m_Metadata:
       m_Items:
       - rid: 3135477931441913858
@@ -54,19 +48,13 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 222694469189632
-    m_Localized: '[Level 1]
-
-      1% increase per {0.0}%.
+    m_Localized: '[1] 1% increase per {0.0}%.
 
 
-      [Level 2]
-
-      1%
-      increase per {0.1}%.
+      [2] 1% increase per {0.1}%.
 
 
-      [Level 3]
-
+      [3]
       1% increase per {0.2}%.'
     m_Metadata:
       m_Items:

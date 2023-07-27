@@ -27,9 +27,9 @@ public class AbilitySlot : MonoBehaviour
         for (int i = 0; i < levelIndicator.Length; i++)
         {
             if (i < ability.Level)
-                levelIndicator[i].color = Color.white;
+                levelIndicator[i].gameObject.SetActive(true);
             else
-                levelIndicator[i].color = new Color(1, 1, 1, 0.2f);
+                levelIndicator[i].gameObject.SetActive(false);
         }
     }
 

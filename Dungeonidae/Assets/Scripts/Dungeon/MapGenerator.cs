@@ -298,7 +298,7 @@ public class MapGenerator
             }
             else
             {
-                int pick = rand.Next() % 3;
+                int pick = rand.Next() % 10;
                 switch (pick)
                 {
                     case 0:

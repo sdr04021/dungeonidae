@@ -52,7 +52,7 @@ public class Player : Unit
         UnitData.equipped[3] = new EquipmentData(GameManager.Instance.GetEquipmentBase("WORN_WOODEN_SHIELD"));
         UnitData.ApplyEquipStats(UnitData.equipped[1]);
         UnitData.ApplyEquipStats(UnitData.equipped[3]);
-        //UnitData.AddMisc(new MiscData(GameManager.Instance.GetMiscBase("POTION_HASTE"), 5));
+        UnitData.AddMisc(new MiscData(GameManager.Instance.GetMiscBase("POTION_HASTE"), 5));
     }
 
     public void Step(Directions directions)
@@ -94,11 +94,13 @@ public class Player : Unit
             dm.fogMap.GetElementAt(TilesInSight[i].x, TilesInSight[i].y).Clear();
         }
 
+        /*
         for(int i=0; i < dm.fogMap.arrSize.x; i++)
         {
             for (int j = 0; j < dm.fogMap.arrSize.y; j++)
                 dm.fogMap.GetElementAt(i, j).UpdateSprite();
         }
+        */
     }
 
     protected override void FollowPath()
@@ -259,7 +261,7 @@ public class Player : Unit
         Tile tile = dm.map.GetElementAt(throwingItem.Coord);
         for(int i=0; i<tile.dungeonObjects.Count; i++)
         {
-            if (tile.dungeonObjects[i].IsInteractsWithThrownItem)
+            if (tile.dungeonObjects[i].IsActivatesByThrownItem)
             {
                 tile.dungeonObjects[i].Activate(this);
                 break;
@@ -339,9 +341,11 @@ public class Player : Unit
         {
             if (dm.map.GetElementAt(coord).TileData.tileType == TileType.Floor)
             {
+                bool avoidTrap = true;
+                if (Coordinate.InRange(coord, UnitData.coord, 1.5f)) avoidTrap = false;
                 if (dm.fogMap.GetElementAt(coord).IsOn)
                 {
-                    if (FindPath(coord)) FollowPath();
+                    if (FindPath(coord, avoidTrap)) FollowPath();
                 }
                 else
                 {
@@ -355,14 +359,14 @@ public class Player : Unit
                         }
                         else ResetSkillRange();
                     }
-                    else if (UnitData.coord.IsTargetInRange(coord, 1) && !dm.map.GetElementAt(coord).IsReachableTile() && (dm.map.GetElementAt(coord).GetTargetable() != null))
+                    else if (UnitData.coord.IsTargetInRange(coord, 1) && !dm.map.GetElementAt(coord).IsReachableTile(false) && (dm.map.GetElementAt(coord).GetTargetable() != null))
                     {
                         StartCoroutine(BasicAttack.Skill(this, dm, coord));
                         Controllable = false;
                     }
                     else
                     {
-                        if (FindPath(coord)) FollowPath();
+                        if (FindPath(coord, avoidTrap)) FollowPath();
                     }
                 }
             }
@@ -374,7 +378,7 @@ public class Player : Unit
             {
                 if (dm.fogMap.GetElementAt(surroundings[i]).IsObserved)
                 {
-                    if (FindPath(coord)) FollowPath();
+                    if (FindPath(coord, true)) FollowPath();
                     break;
                 }
             }
@@ -436,16 +440,20 @@ public class Player : Unit
             if (CurrentSkill.NeedTarget)
             {
                 CurrentSkill.SetRange(this, dm, true);
-                if (!AvailableRange.Contains(Targeting)) Targeting = AvailableRange[0];
-                if (AvailableRange.Count == 1)
+                if (AvailableRange.Count > 0)
                 {
-                    ResetSkillRange();
-                    UseCurrentSkill(Targeting);
-                }
-                else if (AvailableRange.Count > 1)
-                {
-                    dm.targetMark.SetActive(true);
-                    dm.targetMark.transform.position = Targeting.ToVector2();
+                    if (!AvailableRange.Contains(Targeting)) Targeting = AvailableRange[0];
+
+                    if (AvailableRange.Count == 1)
+                    {
+                        ResetSkillRange();
+                        UseCurrentSkill(Targeting);
+                    }
+                    else if (AvailableRange.Count > 1)
+                    {
+                        dm.targetMark.SetActive(true);
+                        dm.targetMark.transform.position = Targeting.ToVector2();
+                    }
                 }
             }
             else UseCurrentSkill();
@@ -459,6 +467,7 @@ public class Player : Unit
             UnitData.currentSkills[CurrentSkillIndex] = null;
             UnitData.skillRechargeLeft[CurrentSkillIndex] = 21;
         }
+        IsSkillMode = false;
         StartCoroutine(CurrentSkill.Skill(this, dm, coord));
     }
     public void UseCurrentSkill()
@@ -468,6 +477,7 @@ public class Player : Unit
             UnitData.currentSkills[CurrentSkillIndex] = null;
             UnitData.skillRechargeLeft[CurrentSkillIndex] = 11;
         }
+        IsSkillMode = false;
         StartCoroutine(CurrentSkill.Skill(this, dm, UnitData.coord));
     }
     public void StartBasicAttack()
@@ -497,7 +507,6 @@ public class Player : Unit
         base.EndSkill(turnSpent);
         ResetSkillRange();
         CurrentSkill = null;
-        IsSkillMode = false;
     }
     public void CancelSkill()
     {

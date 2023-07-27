@@ -10,7 +10,7 @@ public enum EquipmentType { Hat, Weapon, Armor, Sub, Shoes, Artifact }
 public enum ItemSlotType { Item, Equipped, Shop }
 public enum ItemType { Equipment, Misc }
 public enum LayerOrder { BottomWall, Stair, DungeonObject, Unit, ItemObject, Bush, Wall, TopWall, Fog, Canvas }
-public enum PrefabAssetType { Monster, DungeonObject}
+public enum PrefabAssetType { Monster, DungeonObject, ParticleEffect}
 public enum SkillType { Attack, Status }
 public enum SpriteAssetType { Ability, Equipment, Misc, Skill }
 public enum StatType { MaxHp, MaxMp, MaxHunger, Atk, Def, MAtk, MDef, Pen, MPen, Proficiency, Acc, Eva, Cri, CriDmg, Aspd,

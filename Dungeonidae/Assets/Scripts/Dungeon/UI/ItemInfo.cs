@@ -144,6 +144,7 @@ public class ItemInfo : MonoBehaviour
         else enchantButton.SetActive(false);
 
         gameObject.SetActive(true);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(content);
     }
 
     public void Close()

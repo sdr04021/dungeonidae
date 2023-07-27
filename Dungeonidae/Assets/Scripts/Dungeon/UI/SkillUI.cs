@@ -10,6 +10,7 @@ public class SkillUI : MonoBehaviour
     [SerializeField] DungeonManager dm;
     [SerializeField] DungeonUIManager dunUI;
 
+    [SerializeField] GameObject iconBg;
     [SerializeField] Image skillIcon;
     [SerializeField] Image skillTypeIcon;
     [SerializeField] TMP_Text skillTitle;
@@ -18,8 +19,8 @@ public class SkillUI : MonoBehaviour
     [SerializeField] TMP_Text skillEffect;
 
     [SerializeField] RectTransform content;
-    [SerializeField] Image skillSlotPrefab;
-    List<Image> skillSlots = new();
+    [SerializeField] SkillSlot skillSlotPrefab;
+    List<SkillSlot> skillSlots = new();
 
     public void Init()
     {
@@ -35,9 +36,9 @@ public class SkillUI : MonoBehaviour
         {
             if (i >= skillSlots.Count)
             {
-                Image slot = Instantiate(skillSlotPrefab, content);
+                SkillSlot slot = Instantiate(skillSlotPrefab, content);
                 int temp = i;
-                slot.sprite = GameManager.Instance.GetSkillBase(skills[i]).Sprite;
+                slot.icon.sprite = GameManager.Instance.GetSkillBase(skills[i]).Sprite;
                 slot.GetComponent<Button>().onClick.AddListener(() => Btn_SkillSlotClicked(temp));
                 skillSlots.Add(slot);
             }
@@ -48,7 +49,7 @@ public class SkillUI : MonoBehaviour
             else
             {
                 skillSlots[i].gameObject.SetActive(true);
-                skillSlots[i].sprite = GameManager.Instance.GetSkillBase(skills[i]).Sprite;
+                skillSlots[i].icon.sprite = GameManager.Instance.GetSkillBase(skills[i]).Sprite;
             }
         }
     }
@@ -59,7 +60,7 @@ public class SkillUI : MonoBehaviour
         if ((index < skills.Count) && (skills[index] != null))
         {
             SkillBase skillBase = GameManager.Instance.GetSkillBase(dm.Player.UnitData.acquiredSkills[index]);
-            skillIcon.gameObject.SetActive(true);
+            iconBg.SetActive(true);
             skillIcon.sprite = skillBase.Sprite;
             skillTitle.text = dunUI.GetSkillName(skillBase.Key);
             skillCost.text = skillBase.Cost.ToString() + " MP";

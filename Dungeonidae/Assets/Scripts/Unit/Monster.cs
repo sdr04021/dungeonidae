@@ -64,7 +64,7 @@ public class Monster : Unit
                         UnitData.chaseTarget = null;
                         DecideBehavior();
                     }
-                    else if (!FindPath(UnitData.chaseTargetRecentCoord))
+                    else if (!FindPath(UnitData.chaseTargetRecentCoord, true))
                     {
                         //RandomStep();
                         EndTurn(1);
@@ -174,7 +174,7 @@ public class Monster : Unit
 
         UnitData temp = UnitData.chaseTarget;
         CheckNewInSight();
-        if (UnitsInSight.Contains(attackData.Attacker))
+        if (attackData.Attacker!=null && UnitsInSight.Contains(attackData.Attacker))
         {
             if (!UnitData.hostileTargets.Contains(attackData.Attacker.UnitData)) UnitData.hostileTargets.Add(attackData.Attacker.UnitData);
             UnitData.chaseTarget = attackData.Attacker.UnitData;
@@ -209,6 +209,7 @@ public class Monster : Unit
             }
         }
         */
+        /*
         if (Random.Range(0, 2) == 0)
         {
             int pick = Random.Range(0, GameManager.Instance.StringData.MiscItems.Count);
@@ -218,8 +219,11 @@ public class Monster : Unit
             item.Bounce();
             dm.GetTileByCoordinate(item.Coord).items.Push(item);
         }
-        
-        for(int i=0; i<MustDropItem.Count; i++)
+        */
+
+        if(Random.Range(0,5)==0)
+            dm.InstantiateDungeonObject("HEART_OF_HEALING", UnitData.coord);
+        for (int i=0; i<MustDropItem.Count; i++)
         {
             ItemObject itemTemp = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
             itemTemp.Init(dm, new Coordinate((Vector2)transform.position), new MiscData(GameManager.Instance.GetMiscBase(MustDropItem[i]), 1));

@@ -15,8 +15,6 @@ MonoBehaviour:
   <Monsters>k__BackingField:
   - JELLYLING
   - TOAD_SWORDSMAN
-  - BEDBUG
-  - COCKROACH
   - FLOATING_EYEBALL
   <Hats_Class>k__BackingField:
   - tier:

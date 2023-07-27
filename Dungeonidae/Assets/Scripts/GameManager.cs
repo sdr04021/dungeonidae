@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour
     {
         {PrefabAssetType.DungeonObject, new Dictionary<string, AsyncOperationHandle<GameObject>>()},
         {PrefabAssetType.Monster, new Dictionary<string, AsyncOperationHandle<GameObject>>()},
+        {PrefabAssetType.ParticleEffect, new Dictionary<string, AsyncOperationHandle<GameObject>>()}
     };
     readonly Dictionary<string, AsyncOperationHandle<BuffBase>> buffBaseHandles = new();
     readonly Dictionary<string, AsyncOperationHandle<SkillBase>> skillBaseHandles = new();

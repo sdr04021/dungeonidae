@@ -101,7 +101,7 @@ MonoBehaviour:
   isTargetable: 1
   <IsBlockSight>k__BackingField: 0
   <IsInteractable>k__BackingField: 0
-  <IsInteractsWithThrownItem>k__BackingField: 0
+  <IsActivatesByThrownItem>k__BackingField: 0
   <IsInteractsWithCollision>k__BackingField: 0
   <Durability>k__BackingField: 0
   <DungeonObjectData>k__BackingField:
@@ -109,4 +109,5 @@ MonoBehaviour:
       x: 0
       y: 0
     isActivated: 0
+    isHidden: 0
   <SpriteRenderer>k__BackingField: {fileID: 0}

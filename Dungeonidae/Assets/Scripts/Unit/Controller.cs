@@ -186,6 +186,11 @@ public class Controller : MonoBehaviour
         {
             if (player.Controllable) player.Step(Directions.NW);
         }
+        else if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if(player.IsSkillMode) player.CancelSkill();
+        }
+
         if (player.IsSkillMode || player.IsThrowingMode)
         {
             if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.Keypad8))

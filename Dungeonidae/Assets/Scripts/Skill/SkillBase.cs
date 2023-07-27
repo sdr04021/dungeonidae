@@ -42,7 +42,7 @@ public abstract class SkillBase : ScriptableObject
                         if(tile.TileData.tileType == TileType.Wall)
                             wallMap[j + i * wallMapSize] = true;
                     }
-                    else if (tile.IsBlockingSight() || tile.unit != null || !tile.IsReachableTile())
+                    else if (tile.IsBlockingSight() || tile.unit != null || !tile.IsReachableTile(false))
                     {
                         wallMap[j + i * wallMapSize] = true;
                     }
@@ -97,7 +97,7 @@ public abstract class SkillBase : ScriptableObject
             for (int i = 0; i < skillRange.Count; i++)
             {
                 Tile tile = dm.map.GetElementAt(skillRange[i]);
-                if (tile.IsReachableTile())
+                if (tile.IsReachableTile(false))
                 {
                     owner.AvailableRange.Add(skillRange[i]);
                     if (showRangeIndicator) tile.SetAvailable();
