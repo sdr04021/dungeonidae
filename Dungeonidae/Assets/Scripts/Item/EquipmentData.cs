@@ -1,15 +1,24 @@
 using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 
 [System.Serializable]
 public class EquipmentData : ItemData
 {
+    [JsonIgnore]
+    EquipmentBase baseData;
+    [JsonIgnore]
+    public EquipmentBase BaseData
+    {
+        get
+        {
+            if (baseData == null) baseData = GameManager.Instance.GetEquipmentBase(Key);
+            return baseData;
+        }
+    }
+
     [JsonProperty]
     public EquipmentType EquipmentType { get; private set; }
 
@@ -28,20 +37,22 @@ public class EquipmentData : ItemData
     [JsonProperty]
     public List<int> EquipmentAblitiyBonus { get; private set; } = new();
 
-    public EquipmentData() { }
+    public EquipmentData() {}
 
-    public EquipmentData(EquipmentBase data) : base (data)
+    public EquipmentData(string key) : base (key)
     {
-        EquipmentType = data.equipmentType;
+        baseData = GameManager.Instance.GetEquipmentBase(key);
 
-        for(int i=0; i < data.stats.Length; i++)
+        EquipmentType = baseData.equipmentType;
+
+        for(int i=0; i < baseData.stats.Length; i++)
         {
             EquipmentStat stat = new()
             {
-                statType = data.stats[i].statType,
-                statUnit = data.stats[i].statUnit,
-                val = data.stats[i].val,
-                bonus = data.stats[i].bonus
+                statType = baseData.stats[i].statType,
+                statUnit = baseData.stats[i].statUnit,
+                val = baseData.stats[i].val,
+                bonus = baseData.stats[i].bonus
             };
             if (i == 0)
             {
@@ -52,15 +63,15 @@ public class EquipmentData : ItemData
                 Stats.Add(stat);
         }
 
-        if (data.abilities?.Length > 0)
+        if (baseData.abilities?.Length > 0)
         {
-            for(int i=0; i<data.abilities[0].vals.Count; i++)
+            for(int i=0; i< baseData.abilities[0].vals.Count; i++)
             {
                 EquipmentAblitiyBonus.Add(0);
             }
         }
 
-        if (data.equipmentType == EquipmentType.Artifact)
+        if (baseData.equipmentType == EquipmentType.Artifact)
         {
             PotentialExp = 30;
         }

@@ -16,7 +16,7 @@ MonoBehaviour:
   <Team>k__BackingField: 2
   <MaxExp>k__BackingField: 10
   <ExpCoefficient>k__BackingField: 1
-  <MaxHp>k__BackingField: 40
+  <MaxHp>k__BackingField: 50
   <HpRegen>k__BackingField: 1
   <MaxMp>k__BackingField: 10
   <MpRegen>k__BackingField: 1
@@ -33,7 +33,7 @@ MonoBehaviour:
   <Proficiency>k__BackingField: 10
   <LifeSteal>k__BackingField: 0
   <ManaSteal>k__BackingField: 0
-  <Def>k__BackingField: 2
+  <Def>k__BackingField: 1
   <MDef>k__BackingField: 0
   <Eva>k__BackingField: 0
   <CoolSpeed>k__BackingField: 100

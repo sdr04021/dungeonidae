@@ -59,10 +59,30 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 3135477931441913858
+  - m_Id: 48165241073876992
+    m_Localized: Combo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48165265996431360
+    m_Localized: Each successful attack adds one stack of combo buff (up to 99).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48165293158744064
+    m_Localized: '[1] Combo buff lasts for {0.0} turns.
+
+
+      [2] Combo buff lasts
+      for {0.1} turns.
+
+
+      [3] Combo buff lasts for {0.2} turns.'
+    m_Metadata:
+      m_Items:
+      - rid: 3135477931441913858
   references:
     version: 2
     RefIds:
     - rid: 3135477931441913858
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_Entries: 00c03a8c4d00000000c0ba188aca0000
+        m_Entries: 00c03a8c4d00000000c0ba188aca000000c03a35141eab00

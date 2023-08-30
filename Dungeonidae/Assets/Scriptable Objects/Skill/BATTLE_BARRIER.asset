@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be05fe3afcb4c51408e5cb5cd859fb92, type: 3}
+  m_Name: BATTLE_BARRIER
+  m_EditorClassIdentifier: 
+  <Key>k__BackingField: BATTLE_BARRIER
+  <Type>k__BackingField: 1
+  <Cost>k__BackingField: 2
+  <Range>k__BackingField: -1
+  <EffectValues>k__BackingField: 19000000
+  <NeedTarget>k__BackingField: 0
+  <IgnoreObstacle>k__BackingField: 0
+  <TargetReachableTile>k__BackingField: 0
+  <TargetDungeonObjects>k__BackingField: 0
+  <TargetEightDirectionsOnly>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 21300000, guid: 7a544b13ed3b59d4d9edf62f720b1f4d, type: 3}
+  <HitEffectPrefab>k__BackingField: {fileID: 0}

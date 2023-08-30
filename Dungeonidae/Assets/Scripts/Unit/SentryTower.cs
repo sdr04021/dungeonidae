@@ -6,8 +6,8 @@ public class SentryTower : Monster
 {
     protected override void DecideBehavior()
     {
-        if (!UnitData.AdditionalEffects.ContainsKey("MISSILE"))
-            UnitData.AdditionalEffects.Add("MISSILE", new int[] { 0 });
+        if (!UnitData.AdditionalEffects.ContainsKey(AdditionalEffectKey.MISSILE))
+            UnitData.AdditionalEffects.Add(AdditionalEffectKey.MISSILE, new int[] { 0 });
 
         if (UnitData.chaseTarget == null)
             LookAround();

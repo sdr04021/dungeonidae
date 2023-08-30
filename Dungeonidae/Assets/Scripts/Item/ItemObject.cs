@@ -30,11 +30,11 @@ public class ItemObject : MonoBehaviour
 
     public void Bounce()
     {
-        transform.DOJump(new Vector3(Coord.x, Coord.y - 0.25f, transform.position.z), 0.4f, 1, 0.5f);
+        transform.DOJump(new Vector3(Coord.x, Coord.y - 0.15625f, transform.position.z), 0.4f, 1, 0.5f);
     }
     public void Drop()
     {
-        transform.DOMove(new Vector3(Coord.x, Coord.y - 0.25f, transform.position.z), 0.2f);
+        transform.DOMove(new Vector3(Coord.x, Coord.y - 0.15625f, transform.position.z), 0.2f);
     }
     public void Loot()
     {

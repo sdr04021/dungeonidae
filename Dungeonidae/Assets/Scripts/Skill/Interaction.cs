@@ -8,7 +8,7 @@ public class Interaction : SkillBase
 {
     public override IEnumerator Skill(Unit owner, DungeonManager dm, Coordinate coord)
     {
-        owner.isAnimationFinished = false;
+        owner.activeMotions++;
         Tile tile = dm.GetTileByCoordinate(coord);
         owner.FlipSprite(coord);
         if (tile.GetTargetable() != null)
@@ -26,13 +26,13 @@ public class Interaction : SkillBase
                     yield return Constants.ZeroPointOne;
                 }
                 owner.MyAnimator.SetBool("Attack", false);
-                owner.isAnimationFinished = true;
+                owner.activeMotions--;
             }
             else
             {
                 dunObj.Activate(owner);
                 owner.EndSkill(1);
-                owner.isAnimationFinished = true;
+                owner.activeMotions--;
             }
         }
     }

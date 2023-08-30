@@ -8,7 +8,7 @@ public class BasicAttack : SkillBase
 {
     public override IEnumerator Skill(Unit owner, DungeonManager dm, Coordinate coord)
     {
-        owner.isAnimationFinished = false;
+        owner.activeMotions++;
         Tile tile = dm.GetTileByCoordinate(coord);
         owner.FlipSprite(coord);
         if (tile.unit != null)
@@ -16,23 +16,24 @@ public class BasicAttack : SkillBase
             Unit target = dm.GetTileByCoordinate(coord).unit;
             if (owner.MySpriteRenderer.enabled || target.MySpriteRenderer.enabled)
             {
-                owner.MyAnimator.SetBool("Attack", false);
                 owner.MyAnimator.SetBool("Attack", true);
+                yield return Constants.ZeroPointZeroOne;
                 float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
                 yield return new WaitForSeconds(animationLength * 0.5f);
                 target.GetDamage(MakeAttackData(owner));
                 owner.EndSkill(1);
-                while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) || !target.isHitFinished)
+                while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) || target.passiveMotions > 0)
                 {
-                    yield return Constants.ZeroPointOne;
+                    yield return Constants.ZeroPointZeroTwo;
                 }
                 owner.MyAnimator.SetBool("Attack", false);
-                owner.isAnimationFinished = true;
+                owner.activeMotions--;
             }
             else
             {
                 target.GetDamage(MakeAttackData(owner));
                 owner.EndSkill(1);
+                owner.activeMotions--;
             }
         }
         else if (tile.GetTargetable() != null)
@@ -40,8 +41,8 @@ public class BasicAttack : SkillBase
             DungeonObject dunObj = tile.GetTargetable();
             if (dunObj.Durability == DungeonObjectDurability.Fragile)
             {
-                owner.MyAnimator.SetBool("Attack", false);
                 owner.MyAnimator.SetBool("Attack", true);
+                yield return Constants.ZeroPointZeroOne;
                 float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
                 yield return new WaitForSeconds(animationLength * 0.5f);
                 tile.GetTargetable().Activate(owner);
@@ -51,13 +52,14 @@ public class BasicAttack : SkillBase
                     yield return Constants.ZeroPointOne;
                 }
                 owner.MyAnimator.SetBool("Attack", false);
-                owner.isAnimationFinished = true;
+                owner.activeMotions--;
             }
             else
             {
+                owner.MyAnimator.SetTrigger("Work");
                 dunObj.Activate(owner);
                 owner.EndSkill(1);
-                owner.isAnimationFinished = true;
+                owner.activeMotions--;
             }
         }
     }

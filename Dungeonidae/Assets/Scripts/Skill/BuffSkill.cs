@@ -10,25 +10,26 @@ public class BuffSkill : SkillBase
 
     public override IEnumerator Skill(Unit owner, DungeonManager dm, Coordinate coord)
     {
-        owner.isAnimationFinished = false;
         owner.UnitData.Mp -= Cost;
         if (owner.MySpriteRenderer.enabled)
         {
+            owner.activeMotions++;
             owner.MyAnimator.SetBool("Attack", true);
+            yield return Constants.ZeroPointZeroOne;
             float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
             yield return new WaitForSeconds(animationLength * 0.5f);
-            owner.BuffDirector.ApplyBuff(new BuffData(GameManager.Instance.GetBuffBase(Key), Duration));
+            owner.BuffDirector.ApplyBuff(new BuffData(Key, Duration));
             owner.EndSkill(1);
             while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1))
             {
                 yield return Constants.ZeroPointOne;
             }
             owner.MyAnimator.SetBool("Attack", false);
-            owner.isAnimationFinished = true;
+            owner.activeMotions--;
         }
         else
         {
-            owner.BuffDirector.ApplyBuff(new BuffData(GameManager.Instance.GetBuffBase(Key), Duration));
+            owner.BuffDirector.ApplyBuff(new BuffData(Key, Duration));
             owner.EndSkill(1);
         }
     }

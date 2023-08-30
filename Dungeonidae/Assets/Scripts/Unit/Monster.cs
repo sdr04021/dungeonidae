@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
 public class Monster : Unit
@@ -11,12 +13,24 @@ public class Monster : Unit
     [field: SerializeField] public List<string> MustDropItem { get; private set; } = new();
     [field: SerializeField] public List<EquipmentType> LikelyDropItem { get; private set; } = new();
     [field: SerializeField] public List<SkillBase> Skills { get; private set; } = new();
+
+    int forgetCounter = 0;
+
     protected override void DecideBehavior()
     {
         base.DecideBehavior();
 
-        if (UnitData.chaseTarget == null)
+        if (forgetCounter == 10)
+        {
+            UnitData.chaseTarget = null;
+            forgetCounter = 0;
+        }
+
+        if (UnitData.chaseTarget == null || UnitData.chaseTarget.Owner.IsDead)
+        {
+            UnitData.chaseTarget = null;
             LookAround();
+        }
 
         if (UnitData.chaseTarget == null)
             RandomStep();
@@ -67,6 +81,7 @@ public class Monster : Unit
                     else if (!FindPath(UnitData.chaseTargetRecentCoord, true))
                     {
                         //RandomStep();
+                        forgetCounter++;
                         EndTurn(1);
                     }
                     else
@@ -111,8 +126,7 @@ public class Monster : Unit
 
     protected override void EndMove()
     {
-        UpdateSightArea();
-        CheckNewInSight();
+        CheckSightArea();
         dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y).unit = this;
         if (UnitData.chaseTarget == null)
             LookAround();
@@ -124,10 +138,9 @@ public class Monster : Unit
 
     public void LookAround()
     {
-        CheckNewInSight();
-        for(int i=0; i<UnitsInSight.Count; i++)
+        for (int i=0; i<UnitsInSight.Count; i++)
         {
-            if (IsAggressive&&IsHostileUnit(UnitsInSight[i]) && !UnitData.hostileTargets.Contains(UnitsInSight[i].UnitData))
+            if (IsAggressive && IsHostileUnit(UnitsInSight[i]) && !UnitData.hostileTargets.Contains(UnitsInSight[i].UnitData))
             {
                 UnitData.hostileTargets.Add(UnitsInSight[i].UnitData);
             }
@@ -139,33 +152,71 @@ public class Monster : Unit
                 ShowBubble("!");
                 return;
             }
-        }
+        } 
     }
 
-    public override void UpdateSightArea()
+
+    public override void CheckSightArea()
     {
-        bool checkSight = false;
-
         int sight = UnitData.sight.Total();
-        int left = Mathf.Max(2, UnitData.coord.x - sight);
-        int right = Mathf.Min(dm.map.arrSize.x - 2, UnitData.coord.x + sight);
-        int bottom = Mathf.Max(2, UnitData.coord.y - sight);
-        int top = Mathf.Min(dm.map.arrSize.y - 2, UnitData.coord.y + sight);
 
-        for(int i=left; i<=right; i++)
+        List<Coordinate> targets = new();
+        DungeonData dungeonData = GameManager.Instance.saveData.GetCurrentDungeonData();
+        for(int i=0; i<dungeonData.unitList.Count; i++)
         {
-            for(int j=bottom; j<=top; j++)
+            if (IsHostileUnit(dungeonData.unitList[i].Owner) && Coordinate.InRange(dungeonData.unitList[i].coord, UnitData.coord, sight + 0.5f))
             {
-                if(dm.map.GetElementAt(i,j).unit!=null && IsHostileUnit(dm.map.GetElementAt(i, j).unit))
-                {
-                    checkSight = true;
-                    break;
-                }
+                targets.Add(dungeonData.unitList[i].coord);
             }
         }
 
-        if (checkSight)
-            base.UpdateSightArea();
+        if (targets.Count > 0)
+        {
+            int wallMapSize = sight * 2 + 1;
+            NativeArray<bool> wallMap = new(wallMapSize * wallMapSize, Allocator.TempJob);
+            Coordinate origin = new(UnitData.coord.x - sight, UnitData.coord.y - sight);
+            for (int i = 0; i < wallMapSize; i++)
+            {
+                for (int j = 0; j < wallMapSize; j++)
+                {
+                    if (dm.IsValidIndexForMap(origin.x + i, origin.y + j) && dm.map.GetElementAt(origin.x + i, origin.y + j).IsBlockingSight())
+                    {
+                        wallMap[j + i * wallMapSize] = true;
+                    }
+                    else wallMap[j + i * wallMapSize] = false;
+                }
+            }
+            NativeArray<Coordinate> end = new(targets.Count, Allocator.TempJob);
+            NativeArray<bool> result = new(targets.Count, Allocator.TempJob);
+            for (int i = 0; i < targets.Count; i++)
+            {
+                end[i] = targets[i] - origin;
+            }
+
+            SightCheckJob2 sightJob = new()
+            {
+                wallMap = wallMap,
+                wallMapSize = wallMapSize,
+                start = UnitData.coord - origin,
+                end = end,
+                result = result
+            };
+
+            JobHandle handle = sightJob.Schedule(targets.Count, 1);
+            handle.Complete();
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                if (result[i])
+                {
+                    UnitsInSight.Add(dm.map.GetElementAt(end[i] + origin).unit);
+                }
+            }
+
+            wallMap.Dispose();
+            end.Dispose();
+            result.Dispose();
+        }
     }
 
     public override void GetDamage(AttackData attackData)
@@ -173,7 +224,7 @@ public class Monster : Unit
         base.GetDamage(attackData);
 
         UnitData temp = UnitData.chaseTarget;
-        CheckNewInSight();
+        CheckSightArea();
         if (attackData.Attacker!=null && UnitsInSight.Contains(attackData.Attacker))
         {
             if (!UnitData.hostileTargets.Contains(attackData.Attacker.UnitData)) UnitData.hostileTargets.Add(attackData.Attacker.UnitData);
@@ -226,7 +277,7 @@ public class Monster : Unit
         for (int i=0; i<MustDropItem.Count; i++)
         {
             ItemObject itemTemp = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
-            itemTemp.Init(dm, new Coordinate((Vector2)transform.position), new MiscData(GameManager.Instance.GetMiscBase(MustDropItem[i]), 1));
+            itemTemp.Init(dm, new Coordinate((Vector2)transform.position), new MiscData(MustDropItem[i], 1));
             GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(itemTemp.Data);
             itemTemp.Bounce();
             dm.GetTileByCoordinate(itemTemp.Coord).items.Push(itemTemp);

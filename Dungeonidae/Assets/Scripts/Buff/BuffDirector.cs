@@ -19,7 +19,7 @@ public class BuffDirector
         switch (buff.Key)
         {
             case "MUCUS":
-                effectValues = GameManager.Instance.GetBuffBase(buff.Key).effectValues.ToArray();
+                effectValues = buff.BaseData.EffectValues.ToArray();
                 owner.UnitData.SetStatValue(buff.Key, StatType.Speed, StatValueType.Temporary, -effectValues[0], true);
                 break;
             case "POTION_HASTE":
@@ -29,6 +29,9 @@ public class BuffDirector
             case "SPRINT":
                 effectValues = GameManager.Instance.GetSkillBase(buff.Key).EffectValues;
                 owner.UnitData.SetStatValue(buff.Key, StatType.Speed, StatValueType.Temporary, effectValues[0], true);
+                break;
+            case "STUN":
+                owner.AddParticleEffect(buff.Key, GameManager.Instance.GetPrefab(PrefabAssetType.ParticleEffect, buff.Key));
                 break;
         }
     }
@@ -46,6 +49,8 @@ public class BuffDirector
                 break;
             case "SPRINT":
                 owner.UnitData.RemoveStatValue(buff.Key, StatType.Speed, StatValueType.Temporary);
+                break;
+            case "STUN":
                 break;
         }
     }

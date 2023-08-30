@@ -7,7 +7,7 @@ public class PowerStrike : SkillBase
 {
     public override IEnumerator Skill(Unit owner, DungeonManager dm, Coordinate coord)
     {
-        owner.isAnimationFinished = false;
+        owner.activeMotions++;
         owner.UnitData.Mp -= Cost;
         owner.FlipSprite(coord);
         Unit target = dm.GetTileByCoordinate(coord).unit;
@@ -22,16 +22,26 @@ public class PowerStrike : SkillBase
             }
 
             owner.MyAnimator.SetBool("Attack", true);
+            yield return Constants.ZeroPointZeroOne;
             float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
             yield return new WaitForSeconds(animationLength * 0.5f);
+            target.KnockBack((target.UnitData.coord - owner.UnitData.coord).ToDirection(), 3);
             target.GetDamage(MakeAttackData(owner));
+            if (HitEffectPrefab != null)
+            {
+                Instantiate(HitEffectPrefab, target.Center);
+            }
+            while (target.passiveMotions > 0)
+            {
+                yield return Constants.ZeroPointOne;
+            }
             owner.EndSkill(1);
-            while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) || !target.isHitFinished)
+            while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1))
             {
                 yield return Constants.ZeroPointOne;
             }
             owner.MyAnimator.SetBool("Attack", false);
-            owner.isAnimationFinished = true;
+            owner.activeMotions--;
         }
         else
         {

@@ -27,10 +27,6 @@ MonoBehaviour:
     m_Key: RUSH_NAME
     m_Metadata:
       m_Items: []
-  - m_Id: 862104399298560
-    m_Key: RUSH_DESC
-    m_Metadata:
-      m_Items: []
   - m_Id: 2891726909521920
     m_Key: SPRINT_NAME
     m_Metadata:
@@ -53,6 +49,34 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 36369207767252992
     m_Key: MUCUS_ATTACK_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47248028561227776
+    m_Key: COMBO_ATTACK_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47248061553623040
+    m_Key: COMBO_ATTACK_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51101617020911616
+    m_Key: RUSH_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52897494878306304
+    m_Key: SWEEPING_STRIKE_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52897498141474816
+    m_Key: SWEEPING_STRIKE_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55454180130340864
+    m_Key: BATTLE_BARRIER_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55454208148291584
+    m_Key: BATTLE_BARRIER_DESC
     m_Metadata:
       m_Items: []
   m_Metadata:

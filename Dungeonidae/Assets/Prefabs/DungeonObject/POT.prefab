@@ -102,7 +102,7 @@ MonoBehaviour:
   <IsBlockSight>k__BackingField: 0
   <IsInteractable>k__BackingField: 0
   <IsActivatesByThrownItem>k__BackingField: 0
-  <IsInteractsWithCollision>k__BackingField: 0
+  <IsInteractsWithCollision>k__BackingField: 1
   <Durability>k__BackingField: 0
   <DungeonObjectData>k__BackingField:
     coord:

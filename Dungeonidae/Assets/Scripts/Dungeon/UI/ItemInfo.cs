@@ -112,14 +112,14 @@ public class ItemInfo : MonoBehaviour
                             {
                                 temp.Add(equipBase.abilities[i].vals[j] + equip.EquipmentAblitiyBonus[j]);
                             }
-                            itemString.Append(inventoryUI.DunUI.GetEquipmentAbilitiy(equipBase.abilities[i].key, temp));
+                            itemString.Append(inventoryUI.DunUI.GetEquipmentAbilitiy(equipBase.abilities[i].key.ToString(), temp));
                         }
                         else
-                            itemString.Append(inventoryUI.DunUI.GetEquipmentAbilitiy(equipBase.abilities[i].key, equipBase.abilities[i].vals));
+                            itemString.Append(inventoryUI.DunUI.GetEquipmentAbilitiy(equipBase.abilities[i].key.ToString(), equipBase.abilities[i].vals));
                     }
                     else
                     {
-                        itemString.Append(inventoryUI.DunUI.GetEquipmentAbilitiy(equipBase.abilities[i].key));
+                        itemString.Append(inventoryUI.DunUI.GetEquipmentAbilitiy(equipBase.abilities[i].key.ToString()));
                     }
                     itemString.AppendLine();
                 }

@@ -89,17 +89,27 @@ public class Tile : MonoBehaviour
         return false;
     }
 
-    public bool ContainsTargetableDungeonObject()
+
+    public bool HasCollideable()
     {
         if (dungeonObjects.Count > 0)
         {
-            for(int i=0; i<dungeonObjects.Count; i++)
+            for (int i = 0; i < dungeonObjects.Count; i++)
             {
-                if (dungeonObjects[i].IsTargetable())
+                if (dungeonObjects[i].IsInteractsWithCollision)
                     return true;
             }
         }
         return false;
+    }
+    public DungeonObject GetCollideable()
+    {
+        for (int i = 0; i < dungeonObjects.Count; i++)
+        {
+            if (dungeonObjects[i].IsInteractsWithCollision)
+                return dungeonObjects[i];
+        }
+        return null;
     }
 
     public void ResetTile()

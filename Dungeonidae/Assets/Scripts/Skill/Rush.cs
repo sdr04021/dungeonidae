@@ -8,28 +8,46 @@ public class Rush : SkillBase
 {
     public override IEnumerator Skill(Unit owner, DungeonManager dm, Coordinate coord)
     {
-        float dist = Coordinate.Distance(owner.UnitData.coord, coord);
-        owner.isAnimationFinished = false;
         owner.UnitData.Mp -= Cost;
         owner.FlipSprite(coord);
-        dm.map.GetElementAt(owner.UnitData.coord).unit = null;
-        owner.UnitData.coord = coord;   
         bool moving = true;
         if (owner.MySpriteRenderer.enabled)
         {
-            owner.transform.DOMove(coord.ToVector2(), 0.1f * dist).OnComplete(() => { moving = false; });
+            owner.activeMotions++;
+            Sequence rushSequence = DOTween.Sequence();
+            Coordinate destination = owner.UnitData.coord;
+            Coordinate delta = coord - owner.UnitData.coord;
+            int amount = Mathf.Max(Mathf.Abs(delta.x), Mathf.Abs(delta.y));
+            Coordinate step = new(System.Math.Sign(delta.x), System.Math.Sign(delta.y));
+            for(int i = 1; i <= amount; i++)
+            {
+                destination += step;
+                rushSequence.Append(owner.transform.DOMove(destination.ToVector2(), 0.12f).OnComplete(() =>
+                {
+                    if (dm.map.GetElementAt(new Coordinate(owner.transform.position)).HasCollideable())
+                    {
+                        dm.map.GetElementAt(new Coordinate(owner.transform.position)).GetCollideable().Activate(owner);
+                    }
+                }));
+            }
+            rushSequence.AppendCallback(() => moving = false);
+
             while (moving)
             {
                 yield return Constants.ZeroPointOne;
             }
+            dm.map.GetElementAt(owner.UnitData.coord).unit = null;
+            owner.UnitData.coord = coord;
             owner.SetPosition();
-            owner.UpdateSightArea();
+            owner.SetSortingOrder();
+            owner.CheckSightArea();
             owner.EndSkill(1);
-            owner.isAnimationFinished = true;
+            owner.activeMotions--;
         }
         else
         {
             owner.SetPosition();
+            owner.SetSortingOrder();
             owner.EndSkill(1);
         }
     }

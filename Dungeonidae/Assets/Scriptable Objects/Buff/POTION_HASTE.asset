@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6732513b801b84d47977e4776f806d17, type: 3}
   m_Name: POTION_HASTE
   m_EditorClassIdentifier: 
-  key: POTION_HASTE
-  buffType: 0
-  sprite: {fileID: 21300000, guid: c56f2a0fcf7d99a4a89a903d55301695, type: 3}
-  effectValues: 
+  <Key>k__BackingField: POTION_HASTE
+  <BuffType>k__BackingField: 0
+  <IsStackable>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 21300000, guid: c56f2a0fcf7d99a4a89a903d55301695, type: 3}
+  <EffectValues>k__BackingField: 

@@ -1,4 +1,4 @@
-public enum AdditionalEffectKey { BLOCK, MISSILE }
+public enum AdditionalEffectKey { BLOCK, COMBO, MISSILE }
 public enum AreaType { Room, Hallway, Entrance, Border, None }
 public enum AttackType { Atk, MAtk, Fixed}
 public enum BuffType { Buff, Debuff }

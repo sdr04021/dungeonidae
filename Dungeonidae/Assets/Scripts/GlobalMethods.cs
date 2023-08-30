@@ -39,6 +39,27 @@ public class GlobalMethods
         }
         return list;
     }
+    public static List<Coordinate> RangeByEightDirections(Coordinate startPoint, int range)
+    {
+        List<Coordinate> list = new()
+        {
+            startPoint
+        };
+
+        for (int i = 1; i <= range; i++)
+        {
+            list.Add(startPoint + (new Coordinate(0, 1) * i));
+            list.Add(startPoint + (new Coordinate(1, 1) * i));
+            list.Add(startPoint + (new Coordinate(1, 0) * i));
+            list.Add(startPoint + (new Coordinate(1, -1) * i));
+            list.Add(startPoint + (new Coordinate(0, -1) * i));
+            list.Add(startPoint + (new Coordinate(-1, -1) * i));
+            list.Add(startPoint + (new Coordinate(-1, 0) * i));
+            list.Add(startPoint + (new Coordinate(-1, 1) * i));
+        }
+
+        return list;
+    }
 
     public static IEnumerable<int> AddArrays(IEnumerable<int> original, IEnumerable<int> additional)
     {

@@ -2,8 +2,6 @@ using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 [System.Serializable]
 public abstract class ItemData
@@ -18,9 +16,9 @@ public abstract class ItemData
 
     public ItemData() { }
 
-    public ItemData(ItemBase item)
+    public ItemData(string key)
     {
-        Key = item.Key;
+        Key = key;
     }
 
     public abstract Sprite GetSprite();

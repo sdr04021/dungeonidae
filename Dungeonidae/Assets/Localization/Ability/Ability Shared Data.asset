@@ -39,6 +39,18 @@ MonoBehaviour:
     m_Key: BERSERK_EFFECT
     m_Metadata:
       m_Items: []
+  - m_Id: 48165241073876992
+    m_Key: COMBO_NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48165265996431360
+    m_Key: COMBO_DESC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48165293158744064
+    m_Key: COMBO_EFFECT
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

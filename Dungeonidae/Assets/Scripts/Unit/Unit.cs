@@ -4,8 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 using TMPro;
-using Unity.Collections;
-using Unity.Jobs;
+using UnityEngine.Localization.SmartFormat.Core.Parsing;
 
 [System.Serializable]
 abstract public class Unit : MonoBehaviour
@@ -16,13 +15,13 @@ abstract public class Unit : MonoBehaviour
     public bool IsDead { get; private set; } = false;
 
     readonly float walkDelay = 0.2f;
-    public List<Coordinate> TilesInSight { get; protected set; } = new();
+
     protected bool isFollowingPath = false;
     protected Stack<Directions> path;
-    [field:SerializeField] public List<Unit> UnitsInSight { get; private set; } = new();
+    [field:SerializeField] public List<Unit> UnitsInSight { get; protected set; } = new();
     public bool FoundSomething { get; protected set; } = false;
-    [System.NonSerialized] public bool isAnimationFinished = true;
-    [System.NonSerialized] public bool isHitFinished = true;
+    [System.NonSerialized] public int activeMotions = 0;
+    [System.NonSerialized] public int passiveMotions = 0;
 
     [field: SerializeField] public  UnitBase UnitBase { get; private set; }
     public UnitData UnitData { get; private set; }
@@ -31,17 +30,21 @@ abstract public class Unit : MonoBehaviour
     public Animator MyAnimator { get; private set; }
     [field: SerializeField] public Animator EffectAnimator { get; private set; }
     SpriteRenderer effectRenderer;
+    Dictionary<string, ParticleSystemRenderer> particleRenderers = new();
     public Canvas canvas;
     [SerializeField] Image hpBarBg;
     [SerializeField] Image hpBar;
     [SerializeField] Image mpBarBg;
     [SerializeField] Image mpBar;
+    [SerializeField] Image barrierBar;
     [SerializeField] Image lvBg;
     [SerializeField] TMP_Text lvText;
     [SerializeField] Image bubble;
     [SerializeField] TMP_Text bubbleText;
 
     [SerializeField] SpriteRenderer shadow;
+    [field:SerializeField] public Transform Center { get; private set; }
+
     [field:SerializeField] public Projectile BasicProjectilePrefab { get; private set; }
 
     protected ItemEffectDirector itemEffectDirector;
@@ -110,7 +113,7 @@ abstract public class Unit : MonoBehaviour
         SetSortingOrder();
     }
 
-    void SetSortingOrder(bool complete = true)
+    public void SetSortingOrder(bool complete = true)
     {
         int baseOrder = 1000 - (10 * UnitData.coord.y);
         if (complete)
@@ -127,6 +130,10 @@ abstract public class Unit : MonoBehaviour
             if (shadow != null) shadow.sortingOrder = baseOrder;
             canvas.sortingOrder = baseOrder + 10 + (int)LayerOrder.Canvas;
             effectRenderer.sortingOrder = baseOrder + 10 + (int)LayerOrder.Canvas;
+        }
+        foreach (KeyValuePair<string, ParticleSystemRenderer> pair in particleRenderers)
+        {
+            pair.Value.sortingOrder = MySpriteRenderer.sortingOrder + 1;
         }
     }
 
@@ -147,13 +154,12 @@ abstract public class Unit : MonoBehaviour
         dm.map.GetElementAt(UnitData.coord).unit = null;
         UnitData.coord = coords[Random.Range(0, coords.Count)];
         SetPosition();
-        UpdateSightArea();
-        CheckNewInSight();
+        CheckSightArea();
     }
 
     public void StartTurn()
     {
-        CheckNewInSight();
+        CheckSightArea();
         if (bubble.gameObject.activeSelf)
         {
             if (dm.Player.TilesInSight.Contains(UnitData.coord))
@@ -168,6 +174,12 @@ abstract public class Unit : MonoBehaviour
         {
             RecoverMp(UnitData.mpRegen.Total() * UnitData.mpRegenCounter / 10);
             UnitData.mpRegenCounter = UnitData.mpRegenCounter % 10;
+        }
+        if (UnitData.ContainsBuff("STUN"))
+        {
+            isFollowingPath = false;
+            EndTurn(1);
+            return;
         }
         if (isFollowingPath)
         {
@@ -185,8 +197,7 @@ abstract public class Unit : MonoBehaviour
 
     public void TrimTurn(int amount)
     {
-        UnitData.UpdateBuffDurations(amount);
-        UnitData.UpdateSkillRechargeLeft(amount);
+        UnitData.UpdateDurations(amount);
         for(int i= UnitData.Buffs.Count-1; i>=0; i--)
         {
             if (UnitData.Buffs[i].durationLeft <= 0)
@@ -199,8 +210,6 @@ abstract public class Unit : MonoBehaviour
 
     public virtual bool Move(Directions direction)
     {
-        FlipSprite(direction);
-
         Coordinate dest = UnitData.coord.MovedCoordinate(direction, 1);
 
         if (dest.IsValidCoordForMap(dm.map))
@@ -219,10 +228,11 @@ abstract public class Unit : MonoBehaviour
 
                 if (MySpriteRenderer.enabled)
                 {
+                    FlipSprite(direction);
                     if ((direction == Directions.SE) || (direction == Directions.S) || (direction == Directions.SW))
                         SetSortingOrder(false);
 
-                    isAnimationFinished = false;
+                    activeMotions++;
 
                     MyAnimator.SetBool("Walk", true);
 
@@ -262,24 +272,19 @@ abstract public class Unit : MonoBehaviour
         }
 
         Tile tile = dm.map.GetElementAt(UnitData.coord);
-        for (int i = 0; i < tile.dungeonObjects.Count; i++)
+        if (tile.HasCollideable())
         {
-            if (tile.dungeonObjects[i].IsInteractsWithCollision)
-            {
-                tile.dungeonObjects[i].Activate(this);
-                FoundSomething = true;
-            }
+            tile.GetCollideable().Activate(this);
+            FoundSomething = true;
         }
 
-        isAnimationFinished = true;
+        activeMotions--;
         SetSortingOrder();
     }
     protected virtual void EndMove()
     {
-        UpdateSightArea();
-        CheckNewInSight();
-        Tile tile = dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y);
-        tile.unit = this;
+        CheckSightArea();
+        dm.map.GetElementAt(UnitData.coord.x, UnitData.coord.y).unit = this;
         EndTurn(100m / UnitData.speed.Total());
     }
 
@@ -288,7 +293,69 @@ abstract public class Unit : MonoBehaviour
     {
         UnitData.coord.Set((int)transform.position.x, (int)transform.position.y);
         dm.GetTileByCoordinate(UnitData.coord).unit = this;
-        UpdateSightArea();
+        CheckSightArea();
+    }
+
+    public void KnockBack(Directions direction, int amount)
+    {
+        passiveMotions++;
+
+        Coordinate destination = UnitData.coord;
+        Coordinate step = new(direction);
+
+        Sequence knockBackSequence = DOTween.Sequence().Pause();
+        
+
+        dm.map.GetElementAt(UnitData.coord).unit = null;
+        for (int i = 0; i < amount; i++)
+        {
+            if (dm.map.GetElementAt(destination + step).IsReachableTile(false))
+            {
+                destination += step;
+                knockBackSequence.Append(transform.DOMove(destination.ToVector2(), 0.15f).SetEase(Ease.Linear).OnComplete(() =>
+                {
+                    if (dm.map.GetElementAt(new Coordinate(transform.position)).HasCollideable()) {
+                        dm.map.GetElementAt(new Coordinate(transform.position)).GetCollideable().Activate(this); }
+                }));
+            }
+            else if (dm.map.GetElementAt(destination + step).GetCollideable() != null)
+            {
+                destination += step;
+                knockBackSequence.Append(transform.DOMove(destination.ToVector2(), 0.15f).SetEase(Ease.Linear).OnComplete(() =>
+                {
+                    dm.map.GetElementAt(destination).GetCollideable().Activate(this);
+                }));
+                break;
+            }
+            else
+            {
+                knockBackSequence.Append(transform.DOMove(destination.ToVector2() + step.ToVector2()/2, 0.1f).SetEase(Ease.Linear).OnComplete(() =>
+                {
+                    Unit other = dm.map.GetElementAt(destination + step).unit;
+                    if (other != null)
+                    {
+                        other.BuffDirector.ApplyBuff(new BuffData("STUN", 3));
+                    }
+                    BuffDirector.ApplyBuff(new BuffData("STUN", 3));
+                }));
+                knockBackSequence.Append(transform.DOMove(destination.ToVector2(), 0.1f));
+                break;
+            }
+        }
+        UnitData.coord = destination;
+        dm.map.GetElementAt(UnitData.coord).unit = this;
+        knockBackSequence.AppendCallback(() =>
+        {
+            SetSortingOrder();
+            CheckSightArea();
+            if (dm.fogMap.GetElementAt(UnitData.coord).IsOn)
+            {
+                DisableRenderers();
+            }
+            isFollowingPath = false;
+            passiveMotions--;
+        });
+        knockBackSequence.Play();
     }
 
     public bool IsTargetable(Tile tile)
@@ -325,6 +392,8 @@ abstract public class Unit : MonoBehaviour
 
     public virtual void GetDamage(AttackData attackData)
     {
+        passiveMotions++;
+
         int hitChance = 90 - UnitData.eva.Total();
         if (attackData.Attacker != null)
             hitChance += (attackData.Attacker.UnitData.acc.Total() + 5 * (attackData.Attacker.UnitData.level - UnitData.level));
@@ -335,7 +404,7 @@ abstract public class Unit : MonoBehaviour
                 dt.SetMiss();
             }
         }
-        else if (UnitData.AdditionalEffects.ContainsKey("BLOCK") && (Random.Range(0, 100) < UnitData.AdditionalEffects["BLOCK"][0]))
+        else if (UnitData.AdditionalEffects.ContainsKey(AdditionalEffectKey.BLOCK) && (Random.Range(0, 100) < UnitData.AdditionalEffects[AdditionalEffectKey.BLOCK][0]))
         {
             if (MySpriteRenderer.enabled)
             {
@@ -359,6 +428,13 @@ abstract public class Unit : MonoBehaviour
 
                 if (stolenHp > 0) attackData.Attacker.RecoverHp(stolenHp);
                 if (stolenMp > 0) attackData.Attacker.RecoverMp(stolenMp);
+
+                if (attackData.Attacker.UnitData.AdditionalEffects.ContainsKey(AdditionalEffectKey.COMBO))
+                {
+                    attackData.Attacker.UnitData.AddBuff(new BuffData("COMBO",
+                        GameManager.Instance.GetAbilityBase("COMBO").EffectValues[attackData.Attacker.UnitData.AdditionalEffects[AdditionalEffectKey.COMBO][0]]
+                        ));
+                }
             }
             else
             {
@@ -366,6 +442,19 @@ abstract public class Unit : MonoBehaviour
                 damage = (int)Mathf.Max(0, damage * ((100 - UnitData.dmgReduction.Total()) * 0.01f));
             }
 
+            if (UnitData.Barrier > 0)
+            {
+                if (UnitData.Barrier > damage)
+                {
+                    UnitData.Barrier -= damage;
+                    damage = 0;
+                }
+                else
+                {
+                    damage -= UnitData.Barrier;
+                    UnitData.Barrier = 0;
+                }
+            }
             UnitData.Hp -= damage;
 
             if (MySpriteRenderer.enabled)
@@ -380,19 +469,21 @@ abstract public class Unit : MonoBehaviour
                 //MySpriteRenderer.DOColor(Color.red, 0.2f).OnComplete(() => { MySpriteRenderer.DOColor(Color.white, 0.2f); });
                 spriteMaterial.DOFloat(1, "_FlashAmount", 0.2f).OnComplete(() => { spriteMaterial.DOFloat(0, "_FlashAmount", 0.2f); });
                 hpBar.DOFade(0.5f, 0.2f).SetEase(Ease.OutCirc).OnComplete(() => { hpBar.DOFade(1, 0.2f).SetEase(Ease.OutCirc); });
+                barrierBar.DOFade(0.5f, 0.2f).SetEase(Ease.OutCirc).OnComplete(() => { barrierBar.DOFade(1, 0.2f).SetEase(Ease.OutCirc); });
                 Instantiate(GameManager.Instance.GetPrefab(PrefabAssetType.ParticleEffect, "HIT"), transform);
             }
-            isHitFinished = false;
         }
 
         if (UnitData.Hp <= 0)
         {
             StartDie();
         }
-        else isHitFinished = true;
+        else passiveMotions--;
     }
     public virtual void GetDamage(int attackDamage, int magicAttackDamage, int fixedDamage)
     {
+        passiveMotions++;
+
         int damage = Mathf.Max(0, attackDamage - UnitData.def.Total() + magicAttackDamage - UnitData.mDef.Total() + fixedDamage);
         damage = (int)Mathf.Max(0, damage * ((100 - UnitData.dmgReduction.Total()) * 0.01f));
 
@@ -407,20 +498,20 @@ abstract public class Unit : MonoBehaviour
             }
             spriteMaterial.DOFloat(1, "_FlashAmount", 0.2f).OnComplete(() => { spriteMaterial.DOFloat(0, "_FlashAmount", 0.2f); });
             hpBar.DOFade(0.5f, 0.2f).SetEase(Ease.OutCirc).OnComplete(() => { hpBar.DOFade(1, 0.2f).SetEase(Ease.OutCirc); });
+            barrierBar.DOFade(0.5f, 0.2f).SetEase(Ease.OutCirc).OnComplete(() => { barrierBar.DOFade(1, 0.2f).SetEase(Ease.OutCirc); });
             Instantiate(GameManager.Instance.GetPrefab(PrefabAssetType.ParticleEffect, "HIT"), transform);
         }
-        isHitFinished = false;
 
         if (UnitData.Hp <= 0)
         {
             StartDie();
         }
-        else isHitFinished = true;
+        else passiveMotions--;
     }
 
     protected virtual void StartDie()
     {
-        MySpriteRenderer.DOFade(0, 0.5f).OnComplete(() => { Destroy(gameObject); });
+        MySpriteRenderer.DOFade(0, 0.5f).OnComplete(() => { dm.Graveyard.Enqueue(this); gameObject.SetActive(false); });
         IsDead = true;
         dm.GetTileByCoordinate(UnitData.coord).unit = null;
         if (hpBarBg != null) { hpBarBg.DOFade(0, 0.4f); }
@@ -428,7 +519,8 @@ abstract public class Unit : MonoBehaviour
         if (mpBarBg != null) { mpBarBg.DOFade(0, 0.4f); }
         if (lvBg!=null) { lvBg.DOFade(0, 0.4f); }
         if(lvText!=null) { lvText.DOFade(0, 0.4f); }
-        isHitFinished = true;
+        RemoveAllParticleEffects();
+        passiveMotions--;
     }
 
     public void IncreaseExp(int amount)
@@ -469,6 +561,8 @@ abstract public class Unit : MonoBehaviour
     {
         if (hpBar != null)
             hpBar.fillAmount = UnitData.Hp / (float)UnitData.maxHp.Total();
+        if(barrierBar!= null)
+            barrierBar.fillAmount = UnitData.Barrier / (float)UnitData.maxHp.Total();
     }
     public void UpdateMpBar()
     {
@@ -535,84 +629,10 @@ abstract public class Unit : MonoBehaviour
             return aStar.Path.Pop();
     }
 
-    public virtual void UpdateSightArea()
-    {
-        TilesInSight.Clear();
-        int sight = UnitData.sight.Total();
-
-        int wallMapSize = sight * 2 + 1;
-        NativeArray<bool> wallMap = new(wallMapSize * wallMapSize, Allocator.TempJob);
-        Coordinate origin = new(UnitData.coord.x - sight, UnitData.coord.y - sight);
-        for (int i = 0; i < wallMapSize; i++)
-        {
-            for (int j = 0; j < wallMapSize; j++)
-            {
-                if (dm.IsValidIndexForMap(origin.x + i, origin.y + j) && dm.map.GetElementAt(origin.x + i, origin.y + j).IsBlockingSight())
-                {
-                    wallMap[j + i * wallMapSize] = true;
-                }
-                else wallMap[j + i * wallMapSize] = false;
-            }
-        }
-        List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, sight);
-        NativeArray<Coordinate> end = new(inRange.Count, Allocator.TempJob);
-        NativeArray<bool> result = new(inRange.Count, Allocator.TempJob);
-        int endCounter = 0;
-        for (int i = 0; i < inRange.Count; i++)
-        {
-            if (dm.IsValidCoordForMap(inRange[i]))
-            {
-                if (Coordinate.InRange(UnitData.coord, inRange[i], sight + 0.5f))
-                {
-                    end[endCounter] = (inRange[i] - origin);
-                    endCounter++;
-                }
-            }
-        }
-
-        SightCheckJob2 sightJob = new()
-        {
-            wallMap = wallMap,
-            wallMapSize = wallMapSize,
-            start = UnitData.coord - origin,
-            end = end,
-            result = result
-        };
-
-        JobHandle handle = sightJob.Schedule(endCounter, 1);
-        handle.Complete();
-
-        for(int i=0; i< endCounter; i++)
-        {
-            if (result[i])
-            {
-                TilesInSight.Add(end[i] + origin);
-            }
-        }
-
-        wallMap.Dispose();
-        end.Dispose();
-        result.Dispose();
-    }
     
-    protected void CheckNewInSight()
+    public virtual void CheckSightArea()
     {
-        List<Unit> detectedUnits = new();
-        for (int i = 0; i < TilesInSight.Count; i++)
-        {
-            Tile tile = dm.GetTileByCoordinate(TilesInSight[i]);
-            if ((tile.unit != null) && (tile.unit != this))
-                detectedUnits.Add(tile.unit);
-        }
-        if (UnitsInSight.Count > 0)
-        {
-            for (int i = 0; i < detectedUnits.Count; i++)
-            {
-                if (!UnitsInSight.Contains(detectedUnits[i]))
-                    FoundSomething = true;
-            }
-        }
-        UnitsInSight = detectedUnits;
+    
     }
 
     protected virtual void ResetSkillRange()
@@ -710,6 +730,30 @@ abstract public class Unit : MonoBehaviour
         }
     }
 
+    public void AddParticleEffect(string key, GameObject prefab)
+    {
+        if (!particleRenderers.ContainsKey(key))
+        {
+            particleRenderers.Add(key, Instantiate(prefab.GetComponent<ParticleSystemRenderer>(), transform));
+            particleRenderers[key].sortingOrder = MySpriteRenderer.sortingOrder + 1;
+        }
+    }
+    public void RemoveParticleEffect(string key)
+    {
+        if (particleRenderers.ContainsKey(key))
+        {
+            Destroy(particleRenderers[key].gameObject);
+            particleRenderers.Remove(key);
+        }
+    }
+    void RemoveAllParticleEffects()
+    {
+        foreach (KeyValuePair<string, ParticleSystemRenderer> pair in particleRenderers)
+        {
+            Destroy(pair.Value.gameObject);
+        }
+    }
+
     public void EnableRenderers()
     {
         MySpriteRenderer.enabled = true;
@@ -738,6 +782,7 @@ abstract public class Unit : MonoBehaviour
         hpBarBg.DOKill();
         mpBar.DOKill();
         mpBarBg.DOKill();
+        barrierBar.DOKill();
         lvText.DOKill();
         lvBg.DOKill();
         spriteMaterial.DOKill();

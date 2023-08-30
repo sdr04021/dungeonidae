@@ -50,7 +50,7 @@ MonoBehaviour:
   isTargetable: 1
   <IsBlockSight>k__BackingField: 1
   <IsInteractable>k__BackingField: 0
-  <IsInteractsWithThrownItem>k__BackingField: 1
+  <IsActivatesByThrownItem>k__BackingField: 0
   <IsInteractsWithCollision>k__BackingField: 0
   <Durability>k__BackingField: 2
   <DungeonObjectData>k__BackingField:
@@ -58,6 +58,7 @@ MonoBehaviour:
       x: 0
       y: 0
     isActivated: 0
+    isHidden: 0
   <SpriteRenderer>k__BackingField: {fileID: 5479862808353489907}
   door: {fileID: 8558770759328149641}
   backgroundBottom: {fileID: 0}
@@ -86,7 +87,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2214653667064714671}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.25, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -170,7 +171,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2985445245733518509}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.25, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

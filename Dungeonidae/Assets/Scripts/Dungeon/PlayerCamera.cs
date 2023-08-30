@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
-using UnityEngine.Experimental.Rendering.Universal;
+//using UnityEngine.Experimental.Rendering.Universal;
 
 public class PlayerCamera : MonoBehaviour
 {
@@ -19,13 +19,13 @@ public class PlayerCamera : MonoBehaviour
     
     Vector3 currentVelocity;
 
-    PixelPerfectCamera ppc;
+    //PixelPerfectCamera ppc;
 
     // Start is called before the first frame update
     void Start()
     {
         cam = GetComponent<Camera>();
-        ppc = GetComponent<PixelPerfectCamera>();
+        //ppc = GetComponent<PixelPerfectCamera>();
     }
 
     void StartFollow()
@@ -77,19 +77,21 @@ public class PlayerCamera : MonoBehaviour
                 int d = (int)(scroll * Time.deltaTime * 1500f);
                 if (scroll != 0)
                 {
+                    /*
                     ppc.refResolutionX -= (d * 240);
                     ppc.refResolutionY -= (d * 135);
                     ppc.refResolutionX = Mathf.Max(ppc.refResolutionX, 240);
                     ppc.refResolutionY = Mathf.Max(ppc.refResolutionY, 135);
                     ppc.refResolutionX = Mathf.Min(ppc.refResolutionX, 1200);
                     ppc.refResolutionY = Mathf.Min(ppc.refResolutionY, 675);
-                    /*
+                    */
+                    
                     cam.orthographicSize -= scroll * Time.deltaTime * 1500;
                     if (cam.orthographicSize < 1)
                         cam.orthographicSize = 1;
                     else if (cam.orthographicSize > 40)
                         cam.orthographicSize = 40;
-                    */
+                    
                 }
             }
 

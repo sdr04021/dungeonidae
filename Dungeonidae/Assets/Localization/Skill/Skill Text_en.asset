@@ -33,12 +33,6 @@ MonoBehaviour:
     m_Localized: Rush
     m_Metadata:
       m_Items: []
-  - m_Id: 862104399298560
-    m_Localized: Moves to the specified location within <color=#FFEA00>{0.0}</color>
-      tiles range.
-    m_Metadata:
-      m_Items:
-      - rid: 3135477992852029468
   - m_Id: 2891726909521920
     m_Localized: Sprint
     m_Metadata:
@@ -69,10 +63,44 @@ MonoBehaviour:
     m_Localized: Mucus Attack
     m_Metadata:
       m_Items: []
+  - m_Id: 47248028561227776
+    m_Localized: Combo Attack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47248061553623040
+    m_Localized: Consumes {0.0} of the combo stack to deal {0.1}% of your attack
+      power as damage to an enemy.
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029468
+  - m_Id: 51101617020911616
+    m_Localized: Rushes to the specified location within <color=#FFEA00>{0.0}</color>
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029468
+  - m_Id: 52897498141474816
+    m_Localized: Attack multiple enemies in front simultaneously, dealing damage
+      by {0.0}% of attack power.
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029468
+  - m_Id: 52897494878306304
+    m_Localized: Sweeping Strike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55454208148291584
+    m_Localized: Gains a protective barrier equal to {0.0}% of your maximum HP.
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029468
+  - m_Id: 55454180130340864
+    m_Localized: Battle Barrier
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
     - rid: 3135477992852029468
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_Entries: 0050b92a1d00000000c0ba201510030000c0fada0a460a000050f9a01c00000000c07a521410030000c0fa7e0a460a0000c07a247e4a7e0000c0ba0d9a358100
+        m_Entries: 0050b92a1d00000000c0ba201510030000c0fada0a460a000050f9a01c00000000c07a521410030000c0fa7e0a460a0000c07a247e4a7e0000c0ba0d9a35810000c03a95dcdba70000c0fa61a68cb50000c03a8afeedbb0000c0faf94e03c500

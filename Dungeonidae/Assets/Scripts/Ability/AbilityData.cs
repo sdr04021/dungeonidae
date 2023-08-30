@@ -12,32 +12,28 @@ public class AbilityData
     public string Key { get; private set; }
 
     [JsonProperty]
-    public int[] EffectValues { get; private set; }
-
-    [JsonProperty]
     public int Level { get; private set; }
 
-    AsyncOperationHandle<Sprite> loadHandle;
+    [JsonIgnore]
+    AbilityBase baseData;
+    [JsonIgnore]
+    public AbilityBase BaseData
+    {
+        get
+        {
+            if (baseData == null) baseData = GameManager.Instance.GetAbilityBase(Key);
+            return baseData;
+        }
+    }
 
     public AbilityData() { }
-
     public AbilityData(AbilityBase ability)
     {
         Key = ability.Key;
-        EffectValues = ability.EffectValues;
+        baseData = ability;
     }
     public void IncreaseLevel()
     {
         if (Level < 3) Level++;
-    }
-
-    public Sprite GetSprite()
-    {
-       return GameManager.Instance.GetSprite(SpriteAssetType.Ability, Key);
-    }
-
-    ~AbilityData()
-    {
-        Addressables.Release(loadHandle);
     }
 }

@@ -16,7 +16,7 @@ public class ItemEffectDirector
         switch (misc.Key)
         {
             case "POTION_HASTE":
-                owner.BuffDirector.ApplyBuff(new BuffData(GameManager.Instance.GetBuffBase(misc.Key), GameManager.Instance.GetMiscBase(misc.Key).EffectValues[0]));
+                owner.BuffDirector.ApplyBuff(new BuffData(misc.Key, GameManager.Instance.GetMiscBase(misc.Key).EffectValues[0]));
                 return true;
             case "POTION_HEAL":
                 owner.RecoverHp(GameManager.Instance.GetMiscBase(misc.Key).EffectValues[0]);
@@ -33,7 +33,7 @@ public class ItemEffectDirector
         switch (misc.Key)
         {
             case "POTION_HASTE":
-                target.BuffDirector.ApplyBuff(new BuffData(GameManager.Instance.GetBuffBase(misc.Key), GameManager.Instance.GetMiscBase(misc.Key).EffectValues[0]));
+                target.BuffDirector.ApplyBuff(new BuffData(misc.Key, GameManager.Instance.GetMiscBase(misc.Key).EffectValues[0]));
                 return true;
             case "POTION_HEAL":
                 target.RecoverHp(GameManager.Instance.GetMiscBase(misc.Key).EffectValues[0]);

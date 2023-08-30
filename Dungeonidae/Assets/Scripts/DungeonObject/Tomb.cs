@@ -37,15 +37,13 @@ public class Tomb : DungeonObject
         {
             List<string> list = GameManager.Instance.StringData.Artifacts;
             string tempKey = list[Random.Range(0, list.Count)];
-            EquipmentBase tempBase = GameManager.Instance.GetEquipmentBase(tempKey);
-            if (tempBase != null)
-            {
-                ItemObject itemTemp = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
-                itemTemp.Init(dm, new Coordinate((Vector2)transform.position), new EquipmentData(tempBase));
-                GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(itemTemp.Data);
-                itemTemp.Bounce();
-                dm.GetTileByCoordinate(itemTemp.Coord).items.Push(itemTemp);
-            }
+
+            ItemObject itemTemp = Instantiate(GameManager.Instance.itemObjectPrefab, transform.position, Quaternion.identity);
+            itemTemp.Init(dm, new Coordinate((Vector2)transform.position), new EquipmentData(tempKey));
+            GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(itemTemp.Data);
+            itemTemp.Bounce();
+            dm.GetTileByCoordinate(itemTemp.Coord).items.Push(itemTemp);
+
         }
         else
         {

@@ -3,14 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class DungeonManager : MonoBehaviour
 {
-    Dictionary<string, AsyncOperationHandle<GameObject>> monsterHandles = new();
-    Dictionary<string, AsyncOperationHandle<EquipmentBase>> equipmentHandles = new();
-
     public Sprite[] FirstTile;
     public Sprite[] FirstFloor;
     public GameObject targetMark;
@@ -22,6 +17,8 @@ public class DungeonManager : MonoBehaviour
 
     int order = 0;
     int maxOrder = 0;
+    bool manageTurn = false;
+    public Queue<Unit> Graveyard { get; private set; } = new();
 
     Player player;
     public Player Player { get { return player; } }
@@ -70,7 +67,7 @@ public class DungeonManager : MonoBehaviour
         Camera.main.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, Camera.main.transform.position.z);
         for(int i=0; i<dungeonData.unitList.Count; i++)
         {
-            dungeonData.unitList[i].Owner.UpdateSightArea();
+            dungeonData.unitList[i].Owner.CheckSightArea();
             if ( dungeonData.unitList[i].Owner.GetType() == typeof(Monster))
             {
                 (dungeonData.unitList[i].Owner as Monster).LookAround();
@@ -105,7 +102,7 @@ public class DungeonManager : MonoBehaviour
         maxOrder = dungeonData.unitList.Count;
         for (int i = 0; i < dungeonData.unitList.Count; i++)
         {
-            dungeonData.unitList[i].Owner.UpdateSightArea();
+            dungeonData.unitList[i].Owner.CheckSightArea();
             if (dungeonData.unitList[i].Owner.GetType() == typeof(Monster))
             {
                 (dungeonData.unitList[i].Owner as Monster).LookAround();
@@ -377,11 +374,12 @@ public class DungeonManager : MonoBehaviour
                     monster = Instantiate(prefab).GetComponent<Monster>();
                     dungeonData.unitList.Add(monster.UnitData);
                     monster.Init(this, locations[i], level);
+                    monster.UnitData.TurnIndicator = 1;///////////////////////////////////////////////
                     if (fogMap.GetElementAt(locations[i]).IsOn)
                     {
                         monster.DisableRenderers();
                     }
-                    monster.UpdateSightArea();
+                    monster.CheckSightArea();
                     monster.LookAround();
 
                 }
@@ -442,9 +440,9 @@ public class DungeonManager : MonoBehaviour
             {
                 ItemObject temp = Instantiate(GameManager.Instance.itemObjectPrefab, locations[i].ToVector2(), Quaternion.identity);
                 if (itemType == ItemType.Misc)
-                    temp.Init(this, locations[i], new MiscData(GameManager.Instance.GetMiscBase(key), 1));
+                    temp.Init(this, locations[i], new MiscData(key, 1));
                 else
-                    temp.Init(this, locations[i], new EquipmentData(GameManager.Instance.GetEquipmentBase(key)));
+                    temp.Init(this, locations[i], new EquipmentData(key));
                 dungeonData.fieldItemList.Add(temp.Data);
                 map.GetElementAt(locations[i]).items.Push(temp);
                 temp.Drop();
@@ -457,7 +455,7 @@ public class DungeonManager : MonoBehaviour
     {
         for(int i= dungeonData.unitList.Count-1; i>=0; i--)
         {
-            if (dungeonData.unitList[i].Owner.IsDead)
+            if (dungeonData.unitList[i].Owner.IsDead) 
             {
                 RemoveUnitData(dungeonData.unitList[i]);
             }
@@ -472,8 +470,9 @@ public class DungeonManager : MonoBehaviour
         {
             //order = 0;
             //maxOrder = 0;
-            StartCoroutine(ManageTurn());
+            //StartCoroutine(ManageTurn());
             //dungeonData.unitList[order].Owner.StartTurn();
+            manageTurn = true;
         }
     }
 
@@ -483,7 +482,7 @@ public class DungeonManager : MonoBehaviour
         {
             if (dungeonData.unitList[i].team == Team.Player) continue;
 
-            if (fogMap.GetElementAt(dungeonData.unitList[i].coord.x, dungeonData.unitList[i].coord.y).IsOn)
+            if (fogMap.GetElementAt(dungeonData.unitList[i].coord).IsOn)
             {
                 dungeonData.unitList[i].Owner.DisableRenderers();
             }
@@ -496,13 +495,63 @@ public class DungeonManager : MonoBehaviour
 
     public void UpdateSightAreaNearThis(Coordinate coord)
     {
-        for(int i=0; i<dungeonData.unitList.Count; i++)
+        for (int i = 0; i < dungeonData.unitList.Count; i++)
         {
-            if (dungeonData.unitList[i].Owner.TilesInSight.Contains(coord))
-                dungeonData.unitList[i].Owner.UpdateSightArea();
+            if (dungeonData.unitList[i].Owner.UnitData.sight.Total() + 0.5 >= Coordinate.Distance(coord, dungeonData.unitList[i].Owner.UnitData.coord)){
+                dungeonData.unitList[i].Owner.CheckSightArea();
+            }
         }
     }
 
+    private void Update()
+    {
+        if (manageTurn)
+        {
+            int finished = 0;
+            for (int i = 0; i < maxOrder; i++)
+            {
+                if (dungeonData.unitList[i].Owner.activeMotions == 0)
+                    finished++;
+            }
+            if (finished < maxOrder) return;
+
+            manageTurn = false;
+
+            while (Graveyard.Count > 0)
+            {
+                Destroy(Graveyard.Peek().gameObject);
+                Graveyard.Dequeue();
+            }
+
+            order = 0;
+            maxOrder = 0;
+
+            dungeonData.unitList = dungeonData.unitList.OrderBy(x => x.TurnIndicator).ToList();
+
+            decimal min = dungeonData.unitList[0].TurnIndicator;
+
+            int trimAmount = decimal.ToInt32(decimal.Floor(min));
+            min -= trimAmount;
+            curTurn += trimAmount;
+            Debug.Log("Turn: " + curTurn.ToString());
+            for (int i = 0; i < dungeonData.unitList.Count; i++)
+            {
+                dungeonData.unitList[i].Owner.TrimTurn(trimAmount);
+                dungeonData.unitList[i].hpRegenCounter += trimAmount;
+                dungeonData.unitList[i].mpRegenCounter += trimAmount;
+                if (dungeonData.unitList[i].TurnIndicator == min)
+                    maxOrder++;
+            }
+            for (int i = 0; i < trimAmount; i++)
+            {
+                if ((dungeonData.unitList.Count < 20 + GameManager.Instance.saveData.currentFloor) && (Random.value <= 0.025f)) RegenerateMobs();
+            }
+
+            dungeonData.unitList[order].Owner.StartTurn();
+        }
+    }
+
+    
     IEnumerator ManageTurn()
     {
         while (true)
@@ -510,7 +559,7 @@ public class DungeonManager : MonoBehaviour
             int finished = 0;
             for(int i=0; i<maxOrder; i++)
             {
-                if (dungeonData.unitList[i].Owner.isAnimationFinished)
+                if (dungeonData.unitList[i].Owner.activeMotions == 0)
                     finished++;
             }
             if (finished == maxOrder) break;
@@ -669,17 +718,5 @@ public class DungeonManager : MonoBehaviour
     public void TestOut()
     {
         Debug.Log("On");
-    }
-
-    private void OnDestroy()
-    {
-        foreach(KeyValuePair<string,AsyncOperationHandle<GameObject>> pair in monsterHandles)
-        {
-            Addressables.Release(pair.Value);
-        }
-        foreach(KeyValuePair<string, AsyncOperationHandle<EquipmentBase>> pair in equipmentHandles)
-        {
-            Addressables.Release(pair.Value);
-        }
     }
 }

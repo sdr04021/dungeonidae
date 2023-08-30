@@ -7,25 +7,25 @@ public class MucusAttack : SkillBase
 {
     public override IEnumerator Skill(Unit owner, DungeonManager dm, Coordinate coord)
     {
-        owner.isAnimationFinished = false;
+        owner.activeMotions++;
         owner.UnitData.Mp -= Cost;
         owner.FlipSprite(coord);
         Unit target = dm.GetTileByCoordinate(coord).unit;
         if (owner.MySpriteRenderer.enabled || target.MySpriteRenderer.enabled)
         {
-            owner.MyAnimator.SetBool("Attack", false);
             owner.MyAnimator.SetBool("Attack", true);
+            yield return Constants.ZeroPointZeroOne;
             float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
             yield return new WaitForSeconds(animationLength * 0.5f);
             target.GetDamage(MakeAttackData(owner));
-            target.BuffDirector.ApplyBuff(new BuffData(GameManager.Instance.GetBuffBase("MUCUS"), EffectValues[1]));
+            target.BuffDirector.ApplyBuff(new BuffData("MUCUS", EffectValues[1]));
             owner.EndSkill(1);
-            while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) || !target.isHitFinished)
+            while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) || target.passiveMotions > 0)
             {
-                yield return Constants.ZeroPointOne;
+                yield return Constants.ZeroPointZeroTwo;
             }
             owner.MyAnimator.SetBool("Attack", false);
-            owner.isAnimationFinished = true;
+            owner.activeMotions--;
         }
         else
         {

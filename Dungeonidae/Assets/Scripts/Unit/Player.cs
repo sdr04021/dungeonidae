@@ -4,10 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
 public class Player : Unit
 {
+    public List<Coordinate> TilesInSight { get; protected set; } = new();
+
     public bool IsThrowingMode { get; private set; } = false;
     Tuple<ItemType, ItemSlotType, int> itemToThrow;
     ItemObject throwingItem;
@@ -36,23 +40,22 @@ public class Player : Unit
         base.Init(dungeonManager, c, level);
 
         UnitData.abilityPoint += 9;
-        for (int i = 0; i < GameManager.Instance.testAbility.Length; i++)
-        {
-            UnitData.AddAbility(new AbilityData(GameManager.Instance.testAbility[i]));
-        }
+        UnitData.AddAbility(new AbilityData(GameManager.Instance.GetAbilityBase("COMBO")));
+        UnitData.AddAbility(new AbilityData(GameManager.Instance.GetAbilityBase("HP_INCREASE")));
         //UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[0]), 0);
         //UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[1]), 3);
         //UnitData.AddSkill(new SkillData(GameManager.Instance.testSkill[2]), 4);
         UnitData.acquiredSkills.Add("POWER_STRIKE");
         UnitData.acquiredSkills.Add("RUSH");
-        UnitData.acquiredSkills.Add("SPRINT");
+        UnitData.acquiredSkills.Add("BATTLE_BARRIER");
         UnitData.acquiredSkills.Add("CRITICAL_BLOW");
+        UnitData.acquiredSkills.Add("SWEEPING_STRIKE");
         //UnitData.skillDeck[0] = "POWER_STRIKE";s
-        UnitData.equipped[1] = new EquipmentData(GameManager.Instance.GetEquipmentBase("WOODEN_SWORD"));
-        UnitData.equipped[3] = new EquipmentData(GameManager.Instance.GetEquipmentBase("WORN_WOODEN_SHIELD"));
+        UnitData.equipped[1] = new EquipmentData("WOODEN_SWORD");
+        UnitData.equipped[3] = new EquipmentData("WORN_WOODEN_SHIELD");
         UnitData.ApplyEquipStats(UnitData.equipped[1]);
         UnitData.ApplyEquipStats(UnitData.equipped[3]);
-        UnitData.AddMisc(new MiscData(GameManager.Instance.GetMiscBase("POTION_HASTE"), 5));
+        UnitData.AddMisc(new MiscData("POTION_HASTE", 5));
     }
 
     public void Step(Directions directions)
@@ -80,27 +83,103 @@ public class Player : Unit
         dm.UpdateUnitRenderers();
     }
 
-    public override void UpdateSightArea()
+    void CheckCoordSight(Coordinate start, Coordinate end)
+    {
+
+    }
+
+    void UpdateSightArea()
     {
         for (int i = 0; i < TilesInSight.Count; i++)
         {
             dm.fogMap.GetElementAt(TilesInSight[i].x, TilesInSight[i].y).Cover();
         }
 
-        base.UpdateSightArea();
+        
+        TilesInSight.Clear();
+        int sight = UnitData.sight.Total();
 
+        int wallMapSize = sight * 2 + 1;
+        NativeArray<bool> wallMap = new(wallMapSize * wallMapSize, Allocator.TempJob);
+        Coordinate origin = new(UnitData.coord.x - sight, UnitData.coord.y - sight);
+        for (int i = 0; i < wallMapSize; i++)
+        {
+            for (int j = 0; j < wallMapSize; j++)
+            {
+                if (dm.IsValidIndexForMap(origin.x + i, origin.y + j) && dm.map.GetElementAt(origin.x + i, origin.y + j).IsBlockingSight())
+                {
+                    wallMap[j + i * wallMapSize] = true;
+                }
+                else wallMap[j + i * wallMapSize] = false;
+            }
+        }
+        List<Coordinate> inRange = GlobalMethods.RangeByStep(UnitData.coord, sight);
+        NativeArray<Coordinate> end = new(inRange.Count, Allocator.TempJob);
+        NativeArray<bool> result = new(inRange.Count, Allocator.TempJob);
+        int endCounter = 0;
+        for (int i = 0; i < inRange.Count; i++)
+        {
+            if (dm.IsValidCoordForMap(inRange[i]))
+            {
+                if (Coordinate.InRange(UnitData.coord, inRange[i], sight + 0.5f))
+                {
+                    end[endCounter] = (inRange[i] - origin);
+                    endCounter++;
+                }
+            }
+        }
+
+        SightCheckJob2 sightJob = new()
+        {
+            wallMap = wallMap,
+            wallMapSize = wallMapSize,
+            start = UnitData.coord - origin,
+            end = end,
+            result = result
+        };
+
+        JobHandle handle = sightJob.Schedule(endCounter, 1);
+        handle.Complete();
+
+        for (int i = 0; i < endCounter; i++)
+        {
+            if (result[i])
+            {
+                TilesInSight.Add(end[i] + origin);
+            }
+        }
+
+        wallMap.Dispose();
+        end.Dispose();
+        result.Dispose();
+        
         for (int i = 0; i < TilesInSight.Count; i++)
         {
             dm.fogMap.GetElementAt(TilesInSight[i].x, TilesInSight[i].y).Clear();
         }
+    }
 
-        /*
-        for(int i=0; i < dm.fogMap.arrSize.x; i++)
+    public override void CheckSightArea()
+    {
+        UpdateSightArea();
+
+        List<Unit> detectedUnits = new();
+
+        for (int i = 0; i < TilesInSight.Count; i++)
         {
-            for (int j = 0; j < dm.fogMap.arrSize.y; j++)
-                dm.fogMap.GetElementAt(i, j).UpdateSprite();
+            Tile tile = dm.GetTileByCoordinate(TilesInSight[i]);
+            if ((tile.unit != null) && (tile.unit != this))
+                detectedUnits.Add(tile.unit);
         }
-        */
+        if (UnitsInSight.Count > 0)
+        {
+            for (int i = 0; i < detectedUnits.Count; i++)
+            {
+                if (!UnitsInSight.Contains(detectedUnits[i]))
+                    FoundSomething = true;
+            }
+        }
+        UnitsInSight = detectedUnits;
     }
 
     protected override void FollowPath()
@@ -123,6 +202,7 @@ public class Player : Unit
             LootItem();
         else if ((dm.map.GetElementAt(UnitData.coord).dungeonObjects.Count > 0) && (dm.map.GetElementAt(UnitData.coord).dungeonObjects[^1].IsInteractable))
         {
+            MyAnimator.SetTrigger("Work");
             dm.map.GetElementAt(UnitData.coord).dungeonObjects[^1].Activate(this);
         }
     }
@@ -248,7 +328,7 @@ public class Player : Unit
         }
         else if (itemToThrow.Item1 == ItemType.Misc)
         {
-            throwingItem.Init(dm, to, new MiscData(GameManager.Instance.GetMiscBase(UnitData.miscInventory[itemToThrow.Item3].Key), 1));
+            throwingItem.Init(dm, to, new MiscData(UnitData.miscInventory[itemToThrow.Item3].Key, 1));
             GameManager.Instance.saveData.GetCurrentDungeonData().fieldItemList.Add(throwingItem.Data);
             UnitData.RemoveOneMisc(itemToThrow.Item3);
         }

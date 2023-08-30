@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.Localization;
 using System;
 using DG.Tweening;
+using Unity.Mathematics;
 
 public class DungeonUIManager : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class DungeonUIManager : MonoBehaviour
     [SerializeField] TMP_Text lvText;
     [SerializeField] Image hpBar;
     [SerializeField] TMP_Text hpText;
+    [SerializeField] Image barrierBar;
+    [SerializeField] TMP_Text barrierText;
     [SerializeField] Image mpBar;
     [SerializeField] TMP_Text mpText;
     [SerializeField] Image expBar;
@@ -69,7 +72,9 @@ public class DungeonUIManager : MonoBehaviour
         UpdateLevelText();
         dm.Player.UnitData.OnLevelChange += UpdateLevelText;
         UpdateHpBar();
-        dm.Player.UnitData.OnHpValueChange += UpdateHpBar;
+        dm.Player.UnitData.OnHpValueChange += UpdateHpBar;  
+        UpdateBarrierBar();
+        dm.Player.UnitData.OnBarrierValueChange += UpdateBarrierBar;
         UpdateMpBar();
         dm.Player.UnitData.OnMpValueChange += UpdateMpBar;
         UpdateExpBar();
@@ -78,6 +83,8 @@ public class DungeonUIManager : MonoBehaviour
         dm.Player.UnitData.OnBuffListChange += UpdateBuffIcons;
         UpdateBuffIconDurations();
         dm.Player.UnitData.OnBuffDurationChange += UpdateBuffIconDurations;
+        UpdateBuffIconStacks();
+        dm.Player.UnitData.OnBuffStackChange += UpdateBuffIconStacks;
         SetSkillIcons();
         dm.Player.UnitData.OnSkillChange += SetSkillIcons;
         UpdateSkillIconRechargeLeft();
@@ -111,20 +118,35 @@ public class DungeonUIManager : MonoBehaviour
         loadingImage.rectTransform.DOKill();
     }
 
-    public void UpdateLevelText()
+    void UpdateLevelText()
     {
         lvText.text = "LV " + (dm.Player.UnitData.level + 1).ToString();
     }
 
-    public void UpdateHpBar()
+    void UpdateHpBar()
     {
         int hp = dm.Player.UnitData.Hp;
         int maxHp = dm.Player.UnitData.maxHp.Total();
         hpBar.fillAmount = hp / (float)maxHp;
         hpText.text = hp.ToString() + "/" + maxHp.ToString();
     }
-
-    public void UpdateMpBar()
+    void UpdateBarrierBar()
+    {
+        int barrier = dm.Player.UnitData.Barrier;
+        if (barrier <= 0)
+        {
+            barrierText.gameObject.SetActive(false);
+            barrierBar.fillAmount = 0;
+        }
+        else
+        {
+            int maxHp = dm.Player.UnitData.maxHp.Total();
+            barrierBar.fillAmount = barrier / (float)maxHp;
+            barrierText.gameObject.SetActive(true);
+            barrierText.text = barrier.ToString();
+        }
+    }
+    void UpdateMpBar()
     {
         int mp = dm.Player.UnitData.Mp;
         int maxMp = dm.Player.UnitData.maxMp.Total();
@@ -132,7 +154,7 @@ public class DungeonUIManager : MonoBehaviour
         mpText.text = mp.ToString() + "/" + maxMp.ToString();
     }
 
-    public void UpdateExpBar()
+    void UpdateExpBar()
     {
         int exp = dm.Player.UnitData.exp;
         int maxExp = dm.Player.UnitData.maxExp;
@@ -140,7 +162,7 @@ public class DungeonUIManager : MonoBehaviour
         expText.text = exp.ToString() + "/" + maxExp.ToString() +"(" + Mathf.Round(exp/(float)maxExp*100) + "%)";
     }
 
-    public void UpdateBuffIcons()
+    void UpdateBuffIcons()
     {
         List<BuffData> buffs = dm.Player.UnitData.Buffs;
         for (int i = 0; i < buffs.Count; i++)
@@ -173,6 +195,15 @@ public class DungeonUIManager : MonoBehaviour
         for (int i = 0; i < buffs.Count; i++)
         {
             buffIcons[i].SetDuration(buffs[i]);
+        }
+    }
+
+    void UpdateBuffIconStacks()
+    {
+        List<BuffData> buffs = dm.Player.UnitData.Buffs;
+        for (int i = 0; i < buffs.Count; i++)
+        {
+            buffIcons[i].SetStack(buffs[i]);
         }
     }
 

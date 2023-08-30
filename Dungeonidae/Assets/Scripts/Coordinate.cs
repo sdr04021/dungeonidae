@@ -148,7 +148,31 @@ public struct Coordinate
     {
         return x.ToString() + "," + y.ToString();
     }
-
+    public Directions ToDirection()
+    {
+        if (x == 1)
+        {
+            if (y == 1) return Directions.NE;
+            else if (y == 0) return Directions.E;
+            else if (y == -1) return Directions.SE;
+            else return Directions.NONE;
+        }
+        else if (x == 0)
+        {
+            if (y == 1) return Directions.N;
+            else if (y == 0) return Directions.NONE;
+            else if (y == -1) return Directions.S;
+            else return Directions.NONE;
+        }
+        else if (x == -1)
+        {
+            if (y == 1) return Directions.NW;
+            else if (y == 0) return Directions.W;
+            else if (y == -1) return Directions.SW;
+            else return Directions.NONE;
+        }
+        else return Directions.NONE;
+    }
     public Vector2 ToVector2()
     {
         return new Vector2(x, y);
@@ -208,7 +232,6 @@ public struct Coordinate
     {
         return (((startPoint.x - endPoint.x) * (startPoint.x - endPoint.x) + (startPoint.y - endPoint.y) * (startPoint.y - endPoint.y)) <= (range * range));
     }
-
     public static Coordinate operator +(Coordinate a, Coordinate b)
         => new Coordinate(a.x + b.x, a.y + b.y);
     public static Coordinate operator -(Coordinate a, Coordinate b)

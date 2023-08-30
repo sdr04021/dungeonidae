@@ -15,6 +15,14 @@ PrefabInstance:
       propertyPath: m_WasSpriteAssigned
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2880960872195742544, guid: 96f9da26198eb954b84120b132806eef, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2880960872195742544, guid: 96f9da26198eb954b84120b132806eef, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 4033522654613658423, guid: 96f9da26198eb954b84120b132806eef, type: 3}
       propertyPath: m_Controller
       value: 

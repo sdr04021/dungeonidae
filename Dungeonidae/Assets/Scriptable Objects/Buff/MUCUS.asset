@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6732513b801b84d47977e4776f806d17, type: 3}
   m_Name: MUCUS
   m_EditorClassIdentifier: 
-  key: MUCUS
-  buffType: 1
-  sprite: {fileID: 21300000, guid: 48e1f15c76f801943bdca16dab2322bc, type: 3}
-  effectValues: 32000000
+  <Key>k__BackingField: MUCUS
+  <BuffType>k__BackingField: 1
+  <IsStackable>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 21300000, guid: 48e1f15c76f801943bdca16dab2322bc, type: 3}
+  <EffectValues>k__BackingField: 32000000

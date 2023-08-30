@@ -33,12 +33,6 @@ MonoBehaviour:
     m_Localized: "\uB3CC\uC9C4"
     m_Metadata:
       m_Items: []
-  - m_Id: 862104399298560
-    m_Localized: "<color=#FFEA00>{0.0}</color>\uCE78 \uBC94\uC704 \uC548\uC758 \uC9C0\uC815\uD55C
-      \uC7A5\uC18C\uB85C \uC774\uB3D9\uD55C\uB2E4."
-    m_Metadata:
-      m_Items:
-      - rid: 3135477992852029459
   - m_Id: 2891726909521920
     m_Localized: "\uC804\uB825\uC9C8\uC8FC"
     m_Metadata:
@@ -62,7 +56,7 @@ MonoBehaviour:
       - rid: 3135477992852029459
   - m_Id: 36369207767252992
     m_Localized: "\uC810\uC561\uC744 \uBB3B\uD600 \uACF5\uACA9\uD55C\uC5EC \uACF5\uACA9\uB825\uC758
-      {0.0}\uB9CC\uD07C \uD53C\uD574\uB97C \uC785\uD78C\uB2E4. \uACF5\uACA9\uC744
+      {0.0}%\uB9CC\uD07C \uD53C\uD574\uB97C \uC785\uD78C\uB2E4. \uACF5\uACA9\uC744
       \uBC1B\uC740 \uC0C1\uB300\uB294 {0.1}\uD134 \uB3D9\uC548 \uC810\uC561 \uC0C1\uD0DC\uAC00
       \uB41C\uB2E4."
     m_Metadata:
@@ -72,10 +66,48 @@ MonoBehaviour:
     m_Localized: "\uC810\uC561 \uACF5\uACA9"
     m_Metadata:
       m_Items: []
+  - m_Id: 47248028561227776
+    m_Localized: "\uCF64\uBCF4 \uC5B4\uD0DD"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47248061553623040
+    m_Localized: "\uCF64\uBCF4 \uC2A4\uD0DD\uC744 {0.0} \uC18C\uBAA8\uD558\uC5EC
+      \uC801\uC5D0\uAC8C  \uACF5\uACA9\uB825\uC758 {0.1}% \uB9CC\uD07C \uD53C\uD574\uB97C
+      \uC785\uD78C\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029459
+  - m_Id: 51101617020911616
+    m_Localized: "<color=#FFEA00>{0.0}</color>\uCE78 \uBC94\uC704 \uC548\uC758 \uC9C0\uC815\uD55C
+      \uC7A5\uC18C\uB85C \uB3CC\uC9C4\uD55C\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029459
+  - m_Id: 52897498141474816
+    m_Localized: "\uC804\uBC29 \uB2E4\uC218\uC758 \uC801\uC744 \uB3D9\uC2DC\uC5D0
+      \uACF5\uACA9\uD558\uC5EC \uACF5\uACA9\uB825\uC758 {0.0}%\uB9CC\uD07C \uD53C\uD574\uB97C
+      \uC785\uD78C\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029459
+  - m_Id: 52897494878306304
+    m_Localized: "\uD729\uC4F8\uAE30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55454208148291584
+    m_Localized: "\uCD5C\uB300 \uCCB4\uB825\uC758 {0.0}%\uB9CC\uD07C \uBCF4\uD638\uB9C9\uC744
+      \uC0DD\uC131\uD55C\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 3135477992852029459
+  - m_Id: 55454180130340864
+    m_Localized: "\uBC30\uD2C0 \uBC30\uB9AC\uC5B4"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
     - rid: 3135477992852029459
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
-        m_Entries: 0050b92a1d00000000c0ba201510030000c0fada0a460a000050f9a01c00000000c0fa7e0a460a0000c07a521410030000c07a247e4a7e0000c0ba0d9a358100
+        m_Entries: 0050b92a1d00000000c0ba201510030000c0fada0a460a000050f9a01c00000000c0fa7e0a460a0000c07a521410030000c07a247e4a7e0000c0ba0d9a35810000c03a95dcdba70000c0fa61a68cb50000c03a8afeedbb0000c0faf94e03c500

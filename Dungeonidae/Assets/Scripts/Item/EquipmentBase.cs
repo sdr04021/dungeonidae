@@ -14,7 +14,7 @@ public class EquipmentStat
 [System.Serializable]
 public class EquipmentAbility
 {
-    public string key;
+    public AdditionalEffectKey key;
     public List<int> vals;
     [HideInInspector] public List<int> bonuses;
     public List<int> increments;

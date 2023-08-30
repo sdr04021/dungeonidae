@@ -13,10 +13,12 @@ public abstract class SkillBase : ScriptableObject
     [field: SerializeField] public int Range { get; private set; }
     [field: SerializeField] public int[] EffectValues { get; private set; }
     [field: SerializeField] public bool NeedTarget { get; private set; }
-    [field: SerializeField] public bool IgnoreBlock { get; private set; }
+    [field: SerializeField] public bool IgnoreObstacle { get; private set; }
     [field: SerializeField] public bool TargetReachableTile { get; private set; }
     [field: SerializeField] public bool TargetDungeonObjects { get; private set; }
+    [field: SerializeField] public bool TargetEightDirectionsOnly { get; private set; }
     [field: SerializeField] public Sprite Sprite { get; private set; }
+    [field: SerializeField] public GameObject HitEffectPrefab { get; private set; }
 
     public abstract IEnumerator Skill(Unit owner, DungeonManager dm, Coordinate coord);
 
@@ -37,7 +39,7 @@ public abstract class SkillBase : ScriptableObject
                 if (dm.IsValidIndexForMap(origin.x + i, origin.y + j))
                 {
                     Tile tile = dm.map.GetElementAt(origin.x + i, origin.y + j);
-                    if (IgnoreBlock)
+                    if (IgnoreObstacle)
                     {
                         if(tile.TileData.tileType == TileType.Wall)
                             wallMap[j + i * wallMapSize] = true;
@@ -51,6 +53,7 @@ public abstract class SkillBase : ScriptableObject
         }
         wallMap[range + range * wallMapSize] = false;
         List<Coordinate> inRange = GlobalMethods.RangeByStep(owner.UnitData.coord, range);
+        if (TargetEightDirectionsOnly) inRange = GlobalMethods.RangeByEightDirections(owner.UnitData.coord, range);
         NativeArray<Coordinate> end = new(inRange.Count, Allocator.TempJob);
         NativeArray<bool> result = new(inRange.Count, Allocator.TempJob);
         int endCounter = 0;
@@ -130,7 +133,7 @@ public abstract class SkillBase : ScriptableObject
                 for (int i = 0; i < skillRange.Count; i++)
                 {
                     Tile tile = dm.map.GetElementAt(skillRange[i]);
-                    if (tile.ContainsTargetableDungeonObject() && !owner.AvailableRange.Contains(skillRange[i]))
+                    if (tile.HasTargetable() && !owner.AvailableRange.Contains(skillRange[i]))
                     {
                         owner.AvailableRange.Add(skillRange[i]);
                         owner.UnavailableRange.Remove(skillRange[i]);
@@ -139,6 +142,11 @@ public abstract class SkillBase : ScriptableObject
                 }
             }
         }
+    }
+
+    public virtual List<Coordinate> ApplyingTargets(Unit owner, Coordinate coord)
+    {
+        return new List<Coordinate>() { coord };
     }
 
     public virtual bool IsUseable(Unit owner)

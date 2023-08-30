@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 207144735340260153}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.296875, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -72,7 +72,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 5a2fb1c178870f841bc5fc3088ccee52, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -135,13 +135,15 @@ MonoBehaviour:
   isTargetable: 1
   <IsBlockSight>k__BackingField: 1
   <IsInteractable>k__BackingField: 0
-  <IsInteractsWithThrownItem>k__BackingField: 1
+  <IsActivatesByThrownItem>k__BackingField: 0
   <IsInteractsWithCollision>k__BackingField: 0
+  <Durability>k__BackingField: 2
   <DungeonObjectData>k__BackingField:
     coord:
       x: 0
       y: 0
     isActivated: 0
+    isHidden: 0
   <SpriteRenderer>k__BackingField: {fileID: 4636187271925240481}
   door: {fileID: 8558770759328149641}
   backgroundBottom: {fileID: 8033460141498400282}
@@ -170,7 +172,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2985445245733518509}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.28125, z: 0}
+  m_LocalPosition: {x: 0, y: 0.484375, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -254,7 +256,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3947114175319999290}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.296875, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -17,7 +17,7 @@ public class AbilitySlot : MonoBehaviour
 
     public void SetAbility(AbilityData ability, int listIndex)
     {
-        icon.sprite = ability.GetSprite();
+        icon.sprite = ability.BaseData.Sprite;
         ListIndex = listIndex;
         ApplyAbilityLevel(ability);
     }

@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6732513b801b84d47977e4776f806d17, type: 3}
   m_Name: SPRINT
   m_EditorClassIdentifier: 
-  key: SPRINT
-  buffType: 0
-  sprite: {fileID: 21300000, guid: fbef328993cb86043aa4467b442387b4, type: 3}
-  effectValues: 
+  <Key>k__BackingField: SPRINT
+  <BuffType>k__BackingField: 0
+  <IsStackable>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 21300000, guid: 873bce3b1072d2f439519ac0451328b0, type: 3}
+  <EffectValues>k__BackingField: 

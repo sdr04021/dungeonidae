@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6732513b801b84d47977e4776f806d17, type: 3}
+  m_Name: STUN
+  m_EditorClassIdentifier: 
+  <Key>k__BackingField: STUN
+  <BuffType>k__BackingField: 1
+  <IsStackable>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 21300000, guid: d3fd9add05e59004182204762056a1e7, type: 3}
+  <EffectValues>k__BackingField: 

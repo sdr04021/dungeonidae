@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     };
     readonly Dictionary<string, AsyncOperationHandle<BuffBase>> buffBaseHandles = new();
     readonly Dictionary<string, AsyncOperationHandle<SkillBase>> skillBaseHandles = new();
+    readonly Dictionary<string, AsyncOperationHandle<AbilityBase>> abilityBaseHandles = new();
 
     private static GameManager instance = null;
     private void Awake()
@@ -174,6 +175,19 @@ public class GameManager : MonoBehaviour
             else return null;
         }
     }
+    public AbilityBase GetAbilityBase(string key)
+    {
+        if (abilityBaseHandles.ContainsKey(key))
+            return abilityBaseHandles[key].Result;
+        else
+        {
+            abilityBaseHandles.Add(key, Addressables.LoadAssetAsync<AbilityBase>("Assets/Scriptable Objects/Ability/" + key + ".asset"));
+            abilityBaseHandles[key].WaitForCompletion();
+            if (abilityBaseHandles[key].Status == AsyncOperationStatus.Succeeded)
+                return abilityBaseHandles[key].Result;
+            else return null;
+        }
+    }
 
     public void ReleaseAllAssets()
     {
@@ -211,6 +225,11 @@ public class GameManager : MonoBehaviour
         {
             Addressables.Release(pair.Value);
             skillBaseHandles.Remove(pair.Key);
+        }
+        foreach (KeyValuePair<string, AsyncOperationHandle<AbilityBase>> pair in abilityBaseHandles)
+        {
+            Addressables.Release(pair.Value);
+            abilityBaseHandles.Remove(pair.Key);
         }
     }
 }

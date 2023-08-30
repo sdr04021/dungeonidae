@@ -10,6 +10,7 @@ public class UnitData
 {
     public delegate void EventHandler();
     public event EventHandler OnHpValueChange;
+    public event EventHandler OnBarrierValueChange;
     public event EventHandler OnMpValueChange;
     public event EventHandler OnExpValueChange;
     public event EventHandler OnSkillChange;
@@ -17,6 +18,7 @@ public class UnitData
     public event EventHandler OnLevelChange;
     public event EventHandler OnBuffListChange;
     public event EventHandler OnBuffDurationChange;
+    public event EventHandler OnBuffStackChange;
     public event EventHandler OnTurnChange;
 
     [JsonIgnore] public Unit Owner { get; private set; }
@@ -54,7 +56,6 @@ public class UnitData
             OnHpValueChange?.Invoke();
         }
     }
-
     [JsonIgnore] public UnitStat hpRegen;
     public int hpRegenCounter = 0;
     [JsonIgnore] public UnitStat maxMp;
@@ -70,6 +71,17 @@ public class UnitData
         }
     }
     [JsonIgnore] public UnitStat mpRegen;
+    [JsonProperty] private int _barrier = 0;
+    [JsonIgnore]
+    public int Barrier
+    {
+        get => _barrier;
+        set
+        {
+            _barrier = value >= 0 ? value : 0;
+            OnBarrierValueChange?.Invoke();
+        }
+    }
     public int mpRegenCounter = 0;
     [JsonIgnore] public UnitStat atk;
     [JsonIgnore] public UnitStat mAtk;
@@ -106,7 +118,7 @@ public class UnitData
         }
     }
     [JsonIgnore] public UnitStat stealth;
-    [JsonIgnore] public Dictionary<string, int[]> AdditionalEffects { get; private set; } = new();
+    [JsonIgnore] public Dictionary<AdditionalEffectKey, int[]> AdditionalEffects { get; private set; } = new();
 
     public Dictionary<string,AbilityData> abilities = new();
     public int abilityPoint = 0;
@@ -456,7 +468,7 @@ public class UnitData
     {
         OnSkillChange?.Invoke();
     }
-    public void UpdateSkillRechargeLeft(int turn)
+    void UpdateSkillRechargeLeft(int turn)
     {
         for(int i=0; i<currentSkills.Length; i++)
         {
@@ -495,19 +507,30 @@ public class UnitData
             if (Buffs[i].Key == buff.Key)
             {
                 Buffs[i].durationLeft = buff.MaxDuration + 1;
+                if (Buffs[i].BaseData.IsStackable)
+                {
+                    Buffs[i].stack++;
+                    OnBuffStackChange?.Invoke();
+                }
                 return;
             }
         }
 
         Buffs.Add(buff);
         OnBuffListChange?.Invoke();
+        if (buff.BaseData.IsStackable)
+        {
+            buff.stack = 1;
+            OnBuffStackChange?.Invoke();
+        }
     }
     public void RemoveBuff(BuffData buff)
     {
         Buffs.Remove(buff);
+        Owner.RemoveParticleEffect(buff.Key);
         OnBuffListChange?.Invoke();
     }
-    public void UpdateBuffDurations(int turnSpent)
+    void UpdateBuffDurations(int turnSpent)
     {
         for(int i=0; i<Buffs.Count; i++)
         {
@@ -518,6 +541,56 @@ public class UnitData
             }
         }
         OnBuffDurationChange?.Invoke();
+    }
+    public bool ContainsBuff(string key)
+    {
+        for (int i = 0; i < Buffs.Count; i++)
+        {
+            if (Buffs[i].Key == key)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    public bool ContainsBuffStack(string key, int requiredStack)
+    {
+        for (int i = 0; i < Buffs.Count; i++)
+        {
+            if (Buffs[i].Key == key && Buffs[i].stack >= requiredStack)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    public void ConsumeBuffStack(string key, int amount)
+    {
+        for (int i = 0; i < Buffs.Count; i++)
+        {
+            if (Buffs[i].Key == key)
+            {
+                Buffs[i].stack -= amount;
+                if (Buffs[i].stack <= 0)
+                {
+                    Buffs.RemoveAt(i);
+                    OnBuffListChange.Invoke();
+                }
+                else OnBuffStackChange.Invoke();
+                break;
+            }
+        }
+    }
+
+    public void UpdateDurations(int turn)
+    {
+        UpdateBuffDurations(turn);
+        UpdateSkillRechargeLeft(turn);
+        if (Barrier > 0)
+        {
+            Barrier -= turn;
+            Owner.UpdateHpBar();
+        }
     }
 
     public bool AddEquipment(EquipmentData equip)

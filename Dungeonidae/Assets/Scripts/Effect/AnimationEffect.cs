@@ -16,7 +16,8 @@ public class AnimationEffect : MonoBehaviour
 
     public void ShowEffect(string key, Unit owner)
     {
-        spriteRenderer.sortingOrder = owner.MySpriteRenderer.sortingOrder - (int)LayerOrder.Unit + (int)LayerOrder.ItemObject;
+        spriteRenderer.sortingOrder = 1000; //owner.MySpriteRenderer.sortingOrder - (int)LayerOrder.Unit + (int)LayerOrder.ItemObject;
+        transform.localScale = owner.transform.localScale;
         Animator.SetTrigger(key);
         started = true;
     }
