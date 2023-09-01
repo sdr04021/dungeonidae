@@ -14,7 +14,7 @@ public class Rush : SkillBase
         if (owner.MySpriteRenderer.enabled)
         {
             owner.activeMotions++;
-            Sequence rushSequence = DOTween.Sequence();
+            Sequence rushSequence = DOTween.Sequence().Pause();
             Coordinate destination = owner.UnitData.coord;
             Coordinate delta = coord - owner.UnitData.coord;
             int amount = Mathf.Max(Mathf.Abs(delta.x), Mathf.Abs(delta.y));
@@ -28,9 +28,10 @@ public class Rush : SkillBase
                     {
                         dm.map.GetElementAt(new Coordinate(owner.transform.position)).GetCollideable().Activate(owner);
                     }
-                }));
+                })).SetEase(Ease.Linear);
             }
             rushSequence.AppendCallback(() => moving = false);
+            rushSequence.Play();
 
             while (moving)
             {

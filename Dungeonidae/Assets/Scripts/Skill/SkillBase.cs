@@ -22,7 +22,7 @@ public abstract class SkillBase : ScriptableObject
 
     public abstract IEnumerator Skill(Unit owner, DungeonManager dm, Coordinate coord);
 
-    public void SetRange(Unit owner, DungeonManager dm, bool showRangeIndicator)
+    public virtual void SetRange(Unit owner, DungeonManager dm, bool showRangeIndicator)
     {
         List<Coordinate> skillRange = new();
         int range = Range;

@@ -24,24 +24,22 @@ public class SweepingStrike : SkillBase
         }
         if (owner.MySpriteRenderer.enabled || isRendered)
         {
-            AnimationEffect effect = Instantiate(GameManager.Instance.AnimationEffectPrefab, owner.transform.position, Quaternion.identity);
-            owner.MyAnimator.speed = 0.5f;
+            GameObject effect = Instantiate(GameManager.Instance.GetPrefab(PrefabAssetType.ParticleEffect, "SWEEPING_STRIKE"), owner.transform.position, Quaternion.identity);
             Directions direction = (coord - owner.UnitData.coord).ToDirection();
             if (direction == Directions.E || direction == Directions.SE)
             {
-                effect.transform.Rotate(new Vector3(0,0,-90));
+                effect.transform.rotation = Quaternion.Euler(new Vector3(0, 0, -90));
             }
             else if (direction == Directions.S || direction == Directions.SW)
             {
-                effect.transform.Rotate(new Vector3(0, 0, 180));
+                effect.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 180));
             }
             else if (direction == Directions.W || direction == Directions.NW)
             {
-                effect.transform.Rotate(new Vector3(0, 0, 90));
+                effect.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 90));
             }
 
-            effect.ShowEffect(Key, owner);
-            owner.MyAnimator.SetBool("Attack", true);
+            owner.MyAnimator.SetBool("Skill", true);
             yield return Constants.ZeroPointZeroOne;
             float animationLength = owner.MyAnimator.GetCurrentAnimatorStateInfo(0).length;
             yield return new WaitForSeconds(animationLength * 0.5f);
@@ -51,12 +49,11 @@ public class SweepingStrike : SkillBase
                 targets[i].GetDamage(ad);
             }
             owner.EndSkill(1);
-            while ((owner.MyAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1) || targets[0].passiveMotions > 0)
+            while ((effect!=null) || targets[0].passiveMotions > 0)
             {
-                yield return Constants.ZeroPointOne;
+                yield return Constants.ZeroPointZeroTwo;
             }
-            owner.MyAnimator.speed = 1f;
-            owner.MyAnimator.SetBool("Attack", false);
+            owner.MyAnimator.SetBool("Skill", false);
             owner.activeMotions--;
         }
         else
@@ -66,6 +63,90 @@ public class SweepingStrike : SkillBase
                 targets[i].GetDamage(MakeAttackData(owner));
             }
             owner.EndSkill(1);
+        }
+    }
+
+    public override void SetRange(Unit owner, DungeonManager dm, bool showRangeIndicator)
+    {
+        HashSet<Directions> skillRange = new();
+        Coordinate origin = owner.UnitData.coord;
+
+        if (dm.map.GetElementAt(origin.MovedCoordinate(Directions.N, 1)).unit != null)
+            skillRange.Add(Directions.N);
+        if(dm.map.GetElementAt(origin.MovedCoordinate(Directions.NE, 1)).unit != null)
+        {
+            skillRange.Add(Directions.N);
+            skillRange.Add(Directions.E);
+        }
+        if (dm.map.GetElementAt(origin.MovedCoordinate(Directions.E, 1)).unit != null)
+            skillRange.Add(Directions.E);
+        if (dm.map.GetElementAt(origin.MovedCoordinate(Directions.SE, 1)).unit != null)
+        {
+            skillRange.Add(Directions.S);
+            skillRange.Add(Directions.E);
+        }
+        if (dm.map.GetElementAt(origin.MovedCoordinate(Directions.S, 1)).unit != null)
+            skillRange.Add(Directions.S);
+        if (dm.map.GetElementAt(origin.MovedCoordinate(Directions.SW, 1)).unit != null)
+        {
+            skillRange.Add(Directions.S);
+            skillRange.Add(Directions.W);
+        }
+        if (dm.map.GetElementAt(origin.MovedCoordinate(Directions.W, 1)).unit != null)
+            skillRange.Add(Directions.W);
+        if (dm.map.GetElementAt(origin.MovedCoordinate(Directions.NW, 1)).unit != null)
+        {
+            skillRange.Add(Directions.N);
+            skillRange.Add(Directions.W);
+        }
+
+        Tile tile = dm.map.GetElementAt(origin.MovedCoordinate(Directions.N, 1));
+        if (skillRange.Contains(Directions.N))
+        {
+            owner.AvailableRange.Add(origin.MovedCoordinate(Directions.N, 1));
+            if (showRangeIndicator) tile.SetAvailable();
+        }
+        else if (tile.TileData.tileType != TileType.Wall)
+        {
+            owner.UnavailableRange.Add(origin.MovedCoordinate(Directions.N, 1));
+            if (showRangeIndicator) tile.SetUnavailable();
+        }
+
+        tile = dm.map.GetElementAt(origin.MovedCoordinate(Directions.E, 1));
+        if (skillRange.Contains(Directions.E))
+        {
+            owner.AvailableRange.Add(origin.MovedCoordinate(Directions.E, 1));
+            if (showRangeIndicator) tile.SetAvailable();
+        }
+        else if (tile.TileData.tileType != TileType.Wall)
+        {
+            owner.UnavailableRange.Add(origin.MovedCoordinate(Directions.E, 1));
+            if (showRangeIndicator) tile.SetUnavailable();
+        }
+
+        tile = dm.map.GetElementAt(origin.MovedCoordinate(Directions.S, 1));
+        if (skillRange.Contains(Directions.S))
+        {
+            owner.AvailableRange.Add(origin.MovedCoordinate(Directions.S, 1));
+            if (showRangeIndicator) tile.SetAvailable();
+        }
+        else if (tile.TileData.tileType != TileType.Wall)
+        {
+            owner.UnavailableRange.Add(origin.MovedCoordinate(Directions.S, 1));
+            if (showRangeIndicator) tile.SetUnavailable();
+        }
+
+        tile = dm.map.GetElementAt(origin.MovedCoordinate(Directions.W, 1));
+        if (skillRange.Contains(Directions.W))
+        {
+            Debug.Log("W");
+            owner.AvailableRange.Add(origin.MovedCoordinate(Directions.W, 1));
+            if (showRangeIndicator) tile.SetAvailable();
+        }
+        else if (tile.TileData.tileType != TileType.Wall)
+        {
+            owner.UnavailableRange.Add(origin.MovedCoordinate(Directions.W, 1));
+            if (showRangeIndicator) tile.SetUnavailable();
         }
     }
 

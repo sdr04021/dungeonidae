@@ -36,7 +36,7 @@ public class Tile : MonoBehaviour
         rangeIndicator.sortingOrder = 1000;
     }
 
-    public bool IsReachableTile(bool avoidTrap, bool isPlayer = false)
+    public bool IsReachableTile(bool avoidTrap, bool isPlayerMove = false)
     {
         if ((TileData.tileType == TileType.Wall) || unit != null)
             return false;
@@ -44,7 +44,7 @@ public class Tile : MonoBehaviour
         {
             if (!dungeonObjects[i].IsPassable)
                 return false;
-            if (avoidTrap && dungeonObjects[i] is Trap && !(isPlayer && !dungeonObjects[i].SpriteRenderer.enabled))
+            if (avoidTrap && dungeonObjects[i] is Trap && !(isPlayerMove && !dungeonObjects[i].SpriteRenderer.enabled))
                 return false;
         }
         return true;
