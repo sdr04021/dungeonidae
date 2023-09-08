@@ -140,6 +140,10 @@ public class Monster : Unit
     {
         for (int i=0; i<UnitsInSight.Count; i++)
         {
+            if (UnitsInSight[i] == null)
+            {
+
+            }
             if (IsAggressive && IsHostileUnit(UnitsInSight[i]) && !UnitData.hostileTargets.Contains(UnitsInSight[i].UnitData))
             {
                 UnitData.hostileTargets.Add(UnitsInSight[i].UnitData);

@@ -36,15 +36,13 @@ public class UnitBase : ScriptableObject
     [field: SerializeField] public int Def { get; private set; } = 1;
     [field: SerializeField] public int MDef { get; private set; } = 0;
     [field: SerializeField] public int Eva { get; private set; } = 0;
-    [field: SerializeField] public int CoolSpeed { get; private set; } = 100;
+    [field: SerializeField] public int Toleracne { get; private set; } = 0;
     [field: SerializeField] public int Resist { get; private set; } = 0;
     [field: SerializeField] public int DmgIncrease { get; private set; } = 0;
     [field: SerializeField] public int DmgReduction { get; private set; } = 0;
     [field: SerializeField] public int Speed { get; private set; } = 100;
     [field: SerializeField] public int Sight { get; private set; } = 5;
-    [field: SerializeField] public int Instinct { get; private set; } = 10;
     [field: SerializeField] public int SearchRange { get; private set; } = 1;
-    [field: SerializeField] public int Stealth { get; private set; } = 0;
 
     [field: SerializeField] public List<GrowthValue> GrowthTable { get; private set; }
 

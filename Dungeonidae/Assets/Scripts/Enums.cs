@@ -15,7 +15,7 @@ public enum RoomType { Stair, }
 public enum SkillType { Attack, Status }
 public enum SpriteAssetType { Ability, Equipment, Misc, Skill }
 public enum StatType { MaxHp, MaxMp, MaxHunger, Atk, Def, MAtk, MDef, Pen, MPen, Proficiency, Acc, Eva, Cri, CriDmg, Aspd,
-    AtkRange, HpRegen, MpRegen, LifeSteal, ManaSteal, Resist, CoolSpeed, Sight, Speed, SearchRange, Instinct, Stealth, DmgIncrease, DmgReduction}
+    AtkRange, HpRegen, MpRegen, LifeSteal, ManaSteal, Resist, Tolerance, Sight, Speed, SearchRange, Instinct, Stealth, DmgIncrease, DmgReduction}
 public enum StatUnit { Value, Percent }
 public enum StatValueType { Original, Additional, Temporary, Percent }
 public enum Team { Neutral, Chaotic, Player, Ally, Enemy, Enemy2 }

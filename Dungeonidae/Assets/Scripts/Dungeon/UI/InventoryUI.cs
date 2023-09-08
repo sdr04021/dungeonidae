@@ -19,7 +19,6 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] GameObject miscSlotField;
     [SerializeField] List<ItemSlot> miscSlots = new();
 
-    [SerializeField] ItemInfo equippedInfo;
     bool isAccSelectMode = false;
     int accPlanToEquipIndex = -1;
     [SerializeField] GameObject itemInfoBg;
@@ -48,7 +47,6 @@ public class InventoryUI : MonoBehaviour
             miscSlots[i].Init(this);
         }
         
-        equippedInfo.Init(this);
         itemInfo.Init(this);
     }
     
@@ -58,30 +56,25 @@ public class InventoryUI : MonoBehaviour
         UpdateEquipInventory();
         UpdateMiscInventory();
         CloseInfoBox();
-        CloseEquippedINfo();
     }
 
     public void Btn_EquipmentTabClicked()
     {
         CloseInfoBox();
-        CloseEquippedINfo();
         UpdateEquipInventory();
-        itemInfo.SetEquipmentMode();
         equipmentTabButton.color = Color.white;
-        miscTabButton.color = halfTransparentWhite;
+        miscTabButton.color = Color.gray;
         miscSlotField.SetActive(false);
         equipmentSlotField.SetActive(true);
     }
     public void Btn_ItemTabClicked()
     {
         CloseInfoBox();
-        CloseEquippedINfo();
         if (IsEquipmentEnchantMode || IsArtifactEnchantMode) CancelEnchantMode();
         if (isAccSelectMode) CancelArtifectSelectMode();
         UpdateMiscInventory();
-        itemInfo.SetItemMode();
         miscTabButton.color = Color.white;
-        equipmentTabButton.color = halfTransparentWhite;
+        equipmentTabButton.color = Color.gray;
         miscSlotField.SetActive(true);
         equipmentSlotField.SetActive(false);
     }
@@ -135,9 +128,9 @@ public class InventoryUI : MonoBehaviour
     {
         itemInfoBg.SetActive(true);
         if (equipmentSlotField.activeSelf)
-            itemInfo.ShowItemInfo(dm.Player.UnitData.equipInventory[index], index);
+            itemInfo.ShowItemInfo(dm.Player.UnitData.equipInventory[index], index, ItemSlotType.Item);
         else if(miscSlotField.activeSelf)
-            itemInfo.ShowItemInfo(dm.Player.UnitData.miscInventory[index], index);
+            itemInfo.ShowItemInfo(dm.Player.UnitData.miscInventory[index], index, ItemSlotType.Item);
     }
 
     public void CloseInfoBox()
@@ -156,17 +149,15 @@ public class InventoryUI : MonoBehaviour
             dunUI.CloseMenuCanvas();
         }
         else
-            equippedInfo.ShowItemInfo(dm.Player.UnitData.equipped[index], index);
-    }
-    public void CloseEquippedINfo()
-    {
-        equippedInfo.gameObject.SetActive(false);
+        {
+            itemInfoBg.SetActive(true);
+            itemInfo.ShowItemInfo(dm.Player.UnitData.equipped[index], index, ItemSlotType.Equipped);
+        }
     }
 
     public void EquipEquipment(int index)
     {
         CloseInfoBox();
-        CloseEquippedINfo();
 
         EquipmentData equip = dm.Player.UnitData.equipInventory[index];
 
@@ -228,7 +219,6 @@ public class InventoryUI : MonoBehaviour
     public void UseItem(int index)
     {
         CloseInfoBox();
-        CloseEquippedINfo();
         string key = GameManager.Instance.saveData.playerData.miscInventory[index].Key;
         if (key == "SCROLL_EQUIPMENT_ENCHANT")
             SetEnchantMode(false);
@@ -315,7 +305,6 @@ public class InventoryUI : MonoBehaviour
     {
         InventoryNotice.SetActive(false);
         CloseInfoBox();
-        CloseEquippedINfo();
         if (IsArtifactEnchantMode)
         {
             IsArtifactEnchantMode = false;
@@ -362,7 +351,6 @@ public class InventoryUI : MonoBehaviour
             isAccSelectMode = false;
             InventoryNotice.SetActive(false);
             CloseInfoBox();
-            CloseEquippedINfo();
             for (int i = 0; i < equipmentSlots.Count; i++)
             {
                 if (i < GameManager.Instance.saveData.playerData.equipInventory.Count)

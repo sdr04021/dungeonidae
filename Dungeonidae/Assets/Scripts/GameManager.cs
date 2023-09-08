@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.Localization;
 
 public class GameManager : MonoBehaviour
 {
@@ -42,6 +43,14 @@ public class GameManager : MonoBehaviour
     readonly Dictionary<string, AsyncOperationHandle<BuffBase>> buffBaseHandles = new();
     readonly Dictionary<string, AsyncOperationHandle<SkillBase>> skillBaseHandles = new();
     readonly Dictionary<string, AsyncOperationHandle<AbilityBase>> abilityBaseHandles = new();
+
+
+    readonly LocalizedStringTable tableStatusText = new("Status Text");
+    readonly LocalizedStringTable tableEquipment = new("Equipment Text");
+    readonly LocalizedStringTable tableMiscItem = new("Misc Item Text");
+    readonly LocalizedStringTable tableAbility = new("Ability");
+    readonly LocalizedStringTable tableSkill = new("Skill Text");
+
 
     private static GameManager instance = null;
     private void Awake()
@@ -231,5 +240,88 @@ public class GameManager : MonoBehaviour
             Addressables.Release(pair.Value);
             abilityBaseHandles.Remove(pair.Key);
         }
+    }
+
+    public string StatTypeToString(StatType stat)
+    {
+        return stat switch
+        {
+            StatType.Atk => tableStatusText.GetTable().GetEntry("ATTACK").GetLocalizedString(),
+            StatType.MAtk => tableStatusText.GetTable().GetEntry("MAGIC_ATTACK").GetLocalizedString(),
+            StatType.AtkRange => tableStatusText.GetTable().GetEntry("ATTACK_RANGE").GetLocalizedString(),
+            StatType.Pen => tableStatusText.GetTable().GetEntry("ARMOR_PENETRATION").GetLocalizedString(),
+            StatType.MPen => tableStatusText.GetTable().GetEntry("MAGIC_PENETRATION").GetLocalizedString(),
+            StatType.Acc => tableStatusText.GetTable().GetEntry("ACCURACY").GetLocalizedString(),
+            StatType.Aspd => tableStatusText.GetTable().GetEntry("ATTACK_SPEED").GetLocalizedString(),
+            StatType.Cri => tableStatusText.GetTable().GetEntry("CRITICAL_RATE").GetLocalizedString(),
+            StatType.CriDmg => tableStatusText.GetTable().GetEntry("CRITICAL_DAMAGE").GetLocalizedString(),
+            StatType.Proficiency => tableStatusText.GetTable().GetEntry("PROFICIENCY").GetLocalizedString(),
+            StatType.LifeSteal => tableStatusText.GetTable().GetEntry("LIFE_STEAL").GetLocalizedString(),
+            StatType.ManaSteal => tableStatusText.GetTable().GetEntry("MANA_STEAL").GetLocalizedString(),
+            StatType.DmgIncrease => tableStatusText.GetTable().GetEntry("DAMAGE_INCREASE").GetLocalizedString(),
+            StatType.MaxHp => "HP",
+            StatType.MaxMp => "MP",
+            StatType.MaxHunger => tableStatusText.GetTable().GetEntry("HUNGER").GetLocalizedString(),
+            StatType.Def => tableStatusText.GetTable().GetEntry("DEFENSE").GetLocalizedString(),
+            StatType.MDef => tableStatusText.GetTable().GetEntry("MAGIC_DEFENSE").GetLocalizedString(),
+            StatType.Eva => tableStatusText.GetTable().GetEntry("EVASION").GetLocalizedString(),
+            StatType.Tolerance => tableStatusText.GetTable().GetEntry("TOLERANCE").GetLocalizedString(),
+            StatType.Resist => tableStatusText.GetTable().GetEntry("RESIST").GetLocalizedString(),
+            StatType.DmgReduction => tableStatusText.GetTable().GetEntry("DAMAGE_REDUCTION").GetLocalizedString(),
+            StatType.Sight => tableStatusText.GetTable().GetEntry("SIGHT").GetLocalizedString(),
+            StatType.Instinct => tableStatusText.GetTable().GetEntry("INSTINCT").GetLocalizedString(),
+            StatType.SearchRange => tableStatusText.GetTable().GetEntry("SEARCH_RANGE").GetLocalizedString(),
+            StatType.HpRegen => tableStatusText.GetTable().GetEntry("HEALTH_REGENERATION").GetLocalizedString(),
+            StatType.MpRegen => tableStatusText.GetTable().GetEntry("MANA_REGENERATION").GetLocalizedString(),
+            StatType.Speed => tableStatusText.GetTable().GetEntry("MOVE_SPEED").GetLocalizedString(),
+            StatType.Stealth => tableStatusText.GetTable().GetEntry("STEALTH").GetLocalizedString(),
+            _ => null,
+        };
+    }
+
+    public string GetEquipmentName(string key)
+    {
+        return tableEquipment.GetTable().GetEntry(key + "_NAME").GetLocalizedString();
+    }
+    public string GetEquipmentAbilitiy(string key)
+    {
+        return tableEquipment.GetTable().GetEntry("ABILITY_" + key).GetLocalizedString();
+    }
+    public string GetEquipmentAbilitiy(string key, List<int> values)
+    {
+        return tableEquipment.GetTable().GetEntry("ABILITY_" + key).GetLocalizedString(values);
+    }
+    public string GetItemName(string key)
+    {
+        return tableMiscItem.GetTable().GetEntry(key + "_NAME").GetLocalizedString();
+    }
+
+    public string GetItemDescription(string key, int[] values)
+    {
+        if (values.Length > 0)
+            return tableMiscItem.GetTable().GetEntry(key + "_DESC").GetLocalizedString(values);
+        else
+            return tableMiscItem.GetTable().GetEntry(key + "_DESC").GetLocalizedString();
+    }
+
+    public string GetAbilityName(string key)
+    {
+        return tableAbility.GetTable().GetEntry(key + "_NAME").GetLocalizedString();
+    }
+    public string GetAbilityDescription(string key)
+    {
+        return tableAbility.GetTable().GetEntry(key + "_DESC").GetLocalizedString();
+    }
+    public string GetAbilityEffect(string key, int[] values)
+    {
+        return tableAbility.GetTable().GetEntry(key + "_EFFECT").GetLocalizedString(values);
+    }
+    public string GetSkillName(string key)
+    {
+        return tableSkill.GetTable().GetEntry(key + "_NAME").GetLocalizedString();
+    }
+    public string GetSkillDescription(string key, int[] values)
+    {
+        return tableSkill.GetTable().GetEntry(key + "_DESC").GetLocalizedString(values);
     }
 }

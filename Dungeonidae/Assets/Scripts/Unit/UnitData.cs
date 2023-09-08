@@ -98,13 +98,12 @@ public class UnitData
     [JsonIgnore] public UnitStat def;
     [JsonIgnore] public UnitStat mDef;
     [JsonIgnore] public UnitStat eva;
-    [JsonIgnore] public UnitStat coolSpeed;
+    [JsonIgnore] public UnitStat tolerance;
     [JsonIgnore] public UnitStat resist;
     [JsonIgnore] public UnitStat dmgIncrease;
     [JsonIgnore] public UnitStat dmgReduction;
     [JsonIgnore] public UnitStat speed;
     [JsonIgnore] public UnitStat sight;
-    [JsonIgnore] public UnitStat instinct;
     [JsonIgnore] public UnitStat searchRange;
     [JsonIgnore] public UnitStat maxHunger;
     [JsonProperty] private int _hunger;
@@ -117,7 +116,6 @@ public class UnitData
             _hunger = value >= 0 ? value <= maxHunger.Total() ? value : maxHunger.Total() : 0;
         }
     }
-    [JsonIgnore] public UnitStat stealth;
     [JsonIgnore] public Dictionary<AdditionalEffectKey, int[]> AdditionalEffects { get; private set; } = new();
 
     public Dictionary<string,AbilityData> abilities = new();
@@ -166,16 +164,14 @@ public class UnitData
         def = new(unitBase.Def);
         mDef = new(unitBase.MDef);
         eva = new(unitBase.Eva);
-        coolSpeed = new(unitBase.CoolSpeed);
+        tolerance = new(unitBase.Toleracne);
         resist = new(unitBase.Resist);
         dmgIncrease = new(unitBase.DmgIncrease);
         dmgReduction = new(unitBase.DmgReduction);
         speed = new(unitBase.Speed);
         sight = new(unitBase.Sight);
-        instinct = new(unitBase.Instinct);
         searchRange = new(unitBase.SearchRange);
         maxHunger = new(unitBase.MaxHunger);
-        stealth = new(unitBase.Stealth);
 
         if (Hp == 0)
         {
@@ -434,16 +430,14 @@ public class UnitData
             case StatType.Def: return ref def;
             case StatType.MDef: return ref mDef;
             case StatType.Eva: return ref eva;
-            case StatType.CoolSpeed: return ref coolSpeed;
+            case StatType.Tolerance: return ref tolerance;
             case StatType.Resist: return ref resist;
             case StatType.DmgReduction: return ref dmgReduction;
             case StatType.Sight: return ref sight;
-            case StatType.Instinct: return ref instinct;
             case StatType.SearchRange: return ref searchRange;
             case StatType.HpRegen: return ref hpRegen;
             case StatType.MpRegen: return ref mpRegen;
             case StatType.Speed: return ref speed;
-            case StatType.Stealth: return ref stealth;
             default: throw new System.NotImplementedException();
         }
     }

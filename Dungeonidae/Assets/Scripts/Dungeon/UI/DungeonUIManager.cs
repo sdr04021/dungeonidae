@@ -4,9 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Localization;
-using System;
 using DG.Tweening;
-using Unity.Mathematics;
 
 public class DungeonUIManager : MonoBehaviour
 {
@@ -34,21 +32,22 @@ public class DungeonUIManager : MonoBehaviour
 
     [SerializeField] ShortcutButton[] skillShortcutButtons;
     bool shortCutPressed = false;
+    [SerializeField] SkillInfo skillInfo;
+
 
     [SerializeField] Image interactIcon;
 
     [SerializeField] Canvas menuCanvas;
+    [SerializeField] RectTransform menuPanel;
     public enum Menu { Status, Inventory, Ability, Skill, Soulstone }
     Menu currentMenu = Menu.Status;
 
     [SerializeField] StatusUI statusUI;
-    [SerializeField] TMP_Text classText;
-
     [SerializeField] InventoryUI inventoryUI;
-
     [SerializeField] AbilityUI abilityUI;
-
     [SerializeField] SkillUI skillUI;
+
+    [SerializeField] Image[] menuButtons = new Image[5];
 
     readonly LocalizedStringTable tableStatusText = new("Status Text");
     readonly LocalizedStringTable tableEquipment = new("Equipment Text");
@@ -263,6 +262,18 @@ public class DungeonUIManager : MonoBehaviour
             dm.Player.CancelSkill();
         }
     }
+    public void Btn_SkillShortcutPointerEnter(int index)
+    {
+        if (dm.Player.UnitData.currentSkills[index] != null)
+        {
+            skillInfo.gameObject.SetActive(true);
+            skillInfo.SetSkill(GameManager.Instance.GetSkillBase(dm.Player.UnitData.currentSkills[index]));
+        }
+    }
+    public void Btn_SkillShortcutPointerExit()
+    {
+        skillInfo.gameObject.SetActive(false);
+    }
     public void Btn_ActionShortCutPointerDown(int index)
     {
         if (shortCutPressed) return;
@@ -370,10 +381,23 @@ public class DungeonUIManager : MonoBehaviour
     {
         MenuToGameObject(currentMenu).SetActive(false);
 
+        for(int i=0; i<5; i++)
+        {
+            if (i == menu)
+                menuButtons[i].color = Color.white;
+            else
+                menuButtons[i].color = Color.gray;
+        }
+
         UpdateMenuUI((Menu)menu);
         MenuToGameObject((Menu)menu).SetActive(true);
 
         currentMenu = (Menu)menu;
+    }
+
+    public void EventTriggerMouseDrag()
+    {
+        Debug.Log("ASDf");
     }
 
     public string StatTypeToString(StatType stat)
@@ -399,7 +423,7 @@ public class DungeonUIManager : MonoBehaviour
             StatType.Def => tableStatusText.GetTable().GetEntry("DEFENSE").GetLocalizedString(),
             StatType.MDef => tableStatusText.GetTable().GetEntry("MAGIC_DEFENSE").GetLocalizedString(),
             StatType.Eva => tableStatusText.GetTable().GetEntry("EVASION").GetLocalizedString(),
-            StatType.CoolSpeed => tableStatusText.GetTable().GetEntry("COOLDOWN_SPEED").GetLocalizedString(),
+            StatType.Tolerance => tableStatusText.GetTable().GetEntry("TOLERANCE").GetLocalizedString(),
             StatType.Resist => tableStatusText.GetTable().GetEntry("RESIST").GetLocalizedString(),
             StatType.DmgReduction => tableStatusText.GetTable().GetEntry("DAMAGE_REDUCTION").GetLocalizedString(),
             StatType.Sight => tableStatusText.GetTable().GetEntry("SIGHT").GetLocalizedString(),

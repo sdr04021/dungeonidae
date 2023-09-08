@@ -18,8 +18,7 @@ public class ItemInfo : MonoBehaviour
     [SerializeField] GameObject enchantButton;
     [SerializeField] TMP_Text enchantButtonText;
 
-
-    [SerializeField] ItemSlotType itemSlotType;
+    ItemSlotType itemSlotType;
 
     public int Index { get; private set; } = -1;
 
@@ -28,24 +27,26 @@ public class ItemInfo : MonoBehaviour
         this.inventoryUI = inventoryUI;
     }
 
-    public void SetEquipmentMode()
+    void SetEquipmentMode()
     {
         UseButton.SetActive(false);
         EquipButton.SetActive(true);
     }
-    public void SetItemMode()
+    void SetItemMode()
     {
         EquipButton.SetActive(false);
         UseButton.SetActive(true);
     }
 
-    public void ShowItemInfo(ItemData item, int index)
+    public void ShowItemInfo(ItemData item, int index, ItemSlotType itemSlotType)
     {
         mainText.text = "";
         Index = index;
+        this.itemSlotType = itemSlotType;
         StringBuilder itemString = new();
         if (item.GetType() == typeof(EquipmentData))
         {
+            SetEquipmentMode();
             EquipmentData equip = (EquipmentData)item;
             StringBuilder titleString = new();
             if (equip.Enchant > 0)
@@ -78,7 +79,7 @@ public class ItemInfo : MonoBehaviour
                 else if (Constants.PercentPointStats.Contains(equip.Stats[i].statType)) itemString.Append("%P");
                 itemString.AppendLine();
             }
-            itemString.AppendLine();
+            //itemString.AppendLine();
             itemString.Append("<color=#87CEEB>");
             for (int i = 0; i < equip.Potentials.Count; i++)
             {
@@ -98,7 +99,7 @@ public class ItemInfo : MonoBehaviour
             EquipmentBase equipBase = GameManager.Instance.GetEquipmentBase(equip.Key);
             if (equipBase.abilities?.Length > 0)
             {
-                itemString.AppendLine();
+                //itemString.AppendLine();
                 itemString.Append("<color=#00BFFF>");
                 for (int i = 0; i < equipBase.abilities.Length; i++)
                 {
@@ -128,6 +129,7 @@ public class ItemInfo : MonoBehaviour
         }
         else if(item.GetType() == typeof(MiscData))
         {
+            SetItemMode();
             MiscData misc = (MiscData)item;
             title.text = inventoryUI.DunUI.GetItemName(misc.Key);
             icon.sprite = GameManager.Instance.GetSprite(SpriteAssetType.Misc, misc.Key);

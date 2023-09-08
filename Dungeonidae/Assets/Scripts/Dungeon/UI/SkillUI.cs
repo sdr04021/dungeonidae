@@ -10,13 +10,8 @@ public class SkillUI : MonoBehaviour
     [SerializeField] DungeonManager dm;
     [SerializeField] DungeonUIManager dunUI;
 
-    [SerializeField] GameObject iconBg;
-    [SerializeField] Image skillIcon;
-    [SerializeField] Image skillTypeIcon;
-    [SerializeField] TMP_Text skillTitle;
-    [SerializeField] TMP_Text skillCost;
-    [SerializeField] TMP_Text skillDescription;
-    [SerializeField] TMP_Text skillEffect;
+    [SerializeField] GameObject skillInfoBg;
+    [SerializeField] SkillInfo skillInfo;
 
     [SerializeField] RectTransform content;
     [SerializeField] SkillSlot skillSlotPrefab;
@@ -52,6 +47,7 @@ public class SkillUI : MonoBehaviour
                 skillSlots[i].icon.sprite = GameManager.Instance.GetSkillBase(skills[i]).Sprite;
             }
         }
+        skillInfoBg.SetActive(false);
     }
 
     public void Btn_SkillSlotClicked(int index)
@@ -59,13 +55,8 @@ public class SkillUI : MonoBehaviour
         List<string> skills = dm.Player.UnitData.acquiredSkills;
         if ((index < skills.Count) && (skills[index] != null))
         {
-            SkillBase skillBase = GameManager.Instance.GetSkillBase(dm.Player.UnitData.acquiredSkills[index]);
-            iconBg.SetActive(true);
-            skillIcon.sprite = skillBase.Sprite;
-            skillTitle.text = dunUI.GetSkillName(skillBase.Key);
-            skillCost.text = skillBase.Cost.ToString() + " MP";
-            skillDescription.text = dunUI.GetSkillDescription(skillBase.Key, skillBase.GetListForDescription());
-            //skillEffect.text = dunUI.GetSkillEffect(skillBase.Key, skillBase.EffectValues);
+            skillInfoBg.SetActive(true);
+            skillInfo.SetSkill(GameManager.Instance.GetSkillBase(dm.Player.UnitData.acquiredSkills[index]));
         }
     }
 }

@@ -195,7 +195,7 @@ public class EquipmentData : ItemData
                         eStat.statType = StatType.DmgIncrease;
                         break;
                     case 1:
-                        eStat.statType = StatType.CoolSpeed;
+                        eStat.statType = StatType.Tolerance;
                         break;
                     case 2:
                         eStat.statType = StatType.Stealth;
@@ -291,7 +291,7 @@ public class EquipmentData : ItemData
                         eStat.statType = StatType.DmgReduction;
                         break;
                     case 1:
-                        eStat.statType = StatType.CoolSpeed;
+                        eStat.statType = StatType.Tolerance;
                         break;
                     case 2:
                         eStat.statType = StatType.MPen;

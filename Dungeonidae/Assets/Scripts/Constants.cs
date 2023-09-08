@@ -11,5 +11,5 @@ static class Constants
     public static readonly WaitForSeconds ZeroPointOne = new(0.1f);
     public static readonly WaitForSeconds ZeroPointFive = new(0.5f);
     public static HashSet<StatType> PercentPointStats = new() { StatType.Pen, StatType.MPen, StatType.Proficiency,StatType.Cri,StatType.CriDmg,
-            StatType.Aspd,StatType.LifeSteal,StatType.ManaSteal,StatType.Resist,StatType.CoolSpeed,StatType.Speed,StatType.DmgIncrease,StatType.DmgReduction };
+            StatType.Aspd,StatType.LifeSteal,StatType.ManaSteal,StatType.Resist,StatType.Tolerance,StatType.Speed,StatType.DmgIncrease,StatType.DmgReduction };
 }

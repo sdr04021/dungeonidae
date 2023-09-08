@@ -15,112 +15,104 @@ MonoBehaviour:
   m_TableCollectionName: Status Text
   m_TableCollectionNameGuidString: 3f4c8342e4ed4fa4fb54f72c8f675e7d
   m_Entries:
-  - m_Id: 27833057281
-    m_Key: ATTACK
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27833057282
-    m_Key: MAGIC_ATTACK
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27833057283
-    m_Key: ATTACK_RANGE
+  - m_Id: 27833057286
+    m_Key: ACCURACY
     m_Metadata:
       m_Items: []
   - m_Id: 27833057284
     m_Key: ARMOR_PENETRATION
     m_Metadata:
       m_Items: []
-  - m_Id: 27833057285
-    m_Key: MAGIC_PENETRATION
+  - m_Id: 27833057281
+    m_Key: ATTACK
     m_Metadata:
       m_Items: []
-  - m_Id: 27833057286
-    m_Key: ACCURACY
+  - m_Id: 27833057283
+    m_Key: ATTACK_RANGE
     m_Metadata:
       m_Items: []
   - m_Id: 27833057287
     m_Key: ATTACK_SPEED
     m_Metadata:
       m_Items: []
-  - m_Id: 27833057288
-    m_Key: CRITICAL_RATE
-    m_Metadata:
-      m_Items: []
   - m_Id: 27833057289
     m_Key: CRITICAL_DAMAGE
     m_Metadata:
       m_Items: []
-  - m_Id: 27833057290
-    m_Key: PROFICIENCY
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27833057291
-    m_Key: LIFE_STEAL
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27833057292
-    m_Key: MANA_STEAL
+  - m_Id: 27833057288
+    m_Key: CRITICAL_RATE
     m_Metadata:
       m_Items: []
   - m_Id: 27833057293
     m_Key: DAMAGE_INCREASE
     m_Metadata:
       m_Items: []
-  - m_Id: 27833057294
-    m_Key: DEFENSE
+  - m_Id: 27833057299
+    m_Key: DAMAGE_REDUCTION
     m_Metadata:
       m_Items: []
-  - m_Id: 27833057295
-    m_Key: MAGIC_DEFENSE
+  - m_Id: 27833057294
+    m_Key: DEFENSE
     m_Metadata:
       m_Items: []
   - m_Id: 27833057296
     m_Key: EVASION
     m_Metadata:
       m_Items: []
-  - m_Id: 27833057297
-    m_Key: COOLDOWN_SPEED
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27833057298
-    m_Key: RESIST
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27833057299
-    m_Key: DAMAGE_REDUCTION
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27833057300
-    m_Key: SIGHT
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27833057301
-    m_Key: INSTINCT
-    m_Metadata:
-      m_Items: []
-  - m_Id: 27833057302
-    m_Key: SEARCH_RANGE
-    m_Metadata:
-      m_Items: []
   - m_Id: 27833057303
     m_Key: HEALTH_REGENERATION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13910524929814528
+    m_Key: HUNGER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27833057291
+    m_Key: LIFE_STEAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27833057282
+    m_Key: MAGIC_ATTACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27833057295
+    m_Key: MAGIC_DEFENSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27833057285
+    m_Key: MAGIC_PENETRATION
     m_Metadata:
       m_Items: []
   - m_Id: 27833057304
     m_Key: MANA_REGENERATION
     m_Metadata:
       m_Items: []
+  - m_Id: 27833057292
+    m_Key: MANA_STEAL
+    m_Metadata:
+      m_Items: []
   - m_Id: 27833057305
     m_Key: MOVE_SPEED
     m_Metadata:
       m_Items: []
-  - m_Id: 8708488421593088
-    m_Key: STEALTH
+  - m_Id: 27833057290
+    m_Key: PROFICIENCY
     m_Metadata:
       m_Items: []
-  - m_Id: 13910524929814528
-    m_Key: HUNGER
+  - m_Id: 27833057298
+    m_Key: RESIST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27833057302
+    m_Key: SEARCH_RANGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 27833057300
+    m_Key: SIGHT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 60199698039488512
+    m_Key: TOLERANCE
     m_Metadata:
       m_Items: []
   m_Metadata:

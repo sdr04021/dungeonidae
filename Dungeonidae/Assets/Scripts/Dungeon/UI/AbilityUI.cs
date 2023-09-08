@@ -18,7 +18,7 @@ public class AbilityUI : MonoBehaviour
     List<AbilitySlot> abilitySlot = new();
 
     int currentIndex = -1;
-    [SerializeField] GameObject iconBg;
+    [SerializeField] GameObject abilityInfoBg;
     [SerializeField] Image abilityIcon;
     [SerializeField] GameObject levelUpButton;
     [SerializeField] TMP_Text currentLevel;
@@ -51,6 +51,7 @@ public class AbilityUI : MonoBehaviour
             }
             abilitySlot[i].SetAbility(abilities[i], i);
         }
+        abilityInfoBg.SetActive(false);
     }
 
     public void AbilitySlotClicked(int index)
@@ -59,7 +60,7 @@ public class AbilityUI : MonoBehaviour
         {
             List<AbilityData> abilities = dm.Player.UnitData.abilities.Values.ToList();
             currentIndex = index;
-            iconBg.SetActive(true);
+            abilityInfoBg.SetActive(true);
             AbilityData ability = abilities[index];
             abilityTitle.text = DunUI.GetAbilityName(ability.Key);
             abilityIcon.sprite = ability.BaseData.Sprite;
@@ -74,12 +75,13 @@ public class AbilityUI : MonoBehaviour
         if (ability.Level == 3)
         {
             levelUpButton.SetActive(false);
-            maxImage.SetActive(true);
+            //maxImage.SetActive(true);
+            currentLevel.text = ability.Level.ToString();
         }
         else
         {
             levelUpButton.SetActive(true);
-            maxImage.SetActive(false);
+            //maxImage.SetActive(false);
             currentLevel.text = ability.Level.ToString();
         }
     }
